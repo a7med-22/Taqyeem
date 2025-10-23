@@ -8,8 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/Card.jsx";
-import { useAuth } from "../hooks/useAuth.js";
 import PageHeader from "../components/ui/PageHeader.jsx";
+import { useAuth } from "../hooks/useAuth.js";
 
 export default function InterviewsPage() {
   const { t, i18n } = useTranslation();
@@ -23,7 +23,7 @@ export default function InterviewsPage() {
   return (
     <div className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageHeader 
+        <PageHeader
           title={t("navigation.interviews")}
           subtitle={t("interviews.subtitle")}
         />

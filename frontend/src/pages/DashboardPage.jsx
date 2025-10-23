@@ -8,8 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/Card.jsx";
-import { useAuth } from "../hooks/useAuth.js";
 import PageHeader from "../components/ui/PageHeader.jsx";
+import { useAuth } from "../hooks/useAuth.js";
 
 export default function DashboardPage() {
   const { t, i18n } = useTranslation();
@@ -23,7 +23,7 @@ export default function DashboardPage() {
   return (
     <div className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}>
       <div className="container mx-auto px-4 py-8">
-        <PageHeader 
+        <PageHeader
           title={`${t("dashboard.welcome")}, ${user?.name}`}
           subtitle={t("dashboard.subtitle")}
         />
