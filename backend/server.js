@@ -68,7 +68,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Connect to MongoDB
 const mongoUri =
-  "mongodb+srv://a7med-22:ahmed123@cluster0.wij54tl.mongodb.net/";
+  "mongodb+srv://a7med-22:ahmed123@cluster0.wij54tl.mongodb.net/?appName=Cluster0";
 mongoose
   .connect(mongoUri)
   .then(() => {
