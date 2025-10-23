@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:production": "vite build --mode production",
+    "preview:production": "vite preview --mode production"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.16",
