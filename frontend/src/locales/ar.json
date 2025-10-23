@@ -1,0 +1,194 @@
+{
+    "app": {
+        "name": "تقييم",
+        "description": "منصة المقابلات والتعلم ثنائية اللغة",
+        "tagline": "أتقن مقابلاتك، طور مهاراتك"
+    },
+    "home": {
+        "description": "تواصل مع المقابلين ذوي الخبرة، تدرب على مهاراتك، واحصل على ملاحظات قيمة لتتفوق في مسيرتك المهنية.",
+        "features": {
+            "title": "لماذا تختار تقييم؟",
+            "subtitle": "كل ما تحتاجه للنجاح في مقابلاتك",
+            "interviews": {
+                "title": "مقابلات وهمية",
+                "description": "تدرب مع مقابلين حقيقيين واحصل على ملاحظات فورية حول أدائك."
+            },
+            "learning": {
+                "title": "موارد التعلم",
+                "description": "احصل على أدلة شاملة ونصائح ومقالات لتحسين مهاراتك في المقابلات."
+            },
+            "evaluation": {
+                "title": "تقييم مفصل",
+                "description": "احصل على ملاحظات مفصلة ودرجات لتتبع تقدمك مع مرور الوقت."
+            }
+        },
+        "cta": {
+            "title": "مستعد لتتفوق في مقابلتك القادمة؟",
+            "description": "انضم إلى آلاف المهنيين الذين حسّنوا مهاراتهم في المقابلات مع تقييم.",
+            "button": "ابدأ اليوم"
+        }
+    },
+    "navigation": {
+        "home": "الرئيسية",
+        "dashboard": "لوحة التحكم",
+        "interviews": "المقابلات",
+        "learning": "التعلم",
+        "profile": "الملف الشخصي",
+        "admin": "الإدارة",
+        "login": "تسجيل الدخول",
+        "register": "التسجيل",
+        "logout": "تسجيل الخروج"
+    },
+    "auth": {
+        "login": "تسجيل الدخول",
+        "register": "التسجيل",
+        "email": "البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "name": "الاسم",
+        "role": "الدور",
+        "confirmPassword": "تأكيد كلمة المرور",
+        "forgotPassword": "نسيت كلمة المرور؟",
+        "dontHaveAccount": "ليس لديك حساب؟",
+        "alreadyHaveAccount": "لديك حساب بالفعل؟",
+        "loginSuccess": "تم تسجيل الدخول بنجاح",
+        "registerSuccess": "تم التسجيل بنجاح",
+        "logoutSuccess": "تم تسجيل الخروج بنجاح",
+        "loginDescription": "سجل دخولك إلى حسابك للمتابعة",
+        "registerDescription": "أنشئ حسابك للبدء"
+    },
+    "roles": {
+        "candidate": "متقدم",
+        "interviewer": "محاور",
+        "admin": "مدير"
+    },
+    "dashboard": {
+        "welcome": "مرحباً بك في لوحة التحكم",
+        "subtitle": "إليك ما يحدث مع حسابك",
+        "upcomingInterviews": "المقابلات القادمة",
+        "upcomingInterviewsDescription": "مقابلاتك واجتماعاتك المجدولة",
+        "recentActivity": "النشاط الأخير",
+        "recentActivityDescription": "أنشطتك وتحديثاتك الأخيرة",
+        "quickActions": "الإجراءات السريعة",
+        "quickActionsDescription": "المهام الشائعة والاختصارات",
+        "stats": "الإحصائيات"
+    },
+    "interviews": {
+        "subtitle": "إدارة مقابلاتك وجلسات التدريب",
+        "schedule": "جدولة مقابلة",
+        "myInterviews": "مقابلاتي",
+        "myInterviewsDescription": "مقابلاتك المجدولة والمكتملة",
+        "availableSlots": "المواعيد المتاحة",
+        "availableSlotsDescription": "احجز موعداً لمقابلتك القادمة",
+        "bookSlot": "حجز موعد",
+        "cancelSlot": "إلغاء الموعد",
+        "rescheduleSlot": "إعادة جدولة الموعد",
+        "interviewDetails": "تفاصيل المقابلة",
+        "joinInterview": "انضم للمقابلة",
+        "startInterview": "بدء المقابلة",
+        "completeInterview": "إنهاء المقابلة"
+    },
+    "learning": {
+        "subtitle": "طور مهاراتك مع مواردنا التعليمية",
+        "articles": "المقالات",
+        "articlesDescription": "اقرأ أحدث المقالات والأدلة",
+        "faqs": "الأسئلة الشائعة",
+        "faqsDescription": "الأسئلة والأجوبة المتكررة",
+        "tips": "النصائح",
+        "tipsDescription": "نصائح الخبراء وأفضل الممارسات",
+        "categories": "الفئات",
+        "readMore": "اقرأ المزيد",
+        "readingTime": "وقت القراءة",
+        "views": "المشاهدات",
+        "likes": "الإعجابات",
+        "share": "مشاركة"
+    },
+    "profile": {
+        "subtitle": "إدارة حسابك وتفضيلاتك",
+        "editProfile": "تعديل الملف الشخصي",
+        "changeAvatar": "تغيير الصورة",
+        "updatePassword": "تحديث كلمة المرور",
+        "accountSettings": "إعدادات الحساب",
+        "accountSettingsDescription": "إدارة تفضيلات حسابك",
+        "personalInfo": "المعلومات الشخصية",
+        "personalInfoDescription": "معلوماتك الأساسية وتفاصيل الاتصال",
+        "language": "اللغة",
+        "notifications": "الإشعارات",
+        "privacy": "الخصوصية",
+        "memberSince": "عضو منذ",
+        "deactivateAccount": "إلغاء تفعيل الحساب"
+    },
+    "common": {
+        "save": "حفظ",
+        "cancel": "إلغاء",
+        "delete": "حذف",
+        "edit": "تعديل",
+        "view": "عرض",
+        "create": "إنشاء",
+        "update": "تحديث",
+        "submit": "إرسال",
+        "loading": "جاري التحميل...",
+        "error": "خطأ",
+        "success": "نجح",
+        "warning": "تحذير",
+        "info": "معلومات",
+        "yes": "نعم",
+        "no": "لا",
+        "ok": "موافق",
+        "close": "إغلاق",
+        "back": "رجوع",
+        "next": "التالي",
+        "previous": "السابق",
+        "search": "بحث",
+        "filter": "تصفية",
+        "sort": "ترتيب",
+        "date": "التاريخ",
+        "time": "الوقت",
+        "status": "الحالة",
+        "actions": "الإجراءات",
+        "noData": "لا توجد بيانات متاحة",
+        "tryAgain": "حاول مرة أخرى",
+        "quickLinks": "روابط سريعة",
+        "support": "الدعم",
+        "help": "المساعدة",
+        "contact": "اتصل بنا",
+        "privacy": "سياسة الخصوصية",
+        "allRightsReserved": "جميع الحقوق محفوظة."
+    },
+    "status": {
+        "pending": "في الانتظار",
+        "accepted": "مقبول",
+        "rejected": "مرفوض",
+        "scheduled": "مجدول",
+        "inProgress": "قيد التنفيذ",
+        "completed": "مكتمل",
+        "cancelled": "ملغي",
+        "available": "متاح",
+        "booked": "محجوز"
+    },
+    "errors": {
+        "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك.",
+        "serverError": "خطأ في الخادم. يرجى المحاولة لاحقاً.",
+        "unauthorized": "وصول غير مصرح به.",
+        "forbidden": "الوصول محظور.",
+        "notFound": "المورد غير موجود.",
+        "validationError": "يرجى التحقق من المدخلات.",
+        "genericError": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+    },
+    "validation": {
+        "required": "هذا الحقل مطلوب",
+        "email": "يرجى إدخال بريد إلكتروني صحيح",
+        "password": "كلمة المرور يجب أن تكون 6 أحرف على الأقل",
+        "passwordMatch": "كلمات المرور غير متطابقة",
+        "minLength": "الحد الأدنى للطول هو {{min}} أحرف",
+        "maxLength": "الحد الأقصى للطول هو {{max}} أحرف"
+    },
+    "admin": {
+        "subtitle": "إدارة المنصة وأنشطة المستخدمين",
+        "users": "المستخدمون",
+        "usersDescription": "إدارة حسابات المستخدمين والأذونات",
+        "sessions": "الجلسات",
+        "sessionsDescription": "مراقبة الجلسات النشطة والمقابلات",
+        "content": "المحتوى",
+        "contentDescription": "إدارة المحتوى التعليمي والمقالات"
+    }
+}

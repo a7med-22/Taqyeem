@@ -1,0 +1,194 @@
+{
+    "app": {
+        "name": "Taqyeem",
+        "description": "Bilingual Interview & Learning Platform",
+        "tagline": "Master your interviews, enhance your skills"
+    },
+    "home": {
+        "description": "Connect with experienced interviewers, practice your skills, and get valuable feedback to excel in your career.",
+        "features": {
+            "title": "Why Choose Taqyeem?",
+            "subtitle": "Everything you need to succeed in your interviews",
+            "interviews": {
+                "title": "Mock Interviews",
+                "description": "Practice with real interviewers and get instant feedback on your performance."
+            },
+            "learning": {
+                "title": "Learning Resources",
+                "description": "Access comprehensive guides, tips, and articles to improve your interview skills."
+            },
+            "evaluation": {
+                "title": "Detailed Evaluation",
+                "description": "Receive detailed feedback and scores to track your progress over time."
+            }
+        },
+        "cta": {
+            "title": "Ready to Ace Your Next Interview?",
+            "description": "Join thousands of professionals who have improved their interview skills with Taqyeem.",
+            "button": "Get Started Today"
+        }
+    },
+    "navigation": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "interviews": "Interviews",
+        "learning": "Learning",
+        "profile": "Profile",
+        "admin": "Admin",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "email": "Email",
+        "password": "Password",
+        "name": "Name",
+        "role": "Role",
+        "confirmPassword": "Confirm Password",
+        "forgotPassword": "Forgot Password?",
+        "dontHaveAccount": "Don't have an account?",
+        "alreadyHaveAccount": "Already have an account?",
+        "loginSuccess": "Login successful",
+        "registerSuccess": "Registration successful",
+        "logoutSuccess": "Logout successful",
+        "loginDescription": "Sign in to your account to continue",
+        "registerDescription": "Create your account to get started"
+    },
+    "roles": {
+        "candidate": "Candidate",
+        "interviewer": "Interviewer",
+        "admin": "Administrator"
+    },
+    "dashboard": {
+        "welcome": "Welcome to your dashboard",
+        "subtitle": "Here's what's happening with your account",
+        "upcomingInterviews": "Upcoming Interviews",
+        "upcomingInterviewsDescription": "Your scheduled interviews and meetings",
+        "recentActivity": "Recent Activity",
+        "recentActivityDescription": "Your latest activities and updates",
+        "quickActions": "Quick Actions",
+        "quickActionsDescription": "Common tasks and shortcuts",
+        "stats": "Statistics"
+    },
+    "interviews": {
+        "subtitle": "Manage your interviews and practice sessions",
+        "schedule": "Schedule Interview",
+        "myInterviews": "My Interviews",
+        "myInterviewsDescription": "Your scheduled and completed interviews",
+        "availableSlots": "Available Slots",
+        "availableSlotsDescription": "Book a slot for your next interview",
+        "bookSlot": "Book Slot",
+        "cancelSlot": "Cancel Slot",
+        "rescheduleSlot": "Reschedule Slot",
+        "interviewDetails": "Interview Details",
+        "joinInterview": "Join Interview",
+        "startInterview": "Start Interview",
+        "completeInterview": "Complete Interview"
+    },
+    "learning": {
+        "subtitle": "Enhance your skills with our learning resources",
+        "articles": "Articles",
+        "articlesDescription": "Read the latest articles and guides",
+        "faqs": "FAQs",
+        "faqsDescription": "Frequently asked questions and answers",
+        "tips": "Tips",
+        "tipsDescription": "Expert tips and best practices",
+        "categories": "Categories",
+        "readMore": "Read More",
+        "readingTime": "Reading Time",
+        "views": "Views",
+        "likes": "Likes",
+        "share": "Share"
+    },
+    "profile": {
+        "subtitle": "Manage your account and preferences",
+        "editProfile": "Edit Profile",
+        "changeAvatar": "Change Avatar",
+        "updatePassword": "Update Password",
+        "accountSettings": "Account Settings",
+        "accountSettingsDescription": "Manage your account preferences",
+        "personalInfo": "Personal Information",
+        "personalInfoDescription": "Your basic information and contact details",
+        "language": "Language",
+        "notifications": "Notifications",
+        "privacy": "Privacy",
+        "memberSince": "Member since",
+        "deactivateAccount": "Deactivate Account"
+    },
+    "common": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "view": "View",
+        "create": "Create",
+        "update": "Update",
+        "submit": "Submit",
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "warning": "Warning",
+        "info": "Information",
+        "yes": "Yes",
+        "no": "No",
+        "ok": "OK",
+        "close": "Close",
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "search": "Search",
+        "filter": "Filter",
+        "sort": "Sort",
+        "date": "Date",
+        "time": "Time",
+        "status": "Status",
+        "actions": "Actions",
+        "noData": "No data available",
+        "tryAgain": "Try Again",
+        "quickLinks": "Quick Links",
+        "support": "Support",
+        "help": "Help",
+        "contact": "Contact",
+        "privacy": "Privacy Policy",
+        "allRightsReserved": "All rights reserved."
+    },
+    "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "scheduled": "Scheduled",
+        "inProgress": "In Progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "available": "Available",
+        "booked": "Booked"
+    },
+    "errors": {
+        "networkError": "Network error. Please check your connection.",
+        "serverError": "Server error. Please try again later.",
+        "unauthorized": "Unauthorized access.",
+        "forbidden": "Access forbidden.",
+        "notFound": "Resource not found.",
+        "validationError": "Please check your input.",
+        "genericError": "Something went wrong. Please try again."
+    },
+    "validation": {
+        "required": "This field is required",
+        "email": "Please enter a valid email",
+        "password": "Password must be at least 6 characters",
+        "passwordMatch": "Passwords do not match",
+        "minLength": "Minimum length is {{min}} characters",
+        "maxLength": "Maximum length is {{max}} characters"
+    },
+    "admin": {
+        "subtitle": "Manage the platform and user activities",
+        "users": "Users",
+        "usersDescription": "Manage user accounts and permissions",
+        "sessions": "Sessions",
+        "sessionsDescription": "Monitor active sessions and interviews",
+        "content": "Content",
+        "contentDescription": "Manage learning content and articles"
+    }
+}
