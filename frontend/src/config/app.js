@@ -4,7 +4,7 @@ export const APP_CONFIG = {
   description: "Bilingual Interview & Learning Platform",
   descriptionAr: "منصة المقابلات والتعلم ثنائية اللغة",
   version: "1.0.0",
-  apiBaseUrl: import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1",
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1",
   supportedLanguages: ["en", "ar"],
   defaultLanguage: "en",
   theme: {
