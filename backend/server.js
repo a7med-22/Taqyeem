@@ -64,6 +64,31 @@ mongoose
     process.exit(1);
   });
 
+// Welcome endpoint
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "🌟 Welcome to Taqyeem API! 🌟",
+    description: "Bilingual Interview & Learning Platform",
+    version: "1.0.0",
+    endpoints: {
+      health: "/health",
+      auth: "/api/v1/auth",
+      users: "/api/v1/users",
+      days: "/api/v1/days",
+      slots: "/api/v1/slots",
+      reservations: "/api/v1/reservations",
+      sessions: "/api/v1/sessions",
+      evaluations: "/api/v1/evaluations",
+      feedbacks: "/api/v1/feedbacks",
+      learn: "/api/v1/learn",
+    },
+    documentation: "Visit /health for API status",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
+
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.json({
