@@ -40,12 +40,6 @@ export function Header() {
                 <a href={ROUTES.LEARNING} className="nav-link">
                   {t("navigation.learning")}
                 </a>
-                <a
-                  href={ROUTES.SHOWCASE}
-                  className="nav-link text-accent-600 font-semibold"
-                >
-                  🎨 Showcase
-                </a>
               </>
             )}
           </nav>

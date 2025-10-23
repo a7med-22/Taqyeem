@@ -32,15 +32,60 @@ export default function LoginPage() {
 
   const onSubmit = async (data) => {
     try {
+      console.log("LoginPage - Submitting login for:", data.email);
       const response = await loginMutation.mutateAsync(data);
 
-      // Update the auth context with the login data
-      login(response.data.user, response.data.token);
+      console.log("LoginPage - Full response object:", response);
+      console.log("LoginPage - Response data:", response?.data);
+      console.log(
+        "LoginPage - Response data keys:",
+        Object.keys(response?.data || {})
+      );
 
+      console.log("LoginPage - Login response structure:", {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        hasUser: !!response?.data?.user,
+        hasToken: !!response?.data?.token,
+        userId: response?.data?.user?._id,
+        userName: response?.data?.user?.name,
+        tokenLength: response?.data?.token?.length,
+      });
+
+      // Check if the response structure is different
+      const userData =
+        response?.data?.user || response?.data?.data?.user || response?.user;
+      const token =
+        response?.data?.token || response?.data?.data?.token || response?.token;
+
+      console.log("LoginPage - Extracted data:", {
+        userData,
+        token,
+        tokenLength: token?.length,
+      });
+
+      if (!userData || !token) {
+        console.error("LoginPage - Missing user data or token in response");
+        toast.error("Invalid response from server");
+        return;
+      }
+
+      // Update the auth context with the login data
+      console.log("LoginPage - Calling login function with:", {
+        user: userData,
+        token: token,
+      });
+
+      await login(userData, token);
+
+      console.log("LoginPage - Auth context updated, showing success toast");
       toast.success(t("auth.loginSuccess"));
 
-      // Use React Router navigation instead of window.location
-      navigate(ROUTES.DASHBOARD);
+      // Small delay to ensure context update completes
+      setTimeout(() => {
+        console.log("LoginPage - Navigating to dashboard");
+        navigate(ROUTES.DASHBOARD, { replace: true });
+      }, 100);
     } catch (error) {
       console.error("Login error:", error);
       const errorMessage =

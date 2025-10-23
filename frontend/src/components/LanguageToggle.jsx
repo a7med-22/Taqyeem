@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../hooks/useAuth.js";
-import { getInitials } from "../utils/helpers.js";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar.jsx";
+import { Avatar } from "./ui/Avatar.jsx";
 import { Button } from "./ui/Button.jsx";
 
 export function LanguageToggle() {
@@ -32,23 +31,25 @@ export function UserMenu() {
 
   if (!user) return null;
 
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/login";
+  };
+
   return (
-    <div className="flex items-center space-x-4">
-      <div className="flex items-center space-x-2">
-        <Avatar className="h-8 w-8">
-          {user.avatarUrl && (
-            <AvatarImage src={user.avatarUrl} alt={user.name} />
-          )}
-          <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-        </Avatar>
+    <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3">
+        <Avatar src={user?.avatar} alt={user?.name} />
         <div className="hidden md:block">
-          <p className="text-sm font-medium text-gray-900">{user.name}</p>
-          <p className="text-xs text-secondary-600 capitalize">
-            {t(`roles.${user.role}`)}
+          <p className="text-xs text-secondary-600 font-medium uppercase tracking-wide">
+            {user?.role ? t(`roles.${user.role}`) : t("roles.candidate")}
+          </p>
+          <p className="text-sm font-semibold text-secondary-800 capitalize">
+            {user?.name || t("auth.user")}
           </p>
         </div>
       </div>
-      <Button variant="outline" size="sm" onClick={logout}>
+      <Button variant="outline" size="sm" onClick={handleLogout}>
         {t("navigation.logout")}
       </Button>
     </div>
