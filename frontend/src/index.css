@@ -658,12 +658,12 @@
     background: rgba(6, 182, 212, 0.05);
   }
 
-  .nav-link.active {
+  .nav-link-active {
     color: var(--color-primary-700);
     background: rgba(6, 182, 212, 0.1);
   }
 
-  .nav-link.active::after {
+  .nav-link-active::after {
     content: '';
     position: absolute;
     bottom: -1px;

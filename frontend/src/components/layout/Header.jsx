@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { NavLink } from "react-router-dom";
 import { ROUTES } from "../../config/app.js";
 import { useAuth } from "../../hooks/useAuth.js";
 import { AppName } from "../AppName.jsx";
@@ -16,30 +17,50 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center">
-            <a
-              href={ROUTES.HOME}
+            <NavLink
+              to={ROUTES.HOME}
               className="hover:opacity-80 transition-opacity duration-200"
             >
               <AppName className="text-xl font-bold text-gradient" />
-            </a>
+            </NavLink>
           </div>
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href={ROUTES.HOME} className="nav-link">
+            <NavLink
+              to={ROUTES.HOME}
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "nav-link-active" : ""}`
+              }
+            >
               {t("navigation.home")}
-            </a>
+            </NavLink>
             {isAuthenticated && (
               <>
-                <a href={ROUTES.DASHBOARD} className="nav-link">
+                <NavLink
+                  to={ROUTES.DASHBOARD}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? "nav-link-active" : ""}`
+                  }
+                >
                   {t("navigation.dashboard")}
-                </a>
-                <a href={ROUTES.INTERVIEWS} className="nav-link">
+                </NavLink>
+                <NavLink
+                  to={ROUTES.INTERVIEWS}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? "nav-link-active" : ""}`
+                  }
+                >
                   {t("navigation.interviews")}
-                </a>
-                <a href={ROUTES.LEARNING} className="nav-link">
+                </NavLink>
+                <NavLink
+                  to={ROUTES.LEARNING}
+                  className={({ isActive }) =>
+                    `nav-link ${isActive ? "nav-link-active" : ""}`
+                  }
+                >
                   {t("navigation.learning")}
-                </a>
+                </NavLink>
               </>
             )}
           </nav>
@@ -52,10 +73,12 @@ export function Header() {
             ) : (
               <div className="flex items-center space-x-3">
                 <Button variant="outline" size="sm" asChild>
-                  <a href={ROUTES.LOGIN}>{t("navigation.login")}</a>
+                  <NavLink to={ROUTES.LOGIN}>{t("navigation.login")}</NavLink>
                 </Button>
                 <Button size="sm" asChild>
-                  <a href={ROUTES.REGISTER}>{t("navigation.register")}</a>
+                  <NavLink to={ROUTES.REGISTER}>
+                    {t("navigation.register")}
+                  </NavLink>
                 </Button>
               </div>
             )}
