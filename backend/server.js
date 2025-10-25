@@ -3,7 +3,9 @@ import dotenv from "dotenv";
 import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
-import mongoose from "mongoose";
+
+// Import database connection
+import connectDB from "./config/database.js";
 
 // Import routes
 import authRoutes from "./routes/auth.js";
@@ -67,17 +69,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Connect to MongoDB
-const mongoUri =
-  "mongodb+srv://a7med-22:ahmed123@cluster0.wij54tl.mongodb.net/?appName=Cluster0";
-mongoose
-  .connect(mongoUri)
-  .then(() => {
-    console.log("✅ Connected to MongoDB");
-  })
-  .catch((error) => {
-    console.error("❌ MongoDB connection error:", error);
-    process.exit(1);
-  });
+connectDB();
 
 // Welcome endpoint
 app.get("/", (req, res) => {
