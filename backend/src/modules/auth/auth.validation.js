@@ -1,42 +1,21 @@
-import { body } from "express-validator";
+import Joi from "joi";
+import { generalRules } from "../../utils/validation-rules.js";
 
-export const validateRegister = [
-  body("name")
-    .trim()
-    .notEmpty()
-    .withMessage("Name is required")
-    .isLength({ min: 2, max: 50 })
-    .withMessage("Name must be between 2 and 50 characters"),
+// Joi schema for register validation
+export const registerSchema = {
+  body: Joi.object({
+    name: generalRules.name.required(),
+    email: generalRules.email.required(),
+    password: generalRules.password.required(),
+    role: generalRules.role.optional(),
+    language: generalRules.language.optional(),
+  }),
+};
 
-  body("email")
-    .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
-
-  body("password")
-    .isLength({ min: 6 })
-    .withMessage("Password must be at least 6 characters long")
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage(
-      "Password must contain at least one lowercase letter, one uppercase letter, and one number"
-    ),
-
-  body("role")
-    .optional()
-    .isIn(["candidate", "interviewer", "admin"])
-    .withMessage("Role must be candidate, interviewer, or admin"),
-
-  body("language")
-    .optional()
-    .isIn(["en", "ar"])
-    .withMessage("Language must be en or ar"),
-];
-
-export const validateLogin = [
-  body("email")
-    .isEmail()
-    .withMessage("Please provide a valid email")
-    .normalizeEmail(),
-
-  body("password").notEmpty().withMessage("Password is required"),
-];
+// Joi schema for login validation
+export const loginSchema = {
+  body: Joi.object({
+    email: generalRules.email.required(),
+    password: generalRules.passwordSimple.required(),
+  }),
+};

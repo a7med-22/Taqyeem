@@ -1,21 +1,36 @@
-import { validationResult } from "express-validator";
+export const validation = (schema) => {
+  return (req, res, next) => {
+    let validationErrors = [];
 
-export const validateRequest = (req, res, next) => {
-  const errors = validationResult(req);
+    for (const key of Object.keys(schema)) {
+      const data = schema[key].validate(req[key], { abortEarly: false });
 
-  if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map((error) => ({
-      field: error.path,
-      message: error.msg,
-      value: error.value,
-    }));
+      if (data?.error) {
+        data?.error?.details.map((err) => {
+          validationErrors.push({
+            key,
+            message: err.message,
+          });
+        });
+      }
+    }
 
-    return res.status(400).json({
-      success: false,
-      message: "Validation failed",
-      errors: errorMessages,
-    });
-  }
+    if (validationErrors.length) {
+      const errorMessage = validationErrors
+        .map((err) => `${err.key}: ${err.message}`)
+        .join(", ");
+      const error = new Error(`Validation failed: ${errorMessage}`);
+      error.cause = 400;
+      error.validationErrors = validationErrors; // Keep detailed errors for debugging
+      throw error;
+    }
 
-  next();
+    return next();
+  };
 };
+
+// res.status(400).json({
+//   error: data.error.details.map((err) => ({
+//     message: err.message,
+//   })),
+// });

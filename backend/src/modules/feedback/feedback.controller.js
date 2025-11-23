@@ -1,6 +1,12 @@
 import express from "express";
-import { authenticate } from "../../middleware/index.js";
+import { authenticate, validation } from "../../middleware/index.js";
 import * as service from "./feedback.service.js";
+import {
+  createFeedbackSchema,
+  feedbackIdSchema,
+  getFeedbacksBySessionSchema,
+  updateFeedbackSchema,
+} from "./feedback.validation.js";
 
 const router = express.Router();
 
@@ -11,12 +17,16 @@ router.get("/public", service.getPublicFeedbacks);
 router.use(authenticate);
 
 // General routes
-router.post("/", service.createFeedback);
+router.post("/", validation(createFeedbackSchema), service.createFeedback);
 router.get("/my", service.getMyFeedbacks);
-router.put("/:id", service.updateFeedback);
-router.delete("/:id", service.deleteFeedback);
+router.put("/:id", validation(updateFeedbackSchema), service.updateFeedback);
+router.delete("/:id", validation(feedbackIdSchema), service.deleteFeedback);
 
 // General routes
-router.get("/:sessionId", service.getFeedbacksBySession);
+router.get(
+  "/:sessionId",
+  validation(getFeedbacksBySessionSchema),
+  service.getFeedbacksBySession
+);
 
 export default router;

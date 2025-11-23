@@ -1,6 +1,10 @@
 import express from "express";
-import { authenticate, authorize } from "../../middleware/index.js";
+import { authenticate, authorize, validation } from "../../middleware/index.js";
 import * as service from "./reservation.service.js";
+import {
+  createReservationSchema,
+  reservationIdSchema,
+} from "./reservation.validation.js";
 
 const router = express.Router();
 
@@ -8,7 +12,12 @@ const router = express.Router();
 router.use(authenticate);
 
 // Candidate routes
-router.post("/", authorize("candidate"), service.createReservation);
+router.post(
+  "/",
+  authorize("candidate"),
+  validation(createReservationSchema),
+  service.createReservation
+);
 
 // General routes
 router.get("/me", service.getMyReservations);
@@ -22,11 +31,13 @@ router.get(
 router.post(
   "/:id/accept",
   authorize("interviewer", "admin"),
+  validation(reservationIdSchema),
   service.acceptReservation
 );
 router.post(
   "/:id/reject",
   authorize("interviewer", "admin"),
+  validation(reservationIdSchema),
   service.rejectReservation
 );
 

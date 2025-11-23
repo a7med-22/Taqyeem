@@ -1,18 +1,13 @@
 import express from "express";
-import { authenticate, validateRequest } from "../../middleware/index.js";
+import { authenticate, validation } from "../../middleware/index.js";
 import * as authService from "./auth.service.js";
-import { validateLogin, validateRegister } from "./auth.validation.js";
+import { loginSchema, registerSchema } from "./auth.validation.js";
 
 const router = express.Router();
 
 // Public routes
-router.post(
-  "/register",
-  validateRegister,
-  validateRequest,
-  authService.register
-);
-router.post("/login", validateLogin, validateRequest, authService.login);
+router.post("/register", validation(registerSchema), authService.register);
+router.post("/login", validation(loginSchema), authService.login);
 
 // Protected routes
 router.get("/me", authenticate, authService.getMe);

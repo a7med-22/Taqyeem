@@ -1,14 +1,15 @@
-import { body } from "express-validator";
+import Joi from "joi";
+import { generalRules } from "../../utils/validation-rules.js";
 
-export const validateUserUpdate = [
-  body("name")
-    .optional()
-    .trim()
-    .isLength({ min: 2, max: 50 })
-    .withMessage("Name must be between 2 and 50 characters"),
+// Schema for updating user profile
+export const updateProfileSchema = {
+  body: Joi.object({
+    name: generalRules.name.optional(),
+    language: generalRules.language.optional(),
+  }),
+};
 
-  body("language")
-    .optional()
-    .isIn(["en", "ar"])
-    .withMessage("Language must be en or ar"),
-];
+// Schema for getting user by ID
+export const getUserByIdSchema = {
+  params: generalRules.paramsWithId("User ID"),
+};
