@@ -56,20 +56,17 @@ const userSchema = new mongoose.Schema(
     // Interviewer-specific fields
     cvUrl: {
       type: String,
-      default: null,
       required: function () {
         return this.role === userRoles.INTERVIEWER;
       },
     },
     cvPublicId: {
       type: String,
-      default: null,
     },
     yearsOfExperience: {
       type: Number,
       min: [0, "Years of experience cannot be negative"],
       max: [50, "Years of experience must not exceed 50"],
-      default: null,
       required: function () {
         return this.role === userRoles.INTERVIEWER;
       },
@@ -77,7 +74,6 @@ const userSchema = new mongoose.Schema(
     specialization: {
       type: String,
       enum: Object.values(interviewerSpecializations),
-      default: null,
       required: function () {
         return this.role === userRoles.INTERVIEWER;
       },
