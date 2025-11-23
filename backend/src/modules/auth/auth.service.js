@@ -1,5 +1,6 @@
 import User from "../../DB/models/user.model.js";
-import { generateToken, sendError, sendSuccess } from "../../utils/index.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
+import { generateTokens } from "../../utils/token/generateTokens.js";
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register
@@ -29,15 +30,16 @@ export const register = async (req, res, next) => {
       language,
     });
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate tokens
+    const { access_token, refresh_token } = await generateTokens(user);
 
     sendSuccess(
       res,
       "User registered successfully",
       {
         user,
-        token,
+        access_token,
+        refresh_token,
       },
       201
     );
@@ -74,15 +76,16 @@ export const login = async (req, res, next) => {
     user.lastLogin = new Date();
     await user.save();
 
-    // Generate token
-    const token = generateToken(user._id);
+    // Generate tokens
+    const { access_token, refresh_token } = await generateTokens(user);
 
     // Remove password from response
     user.password = undefined;
 
     sendSuccess(res, "Login successful", {
       user,
-      token,
+      access_token,
+      refresh_token,
     });
   } catch (error) {
     next(error);
