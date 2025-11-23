@@ -11,7 +11,8 @@ import connectDB from "./src/DB/connection.js";
 import appController from "./src/app.controller.js";
 
 // Import error handlers
-import { errorHandler, notFound } from "./src/middleware/index.js";
+import { notFound } from "./src/middleware/index.js";
+import { globalErrorHandling } from "./src/utils/response.js";
 
 // Load environment variables
 dotenv.config();
@@ -46,7 +47,6 @@ app.use("/", appController);
 
 // Error handling middleware
 app.use(notFound);
-app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "localhost";
@@ -59,3 +59,5 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
+app.use(globalErrorHandling);
