@@ -1,6 +1,6 @@
 import Day from "../../DB/models/day.model.js";
 import Slot from "../../DB/models/slot.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 import { isTimeSlotAvailable } from "../../utils/time.js";
 
 // @desc    Create time slot

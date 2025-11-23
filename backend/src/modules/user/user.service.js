@@ -1,5 +1,5 @@
 import User from "../../DB/models/user.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Get all users (Admin only)
 // @route   GET /api/v1/users

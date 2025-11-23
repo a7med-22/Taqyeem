@@ -1,6 +1,6 @@
 import Feedback from "../../DB/models/feedback.model.js";
 import Session from "../../DB/models/session.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Create feedback
 // @route   POST /api/v1/feedbacks

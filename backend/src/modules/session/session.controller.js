@@ -1,6 +1,5 @@
 import express from "express";
-import { authenticate } from "../../middleware/authentication.js";
-import { authorize } from "../../middleware/authorization.js";
+import { authenticate, authorize } from "../../middleware/index.js";
 import upload from "../../utils/multer/cloud.multer.js";
 import * as sessionService from "./session.service.js";
 

@@ -1,7 +1,7 @@
 import Reservation from "../../DB/models/reservation.model.js";
 import Session from "../../DB/models/session.model.js";
 import Slot from "../../DB/models/slot.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Create reservation
 // @route   POST /api/v1/reservations

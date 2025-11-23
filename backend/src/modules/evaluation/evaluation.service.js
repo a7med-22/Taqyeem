@@ -1,6 +1,6 @@
 import Evaluation from "../../DB/models/evaluation.model.js";
 import Session from "../../DB/models/session.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Create evaluation
 // @route   POST /api/v1/evaluations

@@ -1,5 +1,5 @@
 import Day from "../../DB/models/day.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Create interview day
 // @route   POST /api/v1/days

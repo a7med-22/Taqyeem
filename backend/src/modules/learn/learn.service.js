@@ -1,5 +1,5 @@
 import EducationalContent from "../../DB/models/educational-content.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Get all educational content
 // @route   GET /api/v1/learn

@@ -1,3 +1,2 @@
-export { generateToken } from "./generateToken.js";
-export { generateTokens } from "./generateTokens.js";
-export { verifyToken } from "./verifyToken.js";
+export * from "./generateToken.js";
+export * from "./verifyToken.js";

@@ -1,0 +1,5 @@
+// Export all middleware from a single entry point
+export { authenticate } from "./authentication.js";
+export { authorize } from "./authorization.js";
+export { errorHandler, notFound } from "./error-handler.js";
+export { validateRequest } from "./validation.js";

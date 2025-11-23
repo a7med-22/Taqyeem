@@ -1,7 +1,6 @@
 import express from "express";
+import { authenticate, authorize } from "../../middleware/index.js";
 import * as service from "./day.service.js";
-import { authenticate } from "../../middleware/authentication.js";
-import { authorize } from "../../middleware/authorization.js";
 
 const router = express.Router();
 

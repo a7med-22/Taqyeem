@@ -1,6 +1,5 @@
 import express from "express";
-import { authenticate } from "../../middleware/authentication.js";
-import { authorize } from "../../middleware/authorization.js";
+import { authenticate, authorize } from "../../middleware/index.js";
 import * as service from "./reservation.service.js";
 
 const router = express.Router();

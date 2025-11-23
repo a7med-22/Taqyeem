@@ -10,6 +10,9 @@ import connectDB from "./src/DB/connection.js";
 // Import app controller (all routes)
 import appController from "./src/app.controller.js";
 
+// Import error handlers
+import { errorHandler, notFound } from "./src/middleware/index.js";
+
 // Load environment variables
 dotenv.config();
 
@@ -42,21 +45,8 @@ connectDB();
 app.use("/", appController);
 
 // Error handling middleware
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
-});
-
-app.use((error, req, res, next) => {
-  const statusCode = error.statusCode || 500;
-  res.status(statusCode).json({
-    success: false,
-    message: error.message || "Internal server error",
-    ...(process.env.NODE_ENV === "development" && { stack: error.stack }),
-  });
-});
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || "localhost";

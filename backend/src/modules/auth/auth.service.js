@@ -1,6 +1,5 @@
 import User from "../../DB/models/user.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
-import { generateToken } from "../../utils/token/index.js";
+import { generateToken, sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Register user
 // @route   POST /api/v1/auth/register

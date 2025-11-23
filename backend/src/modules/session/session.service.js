@@ -1,5 +1,5 @@
 import Session from "../../DB/models/session.model.js";
-import { sendError, sendSuccess } from "../../utils/response.js";
+import { sendError, sendSuccess } from "../../utils/index.js";
 
 // @desc    Get my sessions
 // @route   GET /api/v1/sessions/me
