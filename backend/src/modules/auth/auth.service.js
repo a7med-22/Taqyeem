@@ -27,29 +27,27 @@ export const register = async (req, res, next) => {
       return sendError(res, "CV is required for interviewer registration", 400);
     }
 
-    // Handle CV upload if file is provided
-    let cvUrl = null;
-    let cvPublicId = null;
-
-    if (req.file) {
-      const uploadResult = await uploadFile({
-        file: req.file,
-        filePath: "cvs",
-      });
-      cvUrl = uploadResult.secure_url;
-      cvPublicId = uploadResult.public_id;
-    }
-
-    // Create user
+    // Create user first (without CV)
     const user = await User.create({
       name,
       email,
       password,
       role,
       language,
-      cvUrl,
-      cvPublicId,
     });
+
+    // Handle CV upload if file is provided (using user ID for folder organization)
+    if (req.file) {
+      const uploadResult = await uploadFile({
+        file: req.file,
+        filePath: `cvs/${user._id}`,
+      });
+
+      // Update user with CV information
+      user.cvUrl = uploadResult.secure_url;
+      user.cvPublicId = uploadResult.public_id;
+      await user.save();
+    }
 
     // Generate tokens
     const { access_token, refresh_token } = await generateTokens(user);

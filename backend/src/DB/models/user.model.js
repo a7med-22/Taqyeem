@@ -42,16 +42,10 @@ const userSchema = new mongoose.Schema(
     cvUrl: {
       type: String,
       default: null,
-      required: function () {
-        return this.role === userRoles.INTERVIEWER;
-      },
     },
     cvPublicId: {
       type: String,
       default: null,
-      required: function () {
-        return this.role === userRoles.INTERVIEWER;
-      },
     },
     language: {
       type: String,
