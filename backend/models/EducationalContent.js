@@ -37,14 +37,11 @@ const educationalContentSchema = new mongoose.Schema(
       type: String,
       required: [true, "Category is required"],
       enum: [
-        "interview-tips",
-        "technical-skills",
+        "frontend-development",
+        "backend-development",
         "soft-skills",
-        "career-advice",
-        "industry-insights",
-        "preparation",
-        "communication",
-        "problem-solving",
+        "interview-preparation",
+        "career-development",
       ],
     },
     thumbnailUrl: {
