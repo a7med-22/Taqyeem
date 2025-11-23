@@ -2,11 +2,11 @@
     "name": "taqyeem-backend",
     "version": "1.0.0",
     "description": "Backend API for Taqyeem - Bilingual Interview & Learning Platform",
-    "main": "server.js",
+    "main": "index.js",
     "type": "module",
     "scripts": {
-        "start": "node server.js",
-        "dev": "nodemon server.js",
+        "start": "node index.js",
+        "dev": "nodemon index.js",
         "build": "echo 'Build completed'",
         "test": "jest"
     },
