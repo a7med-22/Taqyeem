@@ -2,7 +2,7 @@ import express from "express";
 import { authenticate, validation } from "../../middleware/index.js";
 import { cloudFileUpload, fileTypes } from "../../utils/multer/cloud.multer.js";
 import * as authService from "./auth.service.js";
-import { loginSchema } from "./auth.validation.js";
+import { loginSchema, registerSchema } from "./auth.validation.js";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ const uploadCV = cloudFileUpload({ typeNeeded: fileTypes.document });
 router.post(
   "/register",
   uploadCV.single("cv"),
-  //   validation(registerSchema),
+  validation(registerSchema),
   authService.register
 );
 router.post("/login", validation(loginSchema), authService.login);

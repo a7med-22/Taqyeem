@@ -13,6 +13,8 @@ export const register = async (req, res, next) => {
     password,
     role = "candidate",
     language = "en",
+    yearsOfExperience,
+    specialization,
   } = req.body;
 
   // Check if user already exists
@@ -21,21 +23,40 @@ export const register = async (req, res, next) => {
     throw new Error("User already exists with this email", { cause: 400 });
   }
 
-  // Check if CV is required for interviewer role
-  if (role === "interviewer" && !req.file) {
-    throw new Error("CV is required for interviewer registration", {
-      cause: 400,
-    });
+  // Validate role-specific requirements
+  if (role === "interviewer") {
+    // CV is required for interviewers
+    if (!req.file) {
+      throw new Error("CV is required for interviewer registration", {
+        cause: 400,
+      });
+    }
+  } else {
+    // CV is not allowed for non-interviewers
+    if (req.file) {
+      throw new Error("CV upload is only allowed for interviewers", {
+        cause: 400,
+      });
+    }
   }
 
-  // Create user first (without CV)
-  const user = await User.create({
+  // Prepare user data
+  const userData = {
     name,
     email,
     password,
     role,
     language,
-  });
+  };
+
+  // Add interviewer-specific fields if role is interviewer
+  if (role === "interviewer") {
+    userData.yearsOfExperience = yearsOfExperience;
+    userData.specialization = specialization;
+  }
+
+  // Create user first (without CV)
+  const user = await User.create(userData);
 
   // Handle CV upload if file is provided (using user ID for folder organization)
   if (req.file) {
@@ -58,8 +79,6 @@ export const register = async (req, res, next) => {
     message: "User registered successfully",
     data: {
       user,
-      access_token,
-      refresh_token,
     },
     status: 201,
   });

@@ -6,6 +6,20 @@ export const userRoles = {
   INTERVIEWER: "interviewer",
   ADMIN: "admin",
 };
+
+export const interviewerSpecializations = {
+  FRONTEND: "frontend",
+  BACKEND: "backend",
+  FULLSTACK: "fullstack",
+  MOBILE: "mobile",
+  DEVOPS: "devops",
+  DATA_SCIENCE: "data-science",
+  AI_ML: "ai-ml",
+  CYBERSECURITY: "cybersecurity",
+  QA: "qa",
+  UI_UX: "ui-ux",
+};
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -39,13 +53,34 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    // Interviewer-specific fields
     cvUrl: {
       type: String,
       default: null,
+      required: function () {
+        return this.role === userRoles.INTERVIEWER;
+      },
     },
     cvPublicId: {
       type: String,
       default: null,
+    },
+    yearsOfExperience: {
+      type: Number,
+      min: [0, "Years of experience cannot be negative"],
+      max: [50, "Years of experience must not exceed 50"],
+      default: null,
+      required: function () {
+        return this.role === userRoles.INTERVIEWER;
+      },
+    },
+    specialization: {
+      type: String,
+      enum: Object.values(interviewerSpecializations),
+      default: null,
+      required: function () {
+        return this.role === userRoles.INTERVIEWER;
+      },
     },
     language: {
       type: String,
