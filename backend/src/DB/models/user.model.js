@@ -39,6 +39,20 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    cvUrl: {
+      type: String,
+      default: null,
+      required: function () {
+        return this.role === userRoles.INTERVIEWER;
+      },
+    },
+    cvPublicId: {
+      type: String,
+      default: null,
+      required: function () {
+        return this.role === userRoles.INTERVIEWER;
+      },
+    },
     language: {
       type: String,
       enum: ["en", "ar"],
