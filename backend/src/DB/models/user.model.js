@@ -1,6 +1,11 @@
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 
+export const userRoles = {
+  CANDIDATE: "candidate",
+  INTERVIEWER: "interviewer",
+  ADMIN: "admin",
+};
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -27,8 +32,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["candidate", "interviewer", "admin"],
-      default: "candidate",
+      enum: Object.values(userRoles),
+      default: userRoles.CANDIDATE,
     },
     avatarUrl: {
       type: String,
@@ -81,6 +86,6 @@ userSchema.methods.toJSON = function () {
   return user;
 };
 
-const User = mongoose.model("User", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
 export default User;

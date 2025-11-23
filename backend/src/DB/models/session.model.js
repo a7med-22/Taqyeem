@@ -76,6 +76,7 @@ sessionSchema.index({ reservationId: 1 });
 sessionSchema.index({ status: 1 });
 sessionSchema.index({ date: 1 });
 
-const Session = mongoose.model("Session", sessionSchema);
+    
+const Session = mongoose.models.Session || mongoose.model("Session", sessionSchema);
 
 export default Session;

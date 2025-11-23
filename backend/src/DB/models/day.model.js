@@ -47,6 +47,7 @@ const daySchema = new mongoose.Schema(
 // Index for better performance
 daySchema.index({ isActive: 1 });
 
-const Day = mongoose.model("Day", daySchema);
+    
+const Day = mongoose.models.Day || mongoose.model("Day", daySchema);
 
 export default Day;

@@ -126,9 +126,6 @@ educationalContentSchema.pre("save", function (next) {
   next();
 });
 
-const EducationalContent = mongoose.model(
-  "EducationalContent",
-  educationalContentSchema
-);
-
+    
+const EducationalContent = mongoose.models.EducationalContent || mongoose.model("EducationalContent", educationalContentSchema);
 export default EducationalContent;

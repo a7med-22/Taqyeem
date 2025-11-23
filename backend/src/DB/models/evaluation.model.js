@@ -133,6 +133,7 @@ evaluationSchema.pre("save", function (next) {
   next();
 });
 
-const Evaluation = mongoose.model("Evaluation", evaluationSchema);
+    
+const Evaluation = mongoose.models.Evaluation || mongoose.model("Evaluation", evaluationSchema);
 
 export default Evaluation;

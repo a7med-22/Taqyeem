@@ -60,6 +60,8 @@ reservationSchema.index({ status: 1 });
 // Ensure one reservation per candidate per slot
 reservationSchema.index({ candidateId: 1, slotId: 1 }, { unique: true });
 
-const Reservation = mongoose.model("Reservation", reservationSchema);
+
+const Reservation = mongoose.models.Reservation || mongoose.model("Reservation", reservationSchema);
+    
 
 export default Reservation;

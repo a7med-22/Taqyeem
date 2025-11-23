@@ -42,6 +42,7 @@ feedbackSchema.index({ sessionId: 1 });
 feedbackSchema.index({ createdBy: 1 });
 feedbackSchema.index({ feedbackType: 1 });
 
-const Feedback = mongoose.model("Feedback", feedbackSchema);
+    
+const Feedback = mongoose.models.Feedback || mongoose.model("Feedback", feedbackSchema);
 
 export default Feedback;

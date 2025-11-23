@@ -73,6 +73,7 @@ slotSchema.pre("save", function (next) {
   }
 });
 
-const Slot = mongoose.model("Slot", slotSchema);
+    
+const Slot = mongoose.models.Slot || mongoose.model("Slot", slotSchema);
 
 export default Slot;
