@@ -87,11 +87,16 @@
         "recentActivityDescription": "أنشطتك وتحديثاتك الأخيرة",
         "quickActions": "الإجراءات السريعة",
         "quickActionsDescription": "المهام الشائعة والاختصارات",
+        "statistics": "الإحصائيات",
         "stats": "الإحصائيات",
         "totalInterviews": "إجمالي المقابلات",
         "completedInterviews": "المكتملة",
         "learningProgress": "تقدم التعلم",
-        "averageRating": "متوسط التقييم"
+        "averageRating": "متوسط التقييم",
+        "thisMonth": "هذا الشهر",
+        "total": "الإجمالي",
+        "coursesCompleted": "الدورات المكتملة",
+        "outOfFive": "من 5"
     },
     "interviews": {
         "subtitle": "إدارة مقابلاتك وجلسات التدريب",
@@ -205,6 +210,7 @@
         "actions": "الإجراءات",
         "noData": "لا توجد بيانات متاحة",
         "tryAgain": "حاول مرة أخرى",
+        "viewAll": "عرض الكل",
         "quickLinks": "روابط سريعة",
         "support": "الدعم",
         "help": "المساعدة",
