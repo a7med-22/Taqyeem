@@ -71,12 +71,14 @@ export const register = async (req, res, next) => {
     await user.save();
   }
 
-  // Generate tokens
-  const { access_token, refresh_token } = await generateTokens(user);
+  const message =
+    role === "interviewer"
+      ? "Registration successful. Your account is pending admin approval."
+      : "User registered successfully";
 
   successResponse({
     res,
-    message: "User registered successfully",
+    message,
     data: {
       user,
     },
@@ -99,6 +101,11 @@ export const login = async (req, res, next) => {
   // Check if user is active
   if (!user.isActive) {
     throw new Error("Account is deactivated", { cause: 401 });
+  }
+
+  // Check if user is approved (for interviewers)
+  if (!user.isApproved) {
+    throw new Error("Account is pending admin approval", { cause: 403 });
   }
 
   // Check password

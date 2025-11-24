@@ -40,6 +40,13 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
+    if (!user.isApproved) {
+      return res.status(403).json({
+        success: false,
+        message: "Account is pending admin approval.",
+      });
+    }
+
     req.user = user;
     next();
   } catch (error) {

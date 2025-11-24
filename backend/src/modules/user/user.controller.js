@@ -11,9 +11,16 @@ router.use(authenticate);
 
 // User management routes
 router.get("/", authorize("admin"), userService.getUsers);
+router.get(
+  "/pending-interviewers",
+  authorize("admin"),
+  userService.getPendingInterviewers
+);
 router.get("/:id", validation(getUserByIdSchema), userService.getUserById);
 router.put("/me", validation(updateProfileSchema), userService.updateProfile);
 router.put("/me/avatar", upload.single("avatar"), userService.updateAvatar);
 router.put("/me/deactivate", userService.deactivateAccount);
+router.put("/:id/approve", authorize("admin"), userService.approveInterviewer);
+router.put("/:id/reject", authorize("admin"), userService.rejectInterviewer);
 
 export default router;

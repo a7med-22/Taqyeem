@@ -111,3 +111,95 @@ export const deactivateAccount = async (req, res, next) => {
     message: "Account deactivated successfully",
   });
 };
+
+// @desc    Get pending interviewers (Admin only)
+// @route   GET /api/v1/users/pending-interviewers
+// @access  Private/Admin
+export const getPendingInterviewers = async (req, res, next) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  const query = {
+    role: "interviewer",
+    isApproved: false,
+    isActive: true,
+  };
+
+  const interviewers = await User.find(query)
+    .select("-password")
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  const total = await User.countDocuments(query);
+
+  successResponse({
+    res,
+    message: "Pending interviewers retrieved successfully",
+    data: {
+      interviewers,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / limit),
+        total,
+      },
+    },
+  });
+};
+
+// @desc    Approve interviewer (Admin only)
+// @route   PUT /api/v1/users/:id/approve
+// @access  Private/Admin
+export const approveInterviewer = async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    throw new Error("User not found", { cause: 404 });
+  }
+
+  if (user.role !== "interviewer") {
+    throw new Error("Only interviewers can be approved", { cause: 400 });
+  }
+
+  if (user.isApproved) {
+    throw new Error("Interviewer is already approved", { cause: 400 });
+  }
+
+  user.isApproved = true;
+  await user.save();
+
+  successResponse({
+    res,
+    message: "Interviewer approved successfully",
+    data: { user },
+  });
+};
+
+// @desc    Reject interviewer (Admin only)
+// @route   PUT /api/v1/users/:id/reject
+// @access  Private/Admin
+export const rejectInterviewer = async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    throw new Error("User not found", { cause: 404 });
+  }
+
+  if (user.role !== "interviewer") {
+    throw new Error("Only interviewers can be rejected", { cause: 400 });
+  }
+
+  if (user.isApproved) {
+    throw new Error("Cannot reject an already approved interviewer", {
+      cause: 400,
+    });
+  }
+
+  // Deactivate the rejected interviewer account
+  user.isActive = false;
+  await user.save();
+
+  successResponse({
+    res,
+    message: "Interviewer rejected successfully",
+  });
+};

@@ -56,12 +56,13 @@ const userSchema = new mongoose.Schema(
     // Interviewer-specific fields
     cvUrl: {
       type: String,
-      required: function () {
-        return this.role === userRoles.INTERVIEWER;
-      },
+
+      default: null,
     },
     cvPublicId: {
       type: String,
+
+      default: null,
     },
     yearsOfExperience: {
       type: Number,
@@ -76,6 +77,13 @@ const userSchema = new mongoose.Schema(
       enum: Object.values(interviewerSpecializations),
       required: function () {
         return this.role === userRoles.INTERVIEWER;
+      },
+    },
+    isApproved: {
+      type: Boolean,
+      default: function () {
+        // Interviewers need admin approval, others are auto-approved
+        return this.role !== userRoles.INTERVIEWER;
       },
     },
     language: {
