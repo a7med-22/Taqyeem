@@ -5,6 +5,7 @@ import {
   evaluationsAPI,
   learningAPI,
   reservationsAPI,
+  schedulesAPI,
   sessionsAPI,
   slotsAPI,
   usersAPI,
@@ -55,6 +56,14 @@ export const useUsers = (params) => {
   });
 };
 
+export const useInterviewers = (params) => {
+  return useQuery({
+    queryKey: ["interviewers", params],
+    queryFn: () => usersAPI.getInterviewers(params),
+    select: (data) => data.data,
+  });
+};
+
 export const useUpdateProfile = () => {
   const queryClient = useQueryClient();
 
@@ -91,6 +100,86 @@ export const useCreateDay = () => {
     mutationFn: daysAPI.createDay,
     onSuccess: () => {
       queryClient.invalidateQueries(["days"]);
+    },
+  });
+};
+
+// Schedules hooks
+export const useSchedules = (params) => {
+  return useQuery({
+    queryKey: ["schedules", params],
+    queryFn: () => schedulesAPI.getSchedules(params),
+    select: (data) => data.data,
+  });
+};
+
+export const useSchedulesByDay = (dayId, params) => {
+  return useQuery({
+    queryKey: ["schedules", "day", dayId, params],
+    queryFn: () => schedulesAPI.getSchedulesByDay(dayId, params),
+    select: (data) => data.data.schedules,
+    enabled: !!dayId,
+  });
+};
+
+export const useSchedule = (id) => {
+  return useQuery({
+    queryKey: ["schedule", id],
+    queryFn: () => schedulesAPI.getScheduleById(id),
+    select: (data) => data.data,
+    enabled: !!id,
+  });
+};
+
+export const useMySchedules = (params) => {
+  return useQuery({
+    queryKey: ["my-schedules", params],
+    queryFn: () => schedulesAPI.getMySchedules(params),
+    select: (response) => {
+      console.log("useMySchedules - Full response:", response);
+      console.log("useMySchedules - response.data:", response.data);
+      console.log("useMySchedules - response.data.data:", response.data.data);
+      return response.data.data.schedules;
+    },
+  });
+};
+
+export const useCreateSchedule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: schedulesAPI.createSchedule,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["schedules"]);
+      queryClient.invalidateQueries(["my-schedules"]);
+      queryClient.invalidateQueries(["slots"]);
+    },
+  });
+};
+
+export const useUpdateSchedule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => schedulesAPI.updateSchedule(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries(["schedule", id]);
+      queryClient.invalidateQueries(["schedules"]);
+      queryClient.invalidateQueries(["my-schedules"]);
+      queryClient.invalidateQueries(["slots"]);
+    },
+  });
+};
+
+export const useDeleteSchedule = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: schedulesAPI.deleteSchedule,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["schedules"]);
+      queryClient.invalidateQueries(["my-schedules"]);
+      queryClient.invalidateQueries(["slots"]);
     },
   });
 };

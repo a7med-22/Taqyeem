@@ -2,10 +2,14 @@ import mongoose from "mongoose";
 
 const slotSchema = new mongoose.Schema(
   {
-    dayId: {
+    scheduleId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Day",
-      required: [true, "Day ID is required"],
+      ref: "Schedule",
+      required: [true, "Schedule ID is required"],
+    },
+    date: {
+      type: Date,
+      required: [true, "Date is required"],
     },
     startTime: {
       type: String,
@@ -55,9 +59,12 @@ const slotSchema = new mongoose.Schema(
 );
 
 // Index for better performance
-slotSchema.index({ dayId: 1 });
+slotSchema.index({ date: 1 });
+slotSchema.index({ scheduleId: 1 });
 slotSchema.index({ interviewerId: 1 });
 slotSchema.index({ status: 1 });
+slotSchema.index({ scheduleId: 1, date: 1 });
+slotSchema.index({ interviewerId: 1, status: 1 });
 
 // Validate that end time is after start time
 slotSchema.pre("save", function (next) {
@@ -73,7 +80,6 @@ slotSchema.pre("save", function (next) {
   }
 });
 
-    
 const Slot = mongoose.models.Slot || mongoose.model("Slot", slotSchema);
 
 export default Slot;

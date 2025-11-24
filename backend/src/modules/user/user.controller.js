@@ -6,7 +6,10 @@ import { getUserByIdSchema, updateProfileSchema } from "./user.validation.js";
 
 const router = express.Router();
 
-// All routes are protected
+// Public routes
+router.get("/interviewers", userService.getInterviewers);
+
+// All other routes are protected
 router.use(authenticate);
 
 // User management routes

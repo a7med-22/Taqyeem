@@ -107,7 +107,22 @@
         "interviewDetails": "تفاصيل المقابلة",
         "joinInterview": "انضم للمقابلة",
         "startInterview": "بدء المقابلة",
-        "completeInterview": "إنهاء المقابلة"
+        "completeInterview": "إنهاء المقابلة",
+        "interviewerSubtitle": "إدارة جداول ال مقابلات والحجوزات الخاصة بك",
+        "candidateSubtitle": "تصفح المحاورين واحجز موعد مقابلة",
+        "myReservations": "حجوزاتي",
+        "myReservationsDescription": "مواعيد المقابلات المحجوزة",
+        "mySchedules": "جداولي",
+        "mySchedulesDescription": "جدول المقابلات والأوقات المتاحة",
+        "pendingReservations": "الحجوزات المعلقة",
+        "pendingReservationsDescription": "مراجعة والرد على طلبات الحجز",
+        "browseInterviewers": "تصفح المحاورين",
+        "browseInterviewersDescription": "ابحث واحجز جلسات مع محاورين ذوي خبرة",
+        "noInterviewers": "لا يوجد محاورون متاحون",
+        "noInterviewersDescription": "تحقق مرة أخرى لاحقاً للمحاورين المتاحين",
+        "viewSchedule": "عرض الجدول",
+        "selectDay": "اختر يوماً",
+        "selectDayAndSlot": "اختر يوماً ووقتاً متاحاً للحجز"
     },
     "learning": {
         "subtitle": "طور مهاراتك مع مواردنا التعليمية",
@@ -189,7 +204,13 @@
         "help": "المساعدة",
         "contact": "اتصل بنا",
         "privacy": "سياسة الخصوصية",
-        "allRightsReserved": "جميع الحقوق محفوظة."
+        "allRightsReserved": "جميع الحقوق محفوظة.",
+        "creating": "جار الإنشاء...",
+        "minutes": "دقيقة",
+        "years": "سنة",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "past": "سابق"
     },
     "status": {
         "pending": "في الانتظار",
@@ -245,5 +266,57 @@
         "sessionsDescription": "مراقبة الجلسات النشطة والمقابلات",
         "content": "المحتوى",
         "contentDescription": "إدارة المحتوى التعليمي والمقالات"
+    },
+    "schedules": {
+        "createSchedule": "إنشاء جدول",
+        "createScheduleDescription": "إعداد الأوقات المتاحة وإنشاء مواعيد تلقائية",
+        "date": "تاريخ المقابلة",
+        "dateHelp": "اختر تاريخاً لجدول المقابلات",
+        "startTime": "وقت البداية",
+        "endTime": "وقت النهاية",
+        "duration": "مدة المقابلة",
+        "breakTime": "وقت الاستراحة",
+        "title": "عنوان الجدول",
+        "description": "الوصف",
+        "titlePlaceholder": "مثال: مقابلات تطوير الواجهة الأمامية",
+        "descriptionPlaceholder": "أضف أي معلومات إضافية عن هذا الجدول...",
+        "durationHelp": "مدة كل جلسة مقابلة (15-180 دقيقة)",
+        "breakTimeHelp": "وقت الاستراحة بين الجلسات (افتراضي: 15 دقيقة)",
+        "break": "استراحة",
+        "noSchedules": "لا توجد جداول حتى الآن. أنشئ جدولك الأول لبدء قبول الحجوزات.",
+        "errors": {
+            "dateRequired": "يرجى اختيار تاريخ",
+            "timeRequired": "يرجى تحديد وقت البداية والنهاية",
+            "titleRequired": "عنوان الجدول مطلوب"
+        }
+    },
+    "slots": {
+        "available": "متاح",
+        "pending": "معلق",
+        "booked": "محجوز",
+        "availableSlots": "المواعيد المتاحة",
+        "pendingSlots": "المواعيد المعلقة",
+        "bookedSlots": "المواعيد المحجوزة",
+        "noSlots": "لا توجد مواعيد متاحة",
+        "noSlotsDescription": "يرجى التحقق مرة أخرى لاحقاً أو اختيار يوم آخر",
+        "bookSlot": "احجز هذا الموعد",
+        "alreadyBooked": "محجوز بالفعل",
+        "pendingMessage": "هذا الموعد لديه حجوزات معلقة",
+        "bookedMessage": "هذا الموعد محجوز بالكامل"
+    },
+    "reservations": {
+        "pending": "معلق",
+        "accepted": "مقبول",
+        "rejected": "مرفوض",
+        "noReservations": "لا توجد حجوزات حتى الآن",
+        "noReservationsDescription": "ستظهر طلبات الحجز الخاصة بك هنا",
+        "note": "ملاحظة",
+        "rejectionReason": "سبب الرفض",
+        "rejectionReasonPrompt": "يرجى تقديم سبب للرفض:",
+        "accept": "قبول",
+        "reject": "رفض",
+        "bookingSuccess": "تم إرسال طلب الحجز بنجاح! في انتظار تأكيد المحاور.",
+        "acceptSuccess": "تم قبول الحجز بنجاح!",
+        "rejectSuccess": "تم رفض الحجز بنجاح."
     }
 }

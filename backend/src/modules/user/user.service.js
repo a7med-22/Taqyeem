@@ -169,8 +169,53 @@ export const approveInterviewer = async (req, res, next) => {
 
   successResponse({
     res,
-    message: "Interviewer approved successfully",
+    message: "Interviewer rejected successfully",
     data: { user },
+  });
+};
+
+// @desc    Get approved interviewers (For candidates to browse)
+// @route   GET /api/v1/users/interviewers
+// @access  Public
+export const getInterviewers = async (req, res, next) => {
+  const { page = 1, limit = 12, specialization, search } = req.query;
+
+  let query = {
+    role: "interviewer",
+    isApproved: true,
+    isActive: true,
+  };
+
+  if (specialization) {
+    query.specialization = specialization;
+  }
+
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { email: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  const interviewers = await User.find(query)
+    .select("-password")
+    .sort({ createdAt: -1 })
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  const total = await User.countDocuments(query);
+
+  successResponse({
+    res,
+    message: "Interviewers retrieved successfully",
+    data: {
+      interviewers,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / limit),
+        total,
+      },
+    },
   });
 };
 

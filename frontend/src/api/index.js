@@ -19,6 +19,7 @@ export const authAPI = {
 export const usersAPI = {
   getUsers: (params) => api.get("/users", { params }),
   getUserById: (id) => api.get(`/users/${id}`),
+  getInterviewers: (params) => api.get("/users/interviewers", { params }),
   updateProfile: (data) => api.put("/users/me", data),
   updateAvatar: (formData) =>
     api.put("/users/me/avatar", formData, {
@@ -34,6 +35,22 @@ export const daysAPI = {
   createDay: (data) => api.post("/days", data),
   updateDay: (id, data) => api.put(`/days/${id}`, data),
   deleteDay: (id) => api.delete(`/days/${id}`),
+};
+
+// Schedules API
+export const schedulesAPI = {
+  getSchedules: (params) => api.get("/schedules", { params }),
+  getSchedulesByDay: (dayId, params) =>
+    api.get(`/schedules/day/${dayId}`, { params }),
+  getScheduleById: (id) => api.get(`/schedules/${id}`),
+  createSchedule: (data) => api.post("/schedules", data),
+  getMySchedules: (params) => api.get("/schedules/my", { params }),
+  updateSchedule: (id, data) => api.put(`/schedules/${id}`, data),
+  uploadScheduleImage: (id, formData) =>
+    api.put(`/schedules/${id}/image`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  deleteSchedule: (id) => api.delete(`/schedules/${id}`),
 };
 
 // Slots API

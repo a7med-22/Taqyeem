@@ -107,7 +107,22 @@
         "interviewDetails": "Interview Details",
         "joinInterview": "Join Interview",
         "startInterview": "Start Interview",
-        "completeInterview": "Complete Interview"
+        "completeInterview": "Complete Interview",
+        "interviewerSubtitle": "Manage your interview schedules and bookings",
+        "candidateSubtitle": "Browse interviewers and book interview slots",
+        "myReservations": "My Reservations",
+        "myReservationsDescription": "Your booked interview slots",
+        "mySchedules": "My Schedules",
+        "mySchedulesDescription": "Your interview schedule and availability",
+        "pendingReservations": "Pending Reservations",
+        "pendingReservationsDescription": "Review and respond to booking requests",
+        "browseInterviewers": "Browse Interviewers",
+        "browseInterviewersDescription": "Find and book sessions with experienced interviewers",
+        "noInterviewers": "No interviewers available",
+        "noInterviewersDescription": "Check back later for available interviewers",
+        "viewSchedule": "View Schedule",
+        "selectDay": "Select a Day",
+        "selectDayAndSlot": "Select a day and available slot to book"
     },
     "learning": {
         "subtitle": "Enhance your skills with our learning resources",
@@ -189,7 +204,13 @@
         "help": "Help",
         "contact": "Contact",
         "privacy": "Privacy Policy",
-        "allRightsReserved": "All rights reserved."
+        "allRightsReserved": "All rights reserved.",
+        "creating": "Creating...",
+        "minutes": "min",
+        "years": "years",
+        "active": "Active",
+        "inactive": "Inactive",
+        "past": "Past"
     },
     "status": {
         "pending": "Pending",
@@ -245,5 +266,57 @@
         "sessionsDescription": "Monitor active sessions and interviews",
         "content": "Content",
         "contentDescription": "Manage learning content and articles"
+    },
+    "schedules": {
+        "createSchedule": "Create Schedule",
+        "createScheduleDescription": "Set up your availability and auto-generate interview slots",
+        "date": "Interview Date",
+        "dateHelp": "Select a date for your interview schedule",
+        "startTime": "Start Time",
+        "endTime": "End Time",
+        "duration": "Interview Duration",
+        "breakTime": "Break Time",
+        "title": "Schedule Title",
+        "description": "Description",
+        "titlePlaceholder": "e.g., Frontend Development Interviews",
+        "descriptionPlaceholder": "Add any additional information about this schedule...",
+        "durationHelp": "Duration of each interview session (15-180 minutes)",
+        "breakTimeHelp": "Break time between sessions (default: 15 minutes)",
+        "break": "Break",
+        "noSchedules": "No schedules yet. Create your first schedule to start accepting bookings.",
+        "errors": {
+            "dateRequired": "Please select a date",
+            "timeRequired": "Please provide start and end time",
+            "titleRequired": "Schedule title is required"
+        }
+    },
+    "slots": {
+        "available": "Available",
+        "pending": "Pending",
+        "booked": "Booked",
+        "availableSlots": "Available Slots",
+        "pendingSlots": "Pending Slots",
+        "bookedSlots": "Booked Slots",
+        "noSlots": "No slots available",
+        "noSlotsDescription": "Please check back later or select a different day",
+        "bookSlot": "Book This Slot",
+        "alreadyBooked": "Already Booked",
+        "pendingMessage": "This slot has pending reservations",
+        "bookedMessage": "This slot is fully booked"
+    },
+    "reservations": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "rejected": "Rejected",
+        "noReservations": "No reservations yet",
+        "noReservationsDescription": "Your booking requests will appear here",
+        "note": "Note",
+        "rejectionReason": "Rejection Reason",
+        "rejectionReasonPrompt": "Please provide a reason for rejection:",
+        "accept": "Accept",
+        "reject": "Reject",
+        "bookingSuccess": "Booking request sent successfully! Waiting for interviewer confirmation.",
+        "acceptSuccess": "Reservation accepted successfully!",
+        "rejectSuccess": "Reservation rejected successfully."
     }
 }

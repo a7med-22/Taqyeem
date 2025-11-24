@@ -7,6 +7,7 @@ import evaluationRoutes from "./modules/evaluation/evaluation.controller.js";
 import feedbackRoutes from "./modules/feedback/feedback.controller.js";
 import learnRoutes from "./modules/learn/learn.controller.js";
 import reservationRoutes from "./modules/reservation/reservation.controller.js";
+import scheduleRoutes from "./modules/schedule/schedule.controller.js";
 import sessionRoutes from "./modules/session/session.controller.js";
 import slotRoutes from "./modules/slot/slot.controller.js";
 import userRoutes from "./modules/user/user.controller.js";
@@ -25,6 +26,7 @@ router.get("/", (req, res) => {
       auth: "/api/v1/auth",
       users: "/api/v1/users",
       days: "/api/v1/days",
+      schedules: "/api/v1/schedules",
       slots: "/api/v1/slots",
       reservations: "/api/v1/reservations",
       sessions: "/api/v1/sessions",
@@ -52,6 +54,7 @@ router.get("/health", (req, res) => {
 router.use("/api/v1/auth", authRoutes);
 router.use("/api/v1/users", userRoutes);
 router.use("/api/v1/days", dayRoutes);
+router.use("/api/v1/schedules", scheduleRoutes);
 router.use("/api/v1/slots", slotRoutes);
 router.use("/api/v1/reservations", reservationRoutes);
 router.use("/api/v1/sessions", sessionRoutes);
