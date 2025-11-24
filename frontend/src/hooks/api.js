@@ -52,7 +52,7 @@ export const useUsers = (params) => {
   return useQuery({
     queryKey: ["users", params],
     queryFn: () => usersAPI.getUsers(params),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
   });
 };
 
@@ -60,7 +60,9 @@ export const useInterviewers = (params) => {
   return useQuery({
     queryKey: ["interviewers", params],
     queryFn: () => usersAPI.getInterviewers(params),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -80,7 +82,7 @@ export const useDays = (params) => {
   return useQuery({
     queryKey: ["days", params],
     queryFn: () => daysAPI.getDays(params),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
   });
 };
 
@@ -88,7 +90,7 @@ export const useDay = (id) => {
   return useQuery({
     queryKey: ["day", id],
     queryFn: () => daysAPI.getDayById(id),
-    select: (data) => data.data.day,
+    select: (response) => response.data.data.day,
     enabled: !!id,
   });
 };
@@ -109,7 +111,7 @@ export const useSchedules = (params) => {
   return useQuery({
     queryKey: ["schedules", params],
     queryFn: () => schedulesAPI.getSchedules(params),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
   });
 };
 
@@ -117,7 +119,7 @@ export const useSchedulesByDay = (dayId, params) => {
   return useQuery({
     queryKey: ["schedules", "day", dayId, params],
     queryFn: () => schedulesAPI.getSchedulesByDay(dayId, params),
-    select: (data) => data.data.schedules,
+    select: (response) => response.data.data.schedules,
     enabled: !!dayId,
   });
 };
@@ -126,21 +128,19 @@ export const useSchedule = (id) => {
   return useQuery({
     queryKey: ["schedule", id],
     queryFn: () => schedulesAPI.getScheduleById(id),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
     enabled: !!id,
   });
 };
 
-export const useMySchedules = (params) => {
+export const useMySchedules = (params, options = {}) => {
   return useQuery({
     queryKey: ["my-schedules", params],
     queryFn: () => schedulesAPI.getMySchedules(params),
-    select: (response) => {
-      console.log("useMySchedules - Full response:", response);
-      console.log("useMySchedules - response.data:", response.data);
-      console.log("useMySchedules - response.data.data:", response.data.data);
-      return response.data.data.schedules;
-    },
+    select: (response) => response.data.data.schedules,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    ...options,
   });
 };
 
@@ -189,8 +189,19 @@ export const useSlotsByDay = (dayId, params) => {
   return useQuery({
     queryKey: ["slots", dayId, params],
     queryFn: () => slotsAPI.getSlotsByDay(dayId, params),
-    select: (data) => data.data.slots,
+    select: (response) => response.data.data.slots,
     enabled: !!dayId,
+  });
+};
+
+export const useSlotsByInterviewer = (interviewerId, params) => {
+  return useQuery({
+    queryKey: ["interviewer-slots", interviewerId, params],
+    queryFn: () => slotsAPI.getSlotsByInterviewer(interviewerId, params),
+    select: (response) => response.data.data.slots,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+    enabled: !!interviewerId,
   });
 };
 
@@ -198,7 +209,7 @@ export const useMySlots = (params) => {
   return useQuery({
     queryKey: ["my-slots", params],
     queryFn: () => slotsAPI.getMySlots(params),
-    select: (data) => data.data.slots,
+    select: (response) => response.data.data.slots,
   });
 };
 
@@ -219,15 +230,20 @@ export const useMyReservations = (params) => {
   return useQuery({
     queryKey: ["my-reservations", params],
     queryFn: () => reservationsAPI.getMyReservations(params),
-    select: (data) => data.data.reservations,
+    select: (response) => response.data.data.reservations,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
   });
 };
 
-export const usePendingReservations = () => {
+export const usePendingReservations = (enabled = true) => {
   return useQuery({
     queryKey: ["pending-reservations"],
     queryFn: reservationsAPI.getPendingReservations,
-    select: (data) => data.data.reservations,
+    select: (response) => response.data.data.reservations,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    refetchOnWindowFocus: false,
+    enabled,
   });
 };
 

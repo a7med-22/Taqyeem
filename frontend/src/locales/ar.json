@@ -116,13 +116,19 @@
         "mySchedulesDescription": "جدول المقابلات والأوقات المتاحة",
         "pendingReservations": "الحجوزات المعلقة",
         "pendingReservationsDescription": "مراجعة والرد على طلبات الحجز",
+        "allReservations": "جميع الحجوزات",
+        "allReservationsDescription": "عرض جميع حجوزات المقابلات (معلقة، مقبولة، مرفوضة)",
         "browseInterviewers": "تصفح المحاورين",
         "browseInterviewersDescription": "ابحث واحجز جلسات مع محاورين ذوي خبرة",
         "noInterviewers": "لا يوجد محاورون متاحون",
         "noInterviewersDescription": "تحقق مرة أخرى لاحقاً للمحاورين المتاحين",
         "viewSchedule": "عرض الجدول",
         "selectDay": "اختر يوماً",
-        "selectDayAndSlot": "اختر يوماً ووقتاً متاحاً للحجز"
+        "selectSlot": "اختر وقتاً متاحاً للحجز",
+        "selectSlotToBook": "اختر وقتاً لمتابعة الحجز",
+        "selectDuration": "اختر مدة الجلسة:",
+        "selectDayAndSlot": "اختر يوماً ووقتاً متاحاً للحجز",
+        "noSlotsAvailable": "لا توجد أوقات متاحة حالياً"
     },
     "learning": {
         "subtitle": "طور مهاراتك مع مواردنا التعليمية",
@@ -206,6 +212,8 @@
         "privacy": "سياسة الخصوصية",
         "allRightsReserved": "جميع الحقوق محفوظة.",
         "creating": "جار الإنشاء...",
+        "updating": "جار التحديث...",
+        "deleting": "جار الحذف...",
         "minutes": "دقيقة",
         "years": "سنة",
         "active": "نشط",
@@ -269,6 +277,8 @@
     },
     "schedules": {
         "createSchedule": "إنشاء جدول",
+        "editSchedule": "تعديل الجدول",
+        "updateSchedule": "تحديث الجدول",
         "createScheduleDescription": "إعداد الأوقات المتاحة وإنشاء مواعيد تلقائية",
         "date": "تاريخ المقابلة",
         "dateHelp": "اختر تاريخاً لجدول المقابلات",
@@ -284,6 +294,9 @@
         "breakTimeHelp": "وقت الاستراحة بين الجلسات (افتراضي: 15 دقيقة)",
         "break": "استراحة",
         "noSchedules": "لا توجد جداول حتى الآن. أنشئ جدولك الأول لبدء قبول الحجوزات.",
+        "confirmDeleteTitle": "حذف الجدول",
+        "confirmDelete": "هل أنت متأكد من حذف الجدول '{{title}}'؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف جميع المواعيد المرتبطة.",
+        "deleteSuccess": "تم حذف الجدول بنجاح",
         "errors": {
             "dateRequired": "يرجى اختيار تاريخ",
             "timeRequired": "يرجى تحديد وقت البداية والنهاية",
@@ -300,6 +313,8 @@
         "noSlots": "لا توجد مواعيد متاحة",
         "noSlotsDescription": "يرجى التحقق مرة أخرى لاحقاً أو اختيار يوم آخر",
         "bookSlot": "احجز هذا الموعد",
+        "bookNow": "احجز الآن",
+        "slotSelected": "تم اختيار الموعد",
         "alreadyBooked": "محجوز بالفعل",
         "pendingMessage": "هذا الموعد لديه حجوزات معلقة",
         "bookedMessage": "هذا الموعد محجوز بالكامل"

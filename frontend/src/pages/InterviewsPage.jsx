@@ -1,11 +1,11 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
-import DayCalendar from "../components/interviews/DayCalendar.jsx";
 import InterviewerList from "../components/interviews/InterviewerList.jsx";
 import ReservationsList from "../components/interviews/ReservationsList.jsx";
 import ScheduleForm from "../components/interviews/ScheduleForm.jsx";
-import SlotsList from "../components/interviews/SlotsList.jsx";
+import SlotsCalendar from "../components/interviews/SlotsCalendar.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import {
   Card,
@@ -18,13 +18,13 @@ import PageHeader from "../components/ui/PageHeader.jsx";
 import {
   useAcceptReservation,
   useCreateReservation,
-  useDays,
+  useDeleteSchedule,
   useInterviewers,
   useMyReservations,
   useMySchedules,
   usePendingReservations,
   useRejectReservation,
-  useSlotsByDay,
+  useSlotsByInterviewer,
 } from "../hooks/api.js";
 import { useAuth } from "../hooks/useAuth.js";
 
@@ -34,73 +34,96 @@ export default function InterviewsPage() {
   const isRTL = i18n.language === "ar";
 
   const [selectedInterviewer, setSelectedInterviewer] = useState(null);
-  const [selectedDay, setSelectedDay] = useState(null);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState(null);
+  const [scheduleToDelete, setScheduleToDelete] = useState(null);
+
+  const isInterviewer = user?.role === "interviewer";
+  const isCandidate = user?.role === "candidate";
 
   // Fetch data based on user role
-  const { data: interviewersData } = useInterviewers();
-  const { data: daysData } = useDays();
+  // For candidates, only fetch interviewers who have active schedules
+  const interviewerParams = isCandidate ? { hasSchedules: "true" } : {};
+
+  const { data: interviewersData } = useInterviewers(interviewerParams);
   const { data: myReservations } = useMyReservations();
-  const {
-    data: mySchedules,
-    isLoading: schedulesLoading,
-    error: schedulesError,
-  } = useMySchedules();
+  const { data: mySchedules } = useMySchedules(undefined, {
+    enabled: isInterviewer,
+  });
   const { data: pendingReservations } = usePendingReservations(
     user?.role === "interviewer"
   );
 
-  // Debug logging
-  console.log("InterviewsPage - User role:", user?.role);
-  console.log("InterviewsPage - mySchedules data:", mySchedules);
-  console.log("InterviewsPage - schedulesLoading:", schedulesLoading);
-  console.log("InterviewsPage - schedulesError:", schedulesError);
-
-  const { data: slots } = useSlotsByDay(
-    selectedDay?._id,
-    selectedInterviewer ? { interviewerId: selectedInterviewer._id } : {}
-  );
+  const { data: slots } = useSlotsByInterviewer(selectedInterviewer?._id, {
+    status: "available",
+  });
 
   const createReservation = useCreateReservation();
   const acceptReservation = useAcceptReservation();
   const rejectReservation = useRejectReservation();
+  const deleteSchedule = useDeleteSchedule();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  const isInterviewer = user?.role === "interviewer";
-  const isCandidate = user?.role === "candidate";
-
   const handleSelectInterviewer = (interviewer) => {
     setSelectedInterviewer(interviewer);
-    setSelectedDay(null);
   };
 
-  const handleSelectDay = (day) => {
-    setSelectedDay(day);
+  const handleEditSchedule = (schedule) => {
+    setEditingSchedule(schedule);
+    setShowScheduleForm(true);
+  };
+
+  const handleScheduleFormClose = () => {
+    setShowScheduleForm(false);
+    setEditingSchedule(null);
+  };
+
+  const handleDeleteSchedule = async (scheduleId, scheduleTitle) => {
+    setScheduleToDelete({ id: scheduleId, title: scheduleTitle });
+  };
+
+  const confirmDeleteSchedule = async () => {
+    if (!scheduleToDelete) return;
+
+    try {
+      await deleteSchedule.mutateAsync(scheduleToDelete.id);
+      toast.success(t("schedules.deleteSuccess"), { duration: 4000 });
+      setScheduleToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("common.error"), {
+        duration: 5000,
+      });
+    }
+  };
+
+  const cancelDeleteSchedule = () => {
+    setScheduleToDelete(null);
   };
 
   const handleBookSlot = async (slot) => {
-    if (!selectedDay) return;
-
     try {
       await createReservation.mutateAsync({
         slotId: slot._id,
-        note: "",
       });
-      alert(t("reservations.bookingSuccess"));
+      toast.success(t("reservations.bookingSuccess"), { duration: 4000 });
     } catch (error) {
-      alert(error.response?.data?.message || t("common.error"));
+      toast.error(error.response?.data?.message || t("common.error"), {
+        duration: 5000,
+      });
     }
   };
 
   const handleAcceptReservation = async (id) => {
     try {
       await acceptReservation.mutateAsync(id);
-      alert(t("reservations.acceptSuccess"));
+      toast.success(t("reservations.acceptSuccess"), { duration: 4000 });
     } catch (error) {
-      alert(error.response?.data?.message || t("common.error"));
+      toast.error(error.response?.data?.message || t("common.error"), {
+        duration: 5000,
+      });
     }
   };
 
@@ -113,9 +136,11 @@ export default function InterviewsPage() {
         id,
         data: { rejectionReason: reason },
       });
-      alert(t("reservations.rejectSuccess"));
+      toast.success(t("reservations.rejectSuccess"), { duration: 4000 });
     } catch (error) {
-      alert(error.response?.data?.message || t("common.error"));
+      toast.error(error.response?.data?.message || t("common.error"), {
+        duration: 5000,
+      });
     }
   };
 
@@ -213,7 +238,7 @@ export default function InterviewsPage() {
                         {selectedInterviewer.name}
                       </CardTitle>
                       <CardDescription>
-                        {t("interviews.selectDayAndSlot")}
+                        {t("interviews.selectSlot")}
                       </CardDescription>
                     </div>
                     <Button
@@ -221,7 +246,6 @@ export default function InterviewsPage() {
                       size="sm"
                       onClick={() => {
                         setSelectedInterviewer(null);
-                        setSelectedDay(null);
                       }}
                     >
                       {t("common.back")}
@@ -229,33 +253,23 @@ export default function InterviewsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Day Selection */}
+                  {/* Slots */}
                   <div>
                     <h3 className="text-sm font-medium text-secondary-700 mb-3">
-                      {t("interviews.selectDay")}
+                      {t("interviews.availableSlots")}
                     </h3>
-                    <div className="p-4 bg-secondary-50 rounded-lg border border-secondary-200">
-                      <DayCalendar
-                        days={daysData?.days}
-                        selectedDayId={selectedDay?._id}
-                        onSelectDay={handleSelectDay}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Slots */}
-                  {selectedDay && (
-                    <div>
-                      <h3 className="text-sm font-medium text-secondary-700 mb-3">
-                        {t("interviews.availableSlots")}
-                      </h3>
-                      <SlotsList
+                    {slots && slots.length > 0 ? (
+                      <SlotsCalendar
                         slots={slots}
                         onBookSlot={handleBookSlot}
                         bookedSlotIds={bookedSlotIds}
                       />
-                    </div>
-                  )}
+                    ) : (
+                      <div className="text-center py-8 text-secondary-500">
+                        {t("interviews.noSlotsAvailable")}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
@@ -298,6 +312,37 @@ export default function InterviewsPage() {
               </CardContent>
             </Card>
 
+            {/* All My Reservations */}
+            <Card className="card-modern">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-cyan-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                    />
+                  </svg>
+                  {t("interviews.allReservations")}
+                </CardTitle>
+                <CardDescription>
+                  {t("interviews.allReservationsDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReservationsList
+                  reservations={myReservations}
+                  isInterviewer={true}
+                />
+              </CardContent>
+            </Card>
+
             {/* My Schedules */}
             <Card className="card-modern">
               <CardHeader>
@@ -326,7 +371,13 @@ export default function InterviewsPage() {
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => setShowScheduleForm(!showScheduleForm)}
+                    onClick={() => {
+                      if (showScheduleForm) {
+                        handleScheduleFormClose();
+                      } else {
+                        setShowScheduleForm(true);
+                      }
+                    }}
                   >
                     {showScheduleForm
                       ? t("common.cancel")
@@ -338,25 +389,14 @@ export default function InterviewsPage() {
                 {showScheduleForm && (
                   <div className="mb-6">
                     <ScheduleForm
-                      onSuccess={() => setShowScheduleForm(false)}
-                      onCancel={() => setShowScheduleForm(false)}
+                      schedule={editingSchedule}
+                      onSuccess={handleScheduleFormClose}
+                      onCancel={handleScheduleFormClose}
                     />
                   </div>
                 )}
 
-                {schedulesLoading ? (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-secondary-600">
-                      {t("common.loading")}
-                    </p>
-                  </div>
-                ) : schedulesError ? (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-red-600">
-                      Error loading schedules
-                    </p>
-                  </div>
-                ) : mySchedules && mySchedules.length > 0 ? (
+                {mySchedules && mySchedules.length > 0 ? (
                   <div className="space-y-4">
                     {mySchedules.map((schedule) => (
                       <div
@@ -364,10 +404,23 @@ export default function InterviewsPage() {
                         className="p-4 border border-secondary-200 rounded-lg hover:border-primary-300 transition-all"
                       >
                         <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="font-semibold text-secondary-900">
-                              {schedule.title}
-                            </h4>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold text-secondary-900">
+                                {schedule.title}
+                              </h4>
+                              <span className="text-sm font-medium text-cyan-600 bg-cyan-50 px-2 py-1 rounded">
+                                {new Date(schedule.date).toLocaleDateString(
+                                  i18n.language === "ar" ? "ar-EG" : "en-US",
+                                  {
+                                    weekday: "short",
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </span>
+                            </div>
                             <p className="text-sm text-secondary-600 mt-1">
                               {schedule.description}
                             </p>
@@ -386,17 +439,66 @@ export default function InterviewsPage() {
                               </span>
                             </div>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-medium ${
-                              schedule.isActive
-                                ? "bg-green-100 text-green-800"
-                                : "bg-secondary-100 text-secondary-800"
-                            }`}
-                          >
-                            {schedule.isActive
-                              ? t("common.active")
-                              : t("common.inactive")}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditSchedule(schedule)}
+                              className="text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50"
+                            >
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                />
+                              </svg>
+                              {t("common.edit")}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() =>
+                                handleDeleteSchedule(
+                                  schedule._id,
+                                  schedule.title
+                                )
+                              }
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <svg
+                                className="w-4 h-4 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                />
+                              </svg>
+                              {t("common.delete")}
+                            </Button>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-medium ${
+                                schedule.isActive
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-secondary-100 text-secondary-800"
+                              }`}
+                            >
+                              {schedule.isActive
+                                ? t("common.active")
+                                : t("common.inactive")}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -411,6 +513,58 @@ export default function InterviewsPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {scheduleToDelete && (
+        <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200 border border-secondary-200">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-secondary-900">
+                  {t("schedules.confirmDeleteTitle")}
+                </h3>
+              </div>
+            </div>
+            <p className="text-secondary-600 mb-6">
+              {t("schedules.confirmDelete", { title: scheduleToDelete.title })}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="outline"
+                onClick={cancelDeleteSchedule}
+                disabled={deleteSchedule.isPending}
+              >
+                {t("common.cancel")}
+              </Button>
+              <Button
+                variant="default"
+                onClick={confirmDeleteSchedule}
+                disabled={deleteSchedule.isPending}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                {deleteSchedule.isPending
+                  ? t("common.deleting")
+                  : t("common.delete")}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

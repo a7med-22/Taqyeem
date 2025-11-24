@@ -75,6 +75,53 @@ export const getSlotsByDay = async (req, res, next) => {
   });
 };
 
+// @desc    Get slots by interviewer
+// @route   GET /api/v1/slots/interviewer/:interviewerId
+// @access  Public
+export const getSlotsByInterviewer = async (req, res, next) => {
+  const { interviewerId } = req.params;
+  const { status, date, startDate, endDate } = req.query;
+
+  let query = { interviewerId };
+
+  // Filter by status (default to available)
+  if (status) {
+    query.status = status;
+  } else {
+    query.status = "available";
+  }
+
+  // Filter by specific date or date range
+  if (date) {
+    const targetDate = new Date(date);
+    const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+    query.date = { $gte: startOfDay, $lte: endOfDay };
+  } else if (startDate || endDate) {
+    query.date = {};
+    if (startDate) {
+      query.date.$gte = new Date(startDate);
+    }
+    if (endDate) {
+      query.date.$lte = new Date(endDate);
+    }
+  } else {
+    // By default, only show future slots
+    query.date = { $gte: new Date() };
+  }
+
+  const slots = await Slot.find(query)
+    .populate("scheduleId", "date title")
+    .populate("interviewerId", "name email avatarUrl")
+    .sort({ date: 1, startTime: 1 });
+
+  successResponse({
+    res,
+    message: "Time slots retrieved successfully",
+    data: { slots },
+  });
+};
+
 // @desc    Get my slots (for interviewers)
 // @route   GET /api/v1/slots/my
 // @access  Private/Interviewer

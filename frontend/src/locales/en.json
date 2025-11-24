@@ -116,13 +116,19 @@
         "mySchedulesDescription": "Your interview schedule and availability",
         "pendingReservations": "Pending Reservations",
         "pendingReservationsDescription": "Review and respond to booking requests",
+        "allReservations": "All Reservations",
+        "allReservationsDescription": "View all your interview reservations (pending, accepted, rejected)",
         "browseInterviewers": "Browse Interviewers",
         "browseInterviewersDescription": "Find and book sessions with experienced interviewers",
         "noInterviewers": "No interviewers available",
         "noInterviewersDescription": "Check back later for available interviewers",
         "viewSchedule": "View Schedule",
         "selectDay": "Select a Day",
-        "selectDayAndSlot": "Select a day and available slot to book"
+        "selectSlot": "Select an available slot to book",
+        "selectSlotToBook": "Select a slot to continue booking",
+        "selectDuration": "Select session duration:",
+        "selectDayAndSlot": "Select a day and available slot to book",
+        "noSlotsAvailable": "No available slots at this time"
     },
     "learning": {
         "subtitle": "Enhance your skills with our learning resources",
@@ -206,6 +212,8 @@
         "privacy": "Privacy Policy",
         "allRightsReserved": "All rights reserved.",
         "creating": "Creating...",
+        "updating": "Updating...",
+        "deleting": "Deleting...",
         "minutes": "min",
         "years": "years",
         "active": "Active",
@@ -269,6 +277,8 @@
     },
     "schedules": {
         "createSchedule": "Create Schedule",
+        "editSchedule": "Edit Schedule",
+        "updateSchedule": "Update Schedule",
         "createScheduleDescription": "Set up your availability and auto-generate interview slots",
         "date": "Interview Date",
         "dateHelp": "Select a date for your interview schedule",
@@ -284,6 +294,9 @@
         "breakTimeHelp": "Break time between sessions (default: 15 minutes)",
         "break": "Break",
         "noSchedules": "No schedules yet. Create your first schedule to start accepting bookings.",
+        "confirmDeleteTitle": "Delete Schedule",
+        "confirmDelete": "Are you sure you want to delete the schedule '{{title}}'? This action cannot be undone and all associated slots will be removed.",
+        "deleteSuccess": "Schedule deleted successfully",
         "errors": {
             "dateRequired": "Please select a date",
             "timeRequired": "Please provide start and end time",
@@ -300,6 +313,8 @@
         "noSlots": "No slots available",
         "noSlotsDescription": "Please check back later or select a different day",
         "bookSlot": "Book This Slot",
+        "bookNow": "Book Now",
+        "slotSelected": "Slot is selected",
         "alreadyBooked": "Already Booked",
         "pendingMessage": "This slot has pending reservations",
         "bookedMessage": "This slot is fully booked"

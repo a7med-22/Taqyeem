@@ -11,6 +11,7 @@ import {
 const router = express.Router();
 
 // Public routes
+router.get("/interviewer/:interviewerId", service.getSlotsByInterviewer);
 router.get("/:dayId", validation(getSlotsByDaySchema), service.getSlotsByDay);
 
 // Protected routes

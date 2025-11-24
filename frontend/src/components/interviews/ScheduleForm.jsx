@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCreateSchedule } from "../../hooks/api";
+import { useCreateSchedule, useUpdateSchedule } from "../../hooks/api";
 import { Button } from "../ui/Button";
 import {
   Card,
@@ -12,9 +12,11 @@ import {
 } from "../ui/Card";
 import { Input } from "../ui/Input";
 
-export default function ScheduleForm({ onSuccess, onCancel }) {
+export default function ScheduleForm({ schedule, onSuccess, onCancel }) {
   const { t } = useTranslation();
   const createSchedule = useCreateSchedule();
+  const updateSchedule = useUpdateSchedule();
+  const isEditMode = !!schedule;
 
   // Get tomorrow's date as minimum
   const tomorrow = new Date();
@@ -30,6 +32,23 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
     title: "",
     description: "",
   });
+
+  // Populate form with schedule data in edit mode
+  useEffect(() => {
+    if (schedule) {
+      setFormData({
+        date: schedule.date
+          ? new Date(schedule.date).toISOString().split("T")[0]
+          : "",
+        startTime: schedule.startTime || "",
+        endTime: schedule.endTime || "",
+        duration: schedule.duration || 60,
+        breakTime: schedule.breakTime || 15,
+        title: schedule.title || "",
+        description: schedule.description || "",
+      });
+    }
+  }, [schedule]);
 
   const [error, setError] = useState("");
 
@@ -66,7 +85,14 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
     }
 
     try {
-      await createSchedule.mutateAsync(formData);
+      if (isEditMode) {
+        await updateSchedule.mutateAsync({
+          id: schedule._id,
+          data: formData,
+        });
+      } else {
+        await createSchedule.mutateAsync(formData);
+      }
       onSuccess?.();
     } catch (err) {
       setError(err.response?.data?.message || t("common.error"));
@@ -76,7 +102,11 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
   return (
     <Card className="card-modern">
       <CardHeader>
-        <CardTitle>{t("schedules.createSchedule")}</CardTitle>
+        <CardTitle>
+          {isEditMode
+            ? t("schedules.editSchedule")
+            : t("schedules.createSchedule")}
+        </CardTitle>
         <CardDescription>
           {t("schedules.createScheduleDescription")}
         </CardDescription>
@@ -209,9 +239,13 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
               type="submit"
               variant="default"
               className="flex-1"
-              disabled={createSchedule.isPending}
+              disabled={createSchedule.isPending || updateSchedule.isPending}
             >
-              {createSchedule.isPending
+              {isEditMode
+                ? updateSchedule.isPending
+                  ? t("common.updating")
+                  : t("schedules.updateSchedule")
+                : createSchedule.isPending
                 ? t("common.creating")
                 : t("schedules.createSchedule")}
             </Button>
@@ -220,7 +254,7 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
                 type="button"
                 variant="outline"
                 onClick={onCancel}
-                disabled={createSchedule.isPending}
+                disabled={createSchedule.isPending || updateSchedule.isPending}
               >
                 {t("common.cancel")}
               </Button>
@@ -233,6 +267,7 @@ export default function ScheduleForm({ onSuccess, onCancel }) {
 }
 
 ScheduleForm.propTypes = {
+  schedule: PropTypes.object,
   onSuccess: PropTypes.func,
   onCancel: PropTypes.func,
 };

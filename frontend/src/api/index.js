@@ -56,6 +56,8 @@ export const schedulesAPI = {
 // Slots API
 export const slotsAPI = {
   getSlotsByDay: (dayId, params) => api.get(`/slots/${dayId}`, { params }),
+  getSlotsByInterviewer: (interviewerId, params) =>
+    api.get(`/slots/interviewer/${interviewerId}`, { params }),
   createSlot: (data) => api.post("/slots", data),
   getMySlots: (params) => api.get("/slots/my", { params }),
   updateSlot: (id, data) => api.put(`/slots/${id}`, data),

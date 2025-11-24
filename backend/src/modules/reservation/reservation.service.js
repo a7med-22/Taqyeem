@@ -10,7 +10,7 @@ export const createReservation = async (req, res, next) => {
   const { slotId, note } = req.body;
 
   // Check if slot exists and is available
-  const slot = await Slot.findById(slotId).populate("dayId", "date title");
+  const slot = await Slot.findById(slotId);
   if (!slot) {
     throw new Error("Time slot not found", { cause: 404 });
   }
@@ -83,8 +83,7 @@ export const getMyReservations = async (req, res, next) => {
   }
 
   const reservations = await Reservation.find(query)
-    .populate("slotId", "startTime endTime")
-    .populate("dayId", "date title")
+    .populate("slotId", "startTime endTime date")
     .populate("candidateId", "name email avatarUrl")
     .populate("interviewerId", "name email avatarUrl")
     .sort({ createdAt: -1 });
@@ -104,8 +103,7 @@ export const getPendingReservations = async (req, res, next) => {
     interviewerId: req.user._id,
     status: "pending",
   })
-    .populate("slotId", "startTime endTime")
-    .populate("dayId", "date title")
+    .populate("slotId", "startTime endTime date")
     .populate("candidateId", "name email avatarUrl")
     .sort({ createdAt: 1 });
 

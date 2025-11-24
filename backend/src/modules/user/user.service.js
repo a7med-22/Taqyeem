@@ -1,3 +1,4 @@
+import Schedule from "../../DB/models/schedule.model.js";
 import User from "../../DB/models/user.model.js";
 import { successResponse } from "../../utils/index.js";
 
@@ -178,7 +179,13 @@ export const approveInterviewer = async (req, res, next) => {
 // @route   GET /api/v1/users/interviewers
 // @access  Public
 export const getInterviewers = async (req, res, next) => {
-  const { page = 1, limit = 12, specialization, search } = req.query;
+  const {
+    page = 1,
+    limit = 12,
+    specialization,
+    search,
+    hasSchedules,
+  } = req.query;
 
   let query = {
     role: "interviewer",
@@ -195,6 +202,15 @@ export const getInterviewers = async (req, res, next) => {
       { name: { $regex: search, $options: "i" } },
       { email: { $regex: search, $options: "i" } },
     ];
+  }
+
+  // If hasSchedules is true, only return interviewers with active schedules
+  if (hasSchedules === "true") {
+    // Get interviewer IDs who have active schedules
+    const activeSchedules = await Schedule.find({ isActive: true }).distinct(
+      "interviewerId"
+    );
+    query._id = { $in: activeSchedules };
   }
 
   const interviewers = await User.find(query)

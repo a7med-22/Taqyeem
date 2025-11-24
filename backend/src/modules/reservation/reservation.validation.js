@@ -5,7 +5,7 @@ import { generalRules } from "../../utils/validation-rules.js";
 export const createReservationSchema = {
   body: Joi.object({
     slotId: generalRules.mongoId("Slot ID").required(),
-    notes: generalRules.text("Notes", 1, 500).optional(),
+    note: generalRules.text("Note", 1, 500).optional(),
   }),
 };
 
