@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +18,7 @@ import { PasswordInput } from "../components/ui/PasswordInput.jsx";
 import { ROUTES } from "../config/app.js";
 import { useRegister } from "../hooks/api.js";
 import { useAuth } from "../hooks/useAuth.js";
+import { createValidationSchemas, validateFile } from "../utils/validation.js";
 
 export default function RegisterPage() {
   const { t, i18n } = useTranslation();
@@ -26,35 +28,79 @@ export default function RegisterPage() {
   const { login } = useAuth();
   const [cvFile, setCvFile] = useState(null);
 
+  // Create validation schemas with translation function
+  const validationSchemas = useMemo(() => createValidationSchemas(t), [t]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
+    setError,
   } = useForm({
+    resolver: zodResolver(validationSchemas.registerSchema),
     defaultValues: {
       role: "candidate",
+      language: i18n.language,
     },
   });
-  const password = watch("password");
   const selectedRole = watch("role");
 
   const onSubmit = async (data) => {
     try {
+      // Validate interviewer-specific fields
+      if (data.role === "interviewer") {
+        // Validate CV file
+        if (!cvFile) {
+          setError("cv", {
+            type: "manual",
+            message: t("auth.cvRequired"),
+          });
+          toast.error(t("auth.cvRequired"), { duration: 4000 });
+          return;
+        }
+
+        const fileValidation = validateFile(cvFile, {}, t);
+        if (!fileValidation.valid) {
+          setError("cv", {
+            type: "manual",
+            message: fileValidation.error,
+          });
+          toast.error(fileValidation.error, { duration: 4000 });
+          return;
+        }
+
+        // Validate years of experience
+        if (!data.yearsOfExperience && data.yearsOfExperience !== 0) {
+          setError("yearsOfExperience", {
+            type: "manual",
+            message: t("validation.yearsOfExperienceRequired"),
+          });
+          toast.error(t("validation.yearsOfExperienceRequired"), { duration: 4000 });
+          return;
+        }
+
+        // Validate specialization
+        if (!data.specialization) {
+          setError("specialization", {
+            type: "manual",
+            message: t("validation.specializationRequired"),
+          });
+          toast.error(t("validation.specializationRequired"), { duration: 4000 });
+          return;
+        }
+      }
+
       // Create FormData for file upload
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("email", data.email);
       formData.append("password", data.password);
       formData.append("role", data.role);
-      formData.append("language", i18n.language);
+      formData.append("language", data.language || i18n.language);
 
       // Add interviewer-specific fields
       if (data.role === "interviewer") {
-        if (!cvFile) {
-          toast.error(t("auth.cvRequired"));
-          return;
-        }
         formData.append("yearsOfExperience", data.yearsOfExperience);
         formData.append("specialization", data.specialization);
         formData.append("cv", cvFile);
@@ -77,18 +123,20 @@ export default function RegisterPage() {
       if (data.role === "interviewer") {
         toast.success(
           response?.data?.message ||
-            "Registration successful. Your account is pending admin approval."
+            "Registration successful. Your account is pending admin approval.",
+          { duration: 5000 }
         );
         navigate(ROUTES.LOGIN);
       } else {
         if (userData && token) {
           // Update the auth context with the registration data
           login(userData, token);
-          toast.success(t("auth.registerSuccess"));
+          toast.success(t("auth.registerSuccess"), { duration: 4000 });
           navigate(ROUTES.DASHBOARD);
         } else {
           toast.success(
-            response?.data?.message || t("auth.registerSuccess")
+            response?.data?.message || t("auth.registerSuccess"),
+            { duration: 4000 }
           );
           navigate(ROUTES.LOGIN);
         }
@@ -99,31 +147,22 @@ export default function RegisterPage() {
         error.response?.data?.message ||
         error.message ||
         t("errors.genericError");
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 5000 });
     }
   };
 
   const handleCvChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
-      const allowedTypes = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      ];
-      if (!allowedTypes.includes(file.type)) {
-        toast.error("Please upload a PDF or Word document");
+      const validation = validateFile(file, {}, t);
+      if (!validation.valid) {
+        toast.error(validation.error, { duration: 4000 });
         e.target.value = "";
-        return;
-      }
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
-        e.target.value = "";
+        setCvFile(null);
         return;
       }
       setCvFile(file);
+      toast.success(`✓ ${file.name}`, { duration: 3000 });
     }
   };
 
@@ -155,7 +194,7 @@ export default function RegisterPage() {
                 <Input
                   id="name"
                   type="text"
-                  {...register("name", { required: t("validation.required") })}
+                  {...register("name")}
                   className={errors.name ? "border-red-500" : ""}
                 />
                 {errors.name && (
@@ -175,13 +214,7 @@ export default function RegisterPage() {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email", {
-                    required: t("validation.required"),
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: t("validation.email"),
-                    },
-                  })}
+                  {...register("email")}
                   className={errors.email ? "border-red-500" : ""}
                 />
                 {errors.email && (
@@ -200,13 +233,7 @@ export default function RegisterPage() {
                 </label>
                 <PasswordInput
                   id="password"
-                  {...register("password", {
-                    required: t("validation.required"),
-                    minLength: {
-                      value: 6,
-                      message: t("validation.password"),
-                    },
-                  })}
+                  {...register("password")}
                   className={errors.password ? "border-red-500" : ""}
                 />
                 {errors.password && (
@@ -225,11 +252,7 @@ export default function RegisterPage() {
                 </label>
                 <PasswordInput
                   id="confirmPassword"
-                  {...register("confirmPassword", {
-                    required: t("validation.required"),
-                    validate: (value) =>
-                      value === password || t("validation.passwordMatch"),
-                  })}
+                  {...register("confirmPassword")}
                   className={errors.confirmPassword ? "border-red-500" : ""}
                 />
                 {errors.confirmPassword && (
@@ -248,7 +271,7 @@ export default function RegisterPage() {
                 </label>
                 <select
                   id="role"
-                  {...register("role", { required: t("validation.required") })}
+                  {...register("role")}
                   className="input-modern flex h-12 w-full"
                 >
                   <option value="candidate">{t("roles.candidate")}</option>
@@ -275,7 +298,7 @@ export default function RegisterPage() {
                           htmlFor="yearsOfExperience"
                           className="block text-sm font-medium text-secondary-700 mb-2"
                         >
-                          {t("auth.yearsOfExperience")}
+                          {t("auth.yearsOfExperience")} <span className="text-red-500">*</span>
                         </label>
                         <Input
                           id="yearsOfExperience"
@@ -283,19 +306,7 @@ export default function RegisterPage() {
                           min="0"
                           max="50"
                           {...register("yearsOfExperience", {
-                            required:
-                              selectedRole === "interviewer"
-                                ? t("validation.required")
-                                : false,
-                            min: {
-                              value: 0,
-                              message: "Years of experience cannot be negative",
-                            },
-                            max: {
-                              value: 50,
-                              message:
-                                "Years of experience must not exceed 50",
-                            },
+                            valueAsNumber: true,
                           })}
                           className={
                             errors.yearsOfExperience ? "border-red-500" : ""
@@ -313,19 +324,14 @@ export default function RegisterPage() {
                           htmlFor="specialization"
                           className="block text-sm font-medium text-secondary-700 mb-2"
                         >
-                          {t("auth.specialization")}
+                          {t("auth.specialization")} <span className="text-red-500">*</span>
                         </label>
                         <select
                           id="specialization"
-                          {...register("specialization", {
-                            required:
-                              selectedRole === "interviewer"
-                                ? t("validation.required")
-                                : false,
-                          })}
+                          {...register("specialization")}
                           className="input-modern flex h-12 w-full"
                         >
-                          <option value="">Select specialization...</option>
+                          <option value="">{t("validation.selectSpecialization")}</option>
                           <option value="frontend">
                             {t("specializations.frontend")}
                           </option>

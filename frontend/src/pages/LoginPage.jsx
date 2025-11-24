@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +18,7 @@ import { PasswordInput } from "../components/ui/PasswordInput.jsx";
 import { ROUTES } from "../config/app.js";
 import { useLogin } from "../hooks/api.js";
 import { useAuth } from "../hooks/useAuth.js";
+import { createValidationSchemas } from "../utils/validation.js";
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
@@ -24,11 +27,16 @@ export default function LoginPage() {
   const loginMutation = useLogin();
   const { login } = useAuth();
 
+  // Create validation schemas with translation function
+  const validationSchemas = useMemo(() => createValidationSchemas(t), [t]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(validationSchemas.loginSchema),
+  });
 
   const onSubmit = async (data) => {
     try {
@@ -63,7 +71,7 @@ export default function LoginPage() {
       await login(userData, token);
 
       console.log("LoginPage - Auth context updated, showing success toast");
-      toast.success(t("auth.loginSuccess"));
+      toast.success(t("auth.loginSuccess"), { duration: 4000 });
 
       // Small delay to ensure context update completes
       setTimeout(() => {
@@ -76,7 +84,7 @@ export default function LoginPage() {
         error.response?.data?.message ||
         error.message ||
         t("errors.genericError");
-      toast.error(errorMessage);
+      toast.error(errorMessage, { duration: 5000 });
     }
   };
 
@@ -108,7 +116,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  {...register("email", { required: t("validation.required") })}
+                  {...register("email")}
                   className={errors.email ? "border-red-500" : ""}
                 />
                 {errors.email && (
@@ -127,9 +135,7 @@ export default function LoginPage() {
                 </label>
                 <PasswordInput
                   id="password"
-                  {...register("password", {
-                    required: t("validation.required"),
-                  })}
+                  {...register("password")}
                   className={errors.password ? "border-red-500" : ""}
                 />
                 {errors.password && (
