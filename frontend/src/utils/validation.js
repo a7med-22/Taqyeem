@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Frontend validation rules matching backend Joi validation
  * These provide client-side validation before sending data to the server
- * 
+ *
  * Note: These schemas use a translation function that should be passed from the component
  * For react-hook-form integration, use the createValidationSchemas function
  */
@@ -24,10 +24,7 @@ export const createValidationSchemas = (t) => {
   const passwordSchema = z
     .string()
     .min(6, t("validation.password"))
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-      t("validation.passwordComplex")
-    );
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, t("validation.passwordComplex"));
 
   // Simple password (for login - no pattern check)
   const passwordSimpleSchema = z
@@ -85,7 +82,9 @@ export const createValidationSchemas = (t) => {
       name: nameSchema,
       email: emailSchema,
       password: passwordSchema,
-      confirmPassword: z.string().min(1, t("validation.confirmPasswordRequired")),
+      confirmPassword: z
+        .string()
+        .min(1, t("validation.confirmPasswordRequired")),
       role: roleSchema,
       language: languageSchema.optional(),
       // Interviewer-specific fields (conditional validation in component)
@@ -124,7 +123,9 @@ export const createValidationSchemas = (t) => {
     .object({
       currentPassword: passwordSimpleSchema,
       newPassword: passwordSchema,
-      confirmNewPassword: z.string().min(1, t("validation.confirmPasswordRequired")),
+      confirmNewPassword: z
+        .string()
+        .min(1, t("validation.confirmPasswordRequired")),
     })
     .refine((data) => data.newPassword === data.confirmNewPassword, {
       message: t("validation.passwordMatch"),
@@ -231,9 +232,9 @@ export const validateFile = (file, options = {}, t = null) => {
   } = options;
 
   if (!file) {
-    return { 
-      valid: false, 
-      error: t ? t("validation.fileRequired") : "File is required" 
+    return {
+      valid: false,
+      error: t ? t("validation.fileRequired") : "File is required",
     };
   }
 
@@ -242,7 +243,7 @@ export const validateFile = (file, options = {}, t = null) => {
     const sizeMB = maxSize / (1024 * 1024);
     return {
       valid: false,
-      error: t 
+      error: t
         ? t("validation.fileSizeExceeded", { size: sizeMB })
         : `File size must be less than ${sizeMB}MB`,
     };

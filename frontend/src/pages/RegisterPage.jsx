@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +76,9 @@ export default function RegisterPage() {
             type: "manual",
             message: t("validation.yearsOfExperienceRequired"),
           });
-          toast.error(t("validation.yearsOfExperienceRequired"), { duration: 4000 });
+          toast.error(t("validation.yearsOfExperienceRequired"), {
+            duration: 4000,
+          });
           return;
         }
 
@@ -86,7 +88,9 @@ export default function RegisterPage() {
             type: "manual",
             message: t("validation.specializationRequired"),
           });
-          toast.error(t("validation.specializationRequired"), { duration: 4000 });
+          toast.error(t("validation.specializationRequired"), {
+            duration: 4000,
+          });
           return;
         }
       }
@@ -134,10 +138,9 @@ export default function RegisterPage() {
           toast.success(t("auth.registerSuccess"), { duration: 4000 });
           navigate(ROUTES.DASHBOARD);
         } else {
-          toast.success(
-            response?.data?.message || t("auth.registerSuccess"),
-            { duration: 4000 }
-          );
+          toast.success(response?.data?.message || t("auth.registerSuccess"), {
+            duration: 4000,
+          });
           navigate(ROUTES.LOGIN);
         }
       }
@@ -298,7 +301,8 @@ export default function RegisterPage() {
                           htmlFor="yearsOfExperience"
                           className="block text-sm font-medium text-secondary-700 mb-2"
                         >
-                          {t("auth.yearsOfExperience")} <span className="text-red-500">*</span>
+                          {t("auth.yearsOfExperience")}{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <Input
                           id="yearsOfExperience"
@@ -324,14 +328,17 @@ export default function RegisterPage() {
                           htmlFor="specialization"
                           className="block text-sm font-medium text-secondary-700 mb-2"
                         >
-                          {t("auth.specialization")} <span className="text-red-500">*</span>
+                          {t("auth.specialization")}{" "}
+                          <span className="text-red-500">*</span>
                         </label>
                         <select
                           id="specialization"
                           {...register("specialization")}
                           className="input-modern flex h-12 w-full"
                         >
-                          <option value="">{t("validation.selectSpecialization")}</option>
+                          <option value="">
+                            {t("validation.selectSpecialization")}
+                          </option>
                           <option value="frontend">
                             {t("specializations.frontend")}
                           </option>
