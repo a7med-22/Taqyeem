@@ -1,5 +1,5 @@
-import jwt from "jsonwebtoken";
 import User from "../DB/models/user.model.js";
+import { verifyToken } from "../utils/token/verifyToken.js";
 
 export const authenticate = async (req, res, next) => {
   try {
@@ -20,8 +20,8 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verify token using the verifyToken utility
+    const decoded = await verifyToken({ token });
 
     // Get user from database
     const user = await User.findById(decoded.id).select("-password");
@@ -69,24 +69,4 @@ export const authenticate = async (req, res, next) => {
       message: "Server error during authentication.",
     });
   }
-};
-
-export const authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required.",
-      });
-    }
-
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: "Access denied. Insufficient permissions.",
-      });
-    }
-
-    next();
-  };
 };
