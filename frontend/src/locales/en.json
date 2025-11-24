@@ -54,12 +54,29 @@
         "registerSuccess": "Registration successful",
         "logoutSuccess": "Logout successful",
         "loginDescription": "Sign in to your account to continue",
-        "registerDescription": "Create your account to get started"
+        "registerDescription": "Create your account to get started",
+        "yearsOfExperience": "Years of Experience",
+        "specialization": "Specialization",
+        "cv": "CV (Curriculum Vitae)",
+        "cvRequired": "CV is required for interviewers",
+        "interviewerFieldsNote": "Additional information required for interviewers"
     },
     "roles": {
         "candidate": "Candidate",
         "interviewer": "Interviewer",
         "admin": "Administrator"
+    },
+    "specializations": {
+        "frontend": "Frontend Development",
+        "backend": "Backend Development",
+        "fullstack": "Full Stack Development",
+        "mobile": "Mobile Development",
+        "devops": "DevOps",
+        "data-science": "Data Science",
+        "ai-ml": "AI & Machine Learning",
+        "cybersecurity": "Cybersecurity",
+        "qa": "Quality Assurance",
+        "ui-ux": "UI/UX Design"
     },
     "dashboard": {
         "welcome": "Welcome to your dashboard",

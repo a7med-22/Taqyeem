@@ -54,12 +54,29 @@
         "registerSuccess": "تم التسجيل بنجاح",
         "logoutSuccess": "تم تسجيل الخروج بنجاح",
         "loginDescription": "سجل دخولك إلى حسابك للمتابعة",
-        "registerDescription": "أنشئ حسابك للبدء"
+        "registerDescription": "أنشئ حسابك للبدء",
+        "yearsOfExperience": "سنوات الخبرة",
+        "specialization": "التخصص",
+        "cv": "السيرة الذاتية",
+        "cvRequired": "السيرة الذاتية مطلوبة للمحاورين",
+        "interviewerFieldsNote": "معلومات إضافية مطلوبة للمحاورين"
     },
     "roles": {
         "candidate": "متقدم",
         "interviewer": "محاور",
         "admin": "مدير"
+    },
+    "specializations": {
+        "frontend": "تطوير الواجهات الأمامية",
+        "backend": "تطوير الواجهات الخلفية",
+        "fullstack": "تطوير متكامل",
+        "mobile": "تطوير تطبيقات الجوال",
+        "devops": "DevOps",
+        "data-science": "علم البيانات",
+        "ai-ml": "الذكاء الاصطناعي والتعلم الآلي",
+        "cybersecurity": "الأمن السيبراني",
+        "qa": "ضمان الجودة",
+        "ui-ux": "تصميم واجهات المستخدم"
     },
     "dashboard": {
         "welcome": "مرحباً بك في لوحة التحكم",

@@ -37,26 +37,10 @@ export default function LoginPage() {
 
       console.log("LoginPage - Full response object:", response);
       console.log("LoginPage - Response data:", response?.data);
-      console.log(
-        "LoginPage - Response data keys:",
-        Object.keys(response?.data || {})
-      );
 
-      console.log("LoginPage - Login response structure:", {
-        hasResponse: !!response,
-        hasData: !!response?.data,
-        hasUser: !!response?.data?.user,
-        hasToken: !!response?.data?.token,
-        userId: response?.data?.user?._id,
-        userName: response?.data?.user?.name,
-        tokenLength: response?.data?.token?.length,
-      });
-
-      // Check if the response structure is different
-      const userData =
-        response?.data?.user || response?.data?.data?.user || response?.user;
-      const token =
-        response?.data?.token || response?.data?.data?.token || response?.token;
+      // Backend returns: { success: true, message: "...", data: { user, access_token, refresh_token } }
+      const userData = response?.data?.data?.user;
+      const token = response?.data?.data?.access_token;
 
       console.log("LoginPage - Extracted data:", {
         userData,

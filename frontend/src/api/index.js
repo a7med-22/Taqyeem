@@ -3,7 +3,15 @@ import api from '../config/api.js';
 // Auth API
 export const authAPI = {
   login: (credentials) => api.post('/auth/login', credentials),
-  register: (userData) => api.post('/auth/register', userData),
+  register: (userData) => {
+    // Check if userData is FormData
+    if (userData instanceof FormData) {
+      return api.post('/auth/register', userData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    }
+    return api.post('/auth/register', userData);
+  },
   getMe: () => api.get('/auth/me'),
 };
 
