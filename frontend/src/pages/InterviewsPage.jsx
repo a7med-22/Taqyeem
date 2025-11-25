@@ -16,6 +16,7 @@ import {
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
+import { RejectReservationDialog } from "../components/ui/RejectReservationDialog.jsx";
 import { formatTime } from "../utils/helpers.js";
 import {
   useAcceptReservation,
@@ -39,6 +40,7 @@ export default function InterviewsPage() {
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
+  const [reservationToReject, setReservationToReject] = useState(null);
 
   const isInterviewer = user?.role === "interviewer";
   const isCandidate = user?.role === "candidate";
@@ -129,16 +131,27 @@ export default function InterviewsPage() {
     }
   };
 
-  const handleRejectReservation = async (id) => {
-    const reason = prompt(t("reservations.rejectionReasonPrompt"));
-    if (!reason) return;
+  const handleRejectReservation = (id) => {
+    // Find reservation to get candidate name (check both lists)
+    const reservation =
+      pendingReservations?.find((r) => r._id === id) ||
+      myReservations?.find((r) => r._id === id);
+    setReservationToReject({
+      id,
+      candidateName: reservation?.candidateId?.name || reservation?.candidate?.name,
+    });
+  };
+
+  const confirmRejectReservation = async (reason) => {
+    if (!reservationToReject) return;
 
     try {
       await rejectReservation.mutateAsync({
-        id,
+        id: reservationToReject.id,
         data: { rejectionReason: reason },
       });
       toast.success(t("reservations.rejectSuccess"), { duration: 4000 });
+      setReservationToReject(null);
     } catch (error) {
       toast.error(error.response?.data?.message || t("common.error"), {
         duration: 5000,
@@ -146,9 +159,13 @@ export default function InterviewsPage() {
     }
   };
 
+  const cancelRejectReservation = () => {
+    setReservationToReject(null);
+  };
+
   const bookedSlotIds =
     myReservations
-      ?.filter((r) => r.status === "pending")
+      ?.filter((r) => r.status === "pending" || r.status === "accepted")
       .map((r) => r.slotId?._id) || [];
 
   return (
@@ -528,6 +545,15 @@ export default function InterviewsPage() {
         cancelLabel={t("common.cancel")}
         loadingLabel={t("common.deleting")}
         isLoading={deleteSchedule.isPending}
+      />
+
+      {/* Reject Reservation Dialog */}
+      <RejectReservationDialog
+        isOpen={!!reservationToReject}
+        onClose={cancelRejectReservation}
+        onConfirm={confirmRejectReservation}
+        candidateName={reservationToReject?.candidateName}
+        isLoading={rejectReservation.isPending}
       />
     </div>
   );

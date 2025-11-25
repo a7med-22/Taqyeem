@@ -365,9 +365,11 @@ export const useAcceptReservation = () => {
   return useMutation({
     mutationFn: reservationsAPI.acceptReservation,
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-reservations"]);
-      queryClient.invalidateQueries(["my-reservations"]);
-      queryClient.invalidateQueries(["sessions"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["my-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["slots"] });
+      queryClient.invalidateQueries({ queryKey: ["interviewer-slots"] });
     },
   });
 };
@@ -378,8 +380,10 @@ export const useRejectReservation = () => {
   return useMutation({
     mutationFn: ({ id, data }) => reservationsAPI.rejectReservation(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(["pending-reservations"]);
-      queryClient.invalidateQueries(["my-reservations"]);
+      queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["my-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["slots"] });
+      queryClient.invalidateQueries({ queryKey: ["interviewer-slots"] });
     },
   });
 };

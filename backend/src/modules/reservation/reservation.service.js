@@ -24,10 +24,11 @@ export const createReservation = async (req, res, next) => {
     throw new Error("Time slot is full", { cause: 400 });
   }
 
-  // Check if user already has a reservation for this slot
+  // Check if user already has an active reservation for this slot (not rejected)
   const existingReservation = await Reservation.findOne({
     candidateId: req.user._id,
     slotId,
+    status: { $in: ["pending", "accepted"] },
   });
 
   if (existingReservation) {
@@ -35,6 +36,13 @@ export const createReservation = async (req, res, next) => {
       cause: 400,
     });
   }
+
+  // Delete any rejected reservation for this slot to avoid unique index conflict
+  await Reservation.deleteMany({
+    candidateId: req.user._id,
+    slotId,
+    status: "rejected",
+  });
 
   // Create reservation
   const reservation = await Reservation.create({
