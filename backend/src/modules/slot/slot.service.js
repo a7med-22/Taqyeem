@@ -111,7 +111,7 @@ export const getSlotsByInterviewer = async (req, res, next) => {
   }
 
   const slots = await Slot.find(query)
-    .populate("scheduleId", "date title")
+    .populate("scheduleId", "date title description")
     .populate("interviewerId", "name email avatarUrl")
     .sort({ date: 1, startTime: 1 });
 

@@ -171,9 +171,15 @@ export default function SlotsCalendar({
           >
             {/* Day Header */}
             <div className="bg-cyan-600 px-4 py-3 border-b border-cyan-700">
-              <h3 className="text-center font-semibold text-white">
+              <h3 className="text-center font-semibold text-white mb-1">
                 {formatDate(day.date, i18n.language)}
               </h3>
+              {/* Show schedule title if available (from first slot) */}
+              {day.slots[0]?.scheduleId?.title && (
+                <p className="text-center text-xs text-cyan-100 mt-1 line-clamp-1">
+                  {day.slots[0].scheduleId.title}
+                </p>
+              )}
             </div>
 
             {/* Slots */}
@@ -202,10 +208,23 @@ export default function SlotsCalendar({
       {selectedSlot && (
         <div className="bg-cyan-50 rounded-lg border-2 border-cyan-600 p-6 shadow-lg">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-center sm:text-left">
+            <div className="text-center sm:text-left flex-1">
               <h4 className="font-semibold text-lg text-cyan-900 mb-2">
                 {t("slots.slotSelected")}
               </h4>
+              {/* Schedule Title and Description */}
+              {selectedSlot.scheduleId?.title && (
+                <div className="mb-3">
+                  <h5 className="font-semibold text-cyan-900 text-base mb-1">
+                    {selectedSlot.scheduleId.title}
+                  </h5>
+                  {selectedSlot.scheduleId.description && (
+                    <p className="text-sm text-cyan-700">
+                      {selectedSlot.scheduleId.description}
+                    </p>
+                  )}
+                </div>
+              )}
               <p className="text-cyan-800 font-medium">
                 📅 {formatDate(selectedSlot.date, i18n.language)}
               </p>

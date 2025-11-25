@@ -96,6 +96,20 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
         </span>
       </div>
 
+      {/* Schedule Title and Description */}
+      {slot.scheduleId?.title && (
+        <div className="mb-3">
+          <h5 className="font-semibold text-secondary-900 text-sm mb-1">
+            {slot.scheduleId.title}
+          </h5>
+          {slot.scheduleId.description && (
+            <p className="text-xs text-secondary-600">
+              {slot.scheduleId.description}
+            </p>
+          )}
+        </div>
+      )}
+
       {slot.notes && (
         <p className="text-sm text-secondary-600 mb-3">{slot.notes}</p>
       )}
