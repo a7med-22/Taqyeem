@@ -438,7 +438,11 @@ export default function AdminPage() {
 
   const renderRecentList = (items, emptyLabel, renderItem) => {
     if (!items.length) {
-      return <p className="text-sm text-secondary-500">{emptyLabel}</p>;
+      return typeof emptyLabel === "string" ? (
+        <p className="text-sm text-secondary-500">{emptyLabel}</p>
+      ) : (
+        emptyLabel
+      );
     }
     return <div className="space-y-4">{items.map(renderItem)}</div>;
   };
@@ -489,9 +493,10 @@ export default function AdminPage() {
         />
 
         <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {statCards.map((card) => (
-            <StatCard key={card.key} {...card} />
-          ))}
+          {statCards.map((card) => {
+            const { key, ...cardProps } = card;
+            return <StatCard key={key} {...cardProps} />;
+          })}
         </section>
 
         <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -712,7 +717,12 @@ export default function AdminPage() {
             <CardContent>
               {renderRecentList(
                 recent.sessions || [],
-                t("admin.recentActivity.empty"),
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <CalendarClock className="h-12 w-12 text-secondary-300 mb-3" />
+                  <p className="text-sm font-medium text-secondary-500">
+                    {t("admin.recentActivity.empty")}
+                  </p>
+                </div>,
                 (session) => {
                   const labelKey =
                     statusKeyMap[session.status] || `status.${session.status}`;

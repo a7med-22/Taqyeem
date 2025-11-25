@@ -1,6 +1,7 @@
 import Schedule from "../../DB/models/schedule.model.js";
 import User from "../../DB/models/user.model.js";
 import { successResponse } from "../../utils/index.js";
+import { destroyFile } from "../../utils/multer/cloudinary.js";
 
 // @desc    Get all users (Admin only)
 // @route   GET /api/v1/users
@@ -255,12 +256,21 @@ export const rejectInterviewer = async (req, res, next) => {
     });
   }
 
-  // Deactivate the rejected interviewer account
-  user.isActive = false;
-  await user.save();
+  // Delete CV file from Cloudinary if exists
+  if (user.cvPublicId) {
+    try {
+      await destroyFile({ publicId: user.cvPublicId });
+    } catch (error) {
+      // Log error but continue with user deletion
+      console.error("Error deleting CV from Cloudinary:", error);
+    }
+  }
+
+  // Delete the rejected interviewer from database
+  await User.findByIdAndDelete(req.params.id);
 
   successResponse({
     res,
-    message: "Interviewer rejected successfully",
+    message: "Interviewer rejected and removed successfully",
   });
 };

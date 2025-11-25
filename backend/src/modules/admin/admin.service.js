@@ -140,7 +140,10 @@ export const getDashboard = async (req, res, next) => {
         .populate("interviewerId", "name avatarUrl")
         .populate("slotId", "date startTime endTime")
         .lean(),
-      Session.find({ date: { $gte: startOfToday } })
+      Session.find({
+        status: { $in: ["scheduled", "in-progress"] },
+        date: { $gte: startOfToday },
+      })
         .sort({ date: 1 })
         .limit(6)
         .populate("candidateId", "name avatarUrl")

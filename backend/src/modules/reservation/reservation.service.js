@@ -140,15 +140,12 @@ export const acceptReservation = async (req, res, next) => {
   await reservation.save();
 
   // Create session
-  const slot = await Slot.findById(reservation.slotId).populate(
-    "dayId",
-    "date"
-  );
+  const slot = await Slot.findById(reservation.slotId);
   const session = await Session.create({
     candidateId: reservation.candidateId,
     interviewerId: reservation.interviewerId,
     reservationId: reservation._id,
-    date: slot.dayId.date,
+    date: slot.date,
     startTime: slot.startTime,
     endTime: slot.endTime,
   });
