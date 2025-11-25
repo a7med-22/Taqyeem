@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
@@ -37,6 +37,8 @@ export default function RegisterPage() {
     formState: { errors },
     watch,
     setError,
+    setValue,
+    clearErrors,
   } = useForm({
     resolver: zodResolver(validationSchemas.registerSchema),
     defaultValues: {
@@ -45,6 +47,15 @@ export default function RegisterPage() {
     },
   });
   const selectedRole = watch("role");
+
+  useEffect(() => {
+    if (selectedRole !== "interviewer") {
+      setValue("yearsOfExperience", undefined);
+      setValue("specialization", undefined);
+      setCvFile(null);
+      clearErrors(["yearsOfExperience", "specialization", "cv"]);
+    }
+  }, [selectedRole, setValue, clearErrors]);
 
   const onSubmit = async (data) => {
     try {

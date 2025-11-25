@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  adminAPI,
   authAPI,
   daysAPI,
   evaluationsAPI,
@@ -56,6 +57,15 @@ export const useUsers = (params) => {
   });
 };
 
+export const useAdminDashboard = () => {
+  return useQuery({
+    queryKey: ["admin-dashboard"],
+    queryFn: adminAPI.getDashboard,
+    select: (response) => response.data.data,
+    staleTime: 60 * 1000,
+  });
+};
+
 export const useInterviewers = (params) => {
   return useQuery({
     queryKey: ["interviewers", params],
@@ -73,6 +83,30 @@ export const useUpdateProfile = () => {
     mutationFn: usersAPI.updateProfile,
     onSuccess: () => {
       queryClient.invalidateQueries(["user"]);
+    },
+  });
+};
+
+export const useApproveInterviewer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => usersAPI.approveInterviewer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+};
+
+export const useRejectInterviewer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => usersAPI.rejectInterviewer(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["users"]);
     },
   });
 };

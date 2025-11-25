@@ -11,6 +11,7 @@ import scheduleRoutes from "./modules/schedule/schedule.controller.js";
 import sessionRoutes from "./modules/session/session.controller.js";
 import slotRoutes from "./modules/slot/slot.controller.js";
 import userRoutes from "./modules/user/user.controller.js";
+import adminRoutes from "./modules/admin/admin.controller.js";
 
 const router = express.Router();
 
@@ -61,5 +62,6 @@ router.use("/api/v1/sessions", sessionRoutes);
 router.use("/api/v1/evaluations", evaluationRoutes);
 router.use("/api/v1/feedbacks", feedbackRoutes);
 router.use("/api/v1/learn", learnRoutes);
+router.use("/api/v1/admin", adminRoutes);
 
 export default router;

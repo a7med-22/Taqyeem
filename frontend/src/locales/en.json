@@ -274,7 +274,65 @@
         "sessions": "Sessions",
         "sessionsDescription": "Monitor active sessions and interviews",
         "content": "Content",
-        "contentDescription": "Manage learning content and articles"
+        "contentDescription": "Manage learning content and articles",
+        "dashboardTitle": "Control center",
+        "overview": "Platform overview & health",
+        "quickActionsDescription": "Jump straight into the tools you manage every day",
+        "stats": {
+            "totalUsers": "Total users",
+            "activeUsers": "{{count}} active now",
+            "pendingInterviewers": "pending interviewers",
+            "reservations": "Reservations",
+            "pendingReservations": "{{count}} awaiting response",
+            "sessions": "Sessions",
+            "upcomingSessions": "{{count}} upcoming",
+            "content": "Learning items",
+            "publishedContent": "{{count}} published",
+            "slots": "Slots",
+            "evaluations": "Evaluations",
+            "avgScore": "Average score",
+            "records": "records"
+        },
+        "trends": {
+            "users": "User growth",
+            "reservations": "Reservation flow",
+            "lastDays": "Last {{count}} days",
+            "vsLastWeek": "vs last week",
+            "noData": "Not enough data to plot yet"
+        },
+        "pendingSection": {
+            "title": "Pending interviewers",
+            "description": "Approve or reject new interviewer requests",
+            "empty": "No interviewers waiting for approval 🎉",
+            "cv": "View CV"
+        },
+        "recentActivity": {
+            "title": "Recent activity",
+            "subtitle": "Monitor what's new across the platform",
+            "description": "Upcoming sessions you should keep an eye on",
+            "newUsers": "New members",
+            "reservations": "Latest reservations",
+            "sessions": "Upcoming sessions",
+            "empty": "Nothing to show yet"
+        },
+        "system": {
+            "title": "System health",
+            "uptime": "Uptime",
+            "uptimeValue": "Approx. {{hours}}h {{minutes}}m",
+            "lastUpdated": "Last updated",
+            "quickActions": "Quick actions",
+            "users": "Manage users",
+            "interviews": "Manage schedules",
+            "learning": "Manage learning"
+        },
+        "actions": {
+            "approve": "Approve",
+            "reject": "Reject"
+        },
+        "approveSuccess": "Interviewer approved successfully",
+        "rejectSuccess": "Interviewer rejected successfully",
+        "trendUp": "Growth",
+        "trendDown": "Decline"
     },
     "schedules": {
         "createSchedule": "Create Schedule",

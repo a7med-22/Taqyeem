@@ -20,6 +20,10 @@ export const usersAPI = {
   getUsers: (params) => api.get("/users", { params }),
   getUserById: (id) => api.get(`/users/${id}`),
   getInterviewers: (params) => api.get("/users/interviewers", { params }),
+  getPendingInterviewers: (params) =>
+    api.get("/users/pending-interviewers", { params }),
+  approveInterviewer: (id) => api.put(`/users/${id}/approve`),
+  rejectInterviewer: (id) => api.put(`/users/${id}/reject`),
   updateProfile: (data) => api.put("/users/me", data),
   updateAvatar: (formData) =>
     api.put("/users/me/avatar", formData, {
@@ -114,4 +118,9 @@ export const learningAPI = {
   updateContent: (id, data) => api.put(`/learn/${id}`, data),
   deleteContent: (id) => api.delete(`/learn/${id}`),
   getContentStats: () => api.get("/learn/stats"),
+};
+
+// Admin API
+export const adminAPI = {
+  getDashboard: () => api.get("/admin/dashboard"),
 };

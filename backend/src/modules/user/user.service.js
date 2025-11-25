@@ -170,7 +170,7 @@ export const approveInterviewer = async (req, res, next) => {
 
   successResponse({
     res,
-    message: "Interviewer rejected successfully",
+    message: "Interviewer approved successfully",
     data: { user },
   });
 };
