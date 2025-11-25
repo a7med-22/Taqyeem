@@ -2,7 +2,11 @@ import express from "express";
 import { authenticate, authorize, validation } from "../../middleware/index.js";
 import upload from "../../utils/multer/cloud.multer.js";
 import * as userService from "./user.service.js";
-import { getUserByIdSchema, updateProfileSchema } from "./user.validation.js";
+import {
+  getUserByIdSchema,
+  updateProfileSchema,
+  updateUserSchema,
+} from "./user.validation.js";
 
 const router = express.Router();
 
@@ -25,6 +29,17 @@ router.put("/me/avatar", upload.single("avatar"), userService.updateAvatar);
 router.put("/me/deactivate", userService.deactivateAccount);
 router.put("/:id/approve", authorize("admin"), userService.approveInterviewer);
 router.put("/:id/reject", authorize("admin"), userService.rejectInterviewer);
-router.delete("/:id", authorize("admin"), validation(getUserByIdSchema), userService.deleteUser);
+router.put(
+  "/:id",
+  authorize("admin"),
+  validation(updateUserSchema),
+  userService.updateUser
+);
+router.delete(
+  "/:id",
+  authorize("admin"),
+  validation(getUserByIdSchema),
+  userService.deleteUser
+);
 
 export default router;

@@ -111,6 +111,18 @@ export const useRejectInterviewer = () => {
   });
 };
 
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => usersAPI.updateUser(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+};
+
 export const useDeleteUser = () => {
   const queryClient = useQueryClient();
 

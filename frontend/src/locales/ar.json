@@ -342,6 +342,9 @@
         "deleteUserSuccess": "تم حذف المستخدم بنجاح",
         "deleteUserConfirmTitle": "حذف المستخدم",
         "deleteUserConfirm": "هل أنت متأكد من حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "editUser": "تعديل المستخدم",
+        "updateUserSuccess": "تم تحديث المستخدم بنجاح",
+        "approved": "موافق عليه",
         "interviews": "المقابلات"
     },
     "schedules": {

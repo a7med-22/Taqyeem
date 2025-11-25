@@ -28,11 +28,13 @@ import {
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { Tabs } from "../components/ui/Tabs.jsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
+import { EditUserDialog } from "../components/ui/EditUserDialog.jsx";
 import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
   useApproveInterviewer,
   useRejectInterviewer,
+  useUpdateUser,
   useDeleteUser,
   useUsers,
   useLearningContent,
@@ -217,10 +219,12 @@ export default function AdminPage() {
   const { data, isLoading, isError, error } = useAdminDashboard();
   const approveInterviewer = useApproveInterviewer();
   const rejectInterviewer = useRejectInterviewer();
+  const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const [actioning, setActioning] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userToDelete, setUserToDelete] = useState(null);
+  const [userToEdit, setUserToEdit] = useState(null);
   
   // Fetch data for tabs
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers({});
@@ -385,6 +389,29 @@ export default function AdminPage() {
 
   const cancelDeleteUser = () => {
     setUserToDelete(null);
+  };
+
+  const handleUpdateUser = async (data) => {
+    if (!userToEdit) return;
+    
+    setActioning({ id: userToEdit.id, type: "edit" });
+    try {
+      await updateUser.mutateAsync({
+        id: userToEdit.id,
+        data,
+      });
+      toast.success(t("admin.updateUserSuccess", { defaultValue: "User updated successfully" }));
+      setUserToEdit(null);
+      await refetchUsers();
+    } catch (mutationError) {
+      toast.error(mutationError.response?.data?.message || t("common.error"));
+    } finally {
+      setActioning(null);
+    }
+  };
+
+  const cancelEditUser = () => {
+    setUserToEdit(null);
   };
 
   const renderPendingInterviewers = () => {
@@ -833,26 +860,44 @@ export default function AdminPage() {
                     <span className="text-xs text-secondary-400">
                       {formatDate(userItem.createdAt, locale)}
                     </span>
-                    {userItem.role !== "admin" && userId !== currentUserId && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setUserToDelete({ id: userId, name: userItem.name });
-                        }}
-                        disabled={
-                          deleteUser.isPending ||
-                          (actioning?.id === userId &&
-                            actioning?.type === "delete")
-                        }
-                      >
-                        {deleteUser.isPending &&
-                        actioning?.id === userId &&
-                        actioning?.type === "delete"
-                          ? t("common.loading")
-                          : t("admin.deleteUser", { defaultValue: "Delete" })}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {userId !== currentUserId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setUserToEdit({ id: userId, ...userItem });
+                          }}
+                          disabled={
+                            updateUser.isPending ||
+                            (actioning?.id === userId &&
+                              actioning?.type === "edit")
+                          }
+                        >
+                          {t("common.edit", { defaultValue: "Edit" })}
+                        </Button>
+                      )}
+                      {userItem.role !== "admin" && userId !== currentUserId && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setUserToDelete({ id: userId, name: userItem.name });
+                          }}
+                          disabled={
+                            deleteUser.isPending ||
+                            (actioning?.id === userId &&
+                              actioning?.type === "delete")
+                          }
+                        >
+                          {deleteUser.isPending &&
+                          actioning?.id === userId &&
+                          actioning?.type === "delete"
+                            ? t("common.loading")
+                            : t("admin.deleteUser", { defaultValue: "Delete" })}
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               )})}
@@ -1065,6 +1110,18 @@ export default function AdminPage() {
           onChange={setActiveTab}
         />
       </div>
+
+      {/* Edit User Dialog */}
+      <EditUserDialog
+        isOpen={!!userToEdit}
+        onClose={cancelEditUser}
+        onSave={handleUpdateUser}
+        user={userToEdit}
+        isLoading={
+          updateUser.isPending ||
+          (actioning?.id === userToEdit?.id && actioning?.type === "edit")
+        }
+      />
 
       {/* Delete User Confirmation Dialog */}
       <ConfirmDialog

@@ -337,6 +337,9 @@
         "deleteUserSuccess": "User deleted successfully",
         "deleteUserConfirmTitle": "Delete User",
         "deleteUserConfirm": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+        "editUser": "Edit User",
+        "updateUserSuccess": "User updated successfully",
+        "approved": "Approved",
         "interviews": "Interviews"
     },
     "schedules": {

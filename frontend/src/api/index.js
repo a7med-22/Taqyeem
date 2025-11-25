@@ -24,6 +24,7 @@ export const usersAPI = {
     api.get("/users/pending-interviewers", { params }),
   approveInterviewer: (id) => api.put(`/users/${id}/approve`),
   rejectInterviewer: (id) => api.put(`/users/${id}/reject`),
+  updateUser: (id, data) => api.put(`/users/${id}`, data),
   deleteUser: (id) => api.delete(`/users/${id}`),
   updateProfile: (data) => api.put("/users/me", data),
   updateAvatar: (formData) =>
