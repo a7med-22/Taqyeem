@@ -465,7 +465,8 @@ export const useLearningContent = (params) => {
   return useQuery({
     queryKey: ["learning-content", params],
     queryFn: () => learningAPI.getContent(params),
-    select: (data) => data.data,
+    select: (response) => response.data.data,
+    enabled: params !== null && params !== undefined,
   });
 };
 

@@ -39,8 +39,86 @@ export default function LearningPage() {
     return params;
   }, [activeTab, searchQuery, selectedCategory, locale]);
 
-  const { data: contentData, isLoading } = useLearningContent(contentParams);
+  const { data: contentData, isLoading, error } = useLearningContent(contentParams);
   const content = contentData?.content || [];
+
+  // Fetch all content for all tabs to calculate tab counts
+  // Only fetch when a category is selected (to show counts on tabs)
+  const faqContentParams = useMemo(() => {
+    if (!selectedCategory) return null;
+    const params = { type: "faq", page: 1, limit: 1000, language: locale };
+    if (searchQuery) params.search = searchQuery;
+    if (selectedCategory) params.category = selectedCategory;
+    return params;
+  }, [selectedCategory, searchQuery, locale]);
+
+  const tipContentParams = useMemo(() => {
+    if (!selectedCategory) return null;
+    const params = { type: "tip", page: 1, limit: 1000, language: locale };
+    if (searchQuery) params.search = searchQuery;
+    if (selectedCategory) params.category = selectedCategory;
+    return params;
+  }, [selectedCategory, searchQuery, locale]);
+
+  const articleContentParams = useMemo(() => {
+    if (!selectedCategory) return null;
+    const params = { type: "article", page: 1, limit: 1000, language: locale };
+    if (searchQuery) params.search = searchQuery;
+    if (selectedCategory) params.category = selectedCategory;
+    return params;
+  }, [selectedCategory, searchQuery, locale]);
+
+  const { data: faqContentData, isLoading: isLoadingFaq } = useLearningContent(faqContentParams);
+  const { data: tipContentData, isLoading: isLoadingTip } = useLearningContent(tipContentParams);
+  const { data: articleContentData, isLoading: isLoadingArticle } = useLearningContent(articleContentParams);
+
+  // Fetch all content for current active tab without category filter to calculate category counts
+  // Only fetch when a category is selected (to show counts on category buttons)
+  const allContentForCategoryCounts = useMemo(() => {
+    if (!selectedCategory) return null;
+    
+    const params = {
+      type: activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
+      page: 1,
+      limit: 1000, // Get all to calculate counts
+      language: locale,
+    };
+    if (searchQuery) params.search = searchQuery;
+    // Don't include category filter - we want all content to count by category
+    return params;
+  }, [activeTab, searchQuery, locale, selectedCategory]);
+
+  const { data: allContentData } = useLearningContent(allContentForCategoryCounts);
+  const allContent = allContentData?.content || [];
+
+  // Calculate counts for each tab type when category is selected
+  const tabCounts = useMemo(() => {
+    if (!selectedCategory) return null;
+    
+    // Always return an object with counts, even if data is still loading
+    // Access content array safely - the data structure is { content: [...], pagination: {...} }
+    const faqCount = Array.isArray(faqContentData?.content) ? faqContentData.content.length : 0;
+    const tipCount = Array.isArray(tipContentData?.content) ? tipContentData.content.length : 0;
+    const articleCount = Array.isArray(articleContentData?.content) ? articleContentData.content.length : 0;
+    
+    return {
+      faq: faqCount,
+      tip: tipCount,
+      article: articleCount,
+    };
+  }, [selectedCategory, faqContentData, tipContentData, articleContentData]);
+
+  // Calculate counts for each category based on current active tab
+  // Only show counts when a category is selected (clicked)
+  const categoryCounts = useMemo(() => {
+    if (!selectedCategory || !allContent.length) return {};
+    
+    const counts = {};
+    categories.forEach((cat) => {
+      counts[cat] = allContent.filter((c) => c.category === cat).length;
+    });
+    return counts;
+  }, [categories, allContent, selectedCategory]);
 
   const tabs = [
     {
@@ -103,6 +181,11 @@ export default function LearningPage() {
                   onClick={() => setSelectedCategory(cat)}
                 >
                   {t(`categories.${cat}`, { defaultValue: cat })}
+                  {selectedCategory && categoryCounts[cat] !== undefined && (
+                    <span className="ltr:ml-2 rtl:mr-2 px-1.5 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
+                      {categoryCounts[cat]}
+                    </span>
+                  )}
                 </Button>
               ))}
             </div>
@@ -126,9 +209,11 @@ export default function LearningPage() {
               >
                 <Icon className="h-5 w-5" />
                 {tab.label}
-                <span className="text-sm bg-secondary-100 px-2 py-0.5 rounded-full">
-                  {content.filter((c) => c.type === tab.id).length}
-                </span>
+                {selectedCategory && (
+                  <span className="text-sm bg-secondary-100 px-2 py-0.5 rounded-full">
+                    {tabCounts?.[tab.id] ?? 0}
+                  </span>
+                )}
               </button>
             );
           })}

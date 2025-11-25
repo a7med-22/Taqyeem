@@ -1,6 +1,6 @@
 import EducationalContent from "../../DB/models/educational-content.model.js";
 import { successResponse } from "../../utils/index.js";
-import { uploadFile, destroyFile } from "../../utils/multer/cloudinary.js";
+import { uploadFile } from "../../utils/multer/cloudinary.js";
 
 // @desc    Get all educational content
 // @route   GET /api/v1/learn
@@ -16,27 +16,49 @@ export const getEducationalContent = async (req, res, next) => {
     language = "en",
   } = req.query;
 
-  // If admin, show all content (published and unpublished)
-  // Otherwise, only show published content
+  // Build query object
   let query = {};
+
+  // Published filter - public users only see published content
   if (!req.user || req.user.role !== "admin") {
     query.isPublished = true;
   }
 
+  // Type filter
   if (type) {
     query.type = type;
   }
 
+  // Category filter
   if (category) {
     query.category = category;
   }
 
+  // Featured filter
   if (featured === "true") {
     query.featured = true;
   }
 
-  if (search) {
-    query.$text = { $search: search };
+  // Search filter - use regex for flexibility (doesn't require text index)
+  if (search && search.trim()) {
+    const searchRegex = { $regex: search.trim(), $options: "i" };
+    // When combining $or with other conditions, use $and
+    const searchCondition = {
+      $or: [
+        { "title.en": searchRegex },
+        { "title.ar": searchRegex },
+        { "content.en": searchRegex },
+        { "content.ar": searchRegex },
+        { tags: { $in: [new RegExp(search.trim(), "i")] } },
+      ],
+    };
+
+    // If we have other conditions, combine with $and
+    if (Object.keys(query).length > 0) {
+      query = { $and: [query, searchCondition] };
+    } else {
+      query = searchCondition;
+    }
   }
 
   const content = await EducationalContent.find(query)
@@ -93,9 +115,9 @@ export const getEducationalContentById = async (req, res, next) => {
 // @route   POST /api/v1/learn
 // @access  Private/Admin
 export const createEducationalContent = async (req, res, next) => {
-  // Parse JSON strings from FormData if needed
+  // Parse JSON strings from FormData if needed, or use direct object if JSON
   const parseField = (field) => {
-    if (!field) return field;
+    if (!field && field !== false) return field;
     if (typeof field === "string") {
       try {
         return JSON.parse(field);
@@ -111,9 +133,19 @@ export const createEducationalContent = async (req, res, next) => {
   const content = parseField(req.body.content);
   const category = req.body.category;
   const tags = parseField(req.body.tags) || [];
-  const featured = req.body.featured === "true" || req.body.featured === true;
+  const featured =
+    typeof req.body.featured === "string"
+      ? req.body.featured === "true"
+      : req.body.featured === true || req.body.featured === false
+      ? req.body.featured
+      : false;
   const references = parseField(req.body.references) || [];
-  const isPublished = req.body.isPublished === "true" || req.body.isPublished === true;
+  const isPublished =
+    typeof req.body.isPublished === "string"
+      ? req.body.isPublished === "true"
+      : req.body.isPublished === true || req.body.isPublished === false
+      ? req.body.isPublished
+      : false;
 
   // Handle image upload for articles
   let thumbnailUrl = null;
@@ -149,6 +181,98 @@ export const createEducationalContent = async (req, res, next) => {
   });
 };
 
+// @desc    Bulk create educational content
+// @route   POST /api/v1/learn/bulk
+// @access  Private/Admin
+export const bulkCreateEducationalContent = async (req, res, next) => {
+  const { content: contentItems } = req.body;
+
+  if (
+    !contentItems ||
+    !Array.isArray(contentItems) ||
+    contentItems.length === 0
+  ) {
+    throw new Error("Content array is required and must not be empty", {
+      cause: 400,
+    });
+  }
+
+  const results = {
+    success: [],
+    failed: [],
+  };
+
+  // Process each item
+  for (let i = 0; i < contentItems.length; i++) {
+    const item = contentItems[i];
+    try {
+      const {
+        type,
+        title,
+        content: contentText,
+        category,
+        tags = [],
+        featured = false,
+        references = [],
+        isPublished = false,
+      } = item;
+
+      // Validate required fields
+      if (!type || !title || !contentText || !category) {
+        results.failed.push({
+          index: i,
+          item,
+          error: "Missing required fields (type, title, content, category)",
+        });
+        continue;
+      }
+
+      // Create the content (no image upload for bulk - articles can be updated later with images)
+      const educationalContent = await EducationalContent.create({
+        type,
+        title,
+        content: contentText,
+        category,
+        authorId: req.user._id,
+        tags,
+        featured,
+        references,
+        thumbnailUrl: null, // No images in bulk upload
+        isPublished,
+        publishedAt: isPublished ? new Date() : null,
+      });
+
+      await educationalContent.populate("authorId", "name email");
+
+      results.success.push({
+        index: i,
+        content: educationalContent,
+      });
+    } catch (error) {
+      results.failed.push({
+        index: i,
+        item,
+        error: error.message || "Unknown error",
+      });
+    }
+  }
+
+  successResponse({
+    res,
+    message: `Bulk creation completed. ${results.success.length} succeeded, ${results.failed.length} failed.`,
+    data: {
+      total: contentItems.length,
+      succeeded: results.success.length,
+      failed: results.failed.length,
+      results: {
+        success: results.success,
+        failed: results.failed,
+      },
+    },
+    status: 201,
+  });
+};
+
 // @desc    Update educational content
 // @route   PUT /api/v1/learn/:id
 // @access  Private/Admin
@@ -176,17 +300,19 @@ export const updateEducationalContent = async (req, res, next) => {
   const content = parseField(req.body.content);
   const category = req.body.category;
   const tags = parseField(req.body.tags);
-  const featured = req.body.featured !== undefined 
-    ? (req.body.featured === "true" || req.body.featured === true)
-    : undefined;
+  const featured =
+    req.body.featured !== undefined
+      ? req.body.featured === "true" || req.body.featured === true
+      : undefined;
   const references = parseField(req.body.references);
-  const isPublished = req.body.isPublished !== undefined
-    ? (req.body.isPublished === "true" || req.body.isPublished === true)
-    : undefined;
+  const isPublished =
+    req.body.isPublished !== undefined
+      ? req.body.isPublished === "true" || req.body.isPublished === true
+      : undefined;
 
   // Handle image upload for articles (if new image provided)
   let updateData = {};
-  
+
   if (title !== undefined) updateData.title = title;
   if (content !== undefined) updateData.content = content;
   if (category !== undefined) updateData.category = category;
