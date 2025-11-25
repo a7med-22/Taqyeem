@@ -459,7 +459,11 @@
         "slotSelected": "تم اختيار الموعد",
         "alreadyBooked": "محجوز بالفعل",
         "pendingMessage": "هذا الموعد لديه حجوزات معلقة",
-        "bookedMessage": "هذا الموعد محجوز بالكامل"
+        "bookedMessage": "هذا الموعد محجوز بالكامل",
+        "colorLegend": "ألوان حالة المواعيد",
+        "availableSlot": "متاح - يمكنك الحجز",
+        "pendingSlot": "معلق - لم يتم القبول بعد",
+        "bookedSlot": "محجوز - محجوز بالفعل"
     },
     "reservations": {
         "pending": "معلق",

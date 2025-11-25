@@ -71,8 +71,8 @@ export default function SlotsList({ slots, onBookSlot, bookedSlotIds = [] }) {
 
       {pendingSlots.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold text-yellow-700 mb-3 flex items-center gap-2">
-            <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
+          <h3 className="text-lg font-semibold text-amber-700 mb-3 flex items-center gap-2">
+            <span className="w-3 h-3 bg-amber-500 rounded-full"></span>
             {t("slots.pendingSlots")} ({pendingSlots.length})
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

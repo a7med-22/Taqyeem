@@ -44,6 +44,8 @@ export default function SlotsCalendar({
   slots,
   onBookSlot,
   bookedSlotIds = [],
+  pendingReservationSlotIds = [],
+  acceptedReservationSlotIds = [],
 }) {
   const { t, i18n } = useTranslation();
   const [bookingSlotId, setBookingSlotId] = useState(null);
@@ -105,24 +107,54 @@ export default function SlotsCalendar({
       : "";
 
   // Get slot class based on status
+  // Priority: pending reservations (amber), slot status, then accepted reservations (red)
   const getSlotClass = (slot) => {
-    if (bookedSlotIds.includes(slot._id)) {
-      return "bg-red-500 text-white cursor-not-allowed font-medium";
+    // First check if slot has a pending reservation (should be amber/orange)
+    if (pendingReservationSlotIds.includes(slot._id)) {
+      return "bg-amber-100 text-amber-900 border border-amber-200 cursor-not-allowed font-medium";
+    }
+    // Then check the slot's actual status
+    if (slot.status === "pending") {
+      return "bg-amber-100 text-amber-900 border border-amber-200 cursor-not-allowed font-medium";
     }
     if (slot.status === "booked") {
       return "bg-red-500 text-white cursor-not-allowed font-medium";
     }
-    if (slot.status === "pending") {
-      return "bg-yellow-400 text-gray-900 cursor-not-allowed font-medium";
+    // If slot is available but has an accepted reservation (bookedSlotIds), show as red
+    if (bookedSlotIds.includes(slot._id)) {
+      return "bg-red-500 text-white cursor-not-allowed font-medium";
     }
+    // Selected slot highlight
     if (selectedSlot?._id === slot._id) {
       return "bg-cyan-600 text-white cursor-pointer hover:bg-cyan-700 shadow-lg font-semibold";
     }
+    // Available slot
     return "bg-cyan-100 text-cyan-900 hover:bg-cyan-200 cursor-pointer border border-cyan-300 font-medium";
   };
 
   return (
     <div className="space-y-6">
+      {/* Color Legend */}
+      <div className="bg-white rounded-lg border border-secondary-200 p-4 shadow-sm">
+        <h4 className="text-sm font-semibold text-secondary-700 mb-3">
+          {t("slots.colorLegend", "Slot Status Colors")}:
+        </h4>
+        <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-cyan-100 border border-cyan-300"></div>
+            <span className="text-secondary-600">{t("slots.availableSlot", "Available - You can book")}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-amber-100 border border-amber-200"></div>
+            <span className="text-secondary-600">{t("slots.pendingSlot", "Pending - Not accepted yet")}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-red-500"></div>
+            <span className="text-secondary-600">{t("slots.bookedSlot", "Booked - Already reserved")}</span>
+          </div>
+        </div>
+      </div>
+
       {/* Date Range Header */}
       {dateRangeText && (
         <div className="text-center text-sm font-medium text-secondary-600 mb-4">
@@ -216,4 +248,6 @@ SlotsCalendar.propTypes = {
   ),
   onBookSlot: PropTypes.func.isRequired,
   bookedSlotIds: PropTypes.arrayOf(PropTypes.string),
+  pendingReservationSlotIds: PropTypes.arrayOf(PropTypes.string),
+  acceptedReservationSlotIds: PropTypes.arrayOf(PropTypes.string),
 };

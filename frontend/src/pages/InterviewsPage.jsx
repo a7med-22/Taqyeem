@@ -58,9 +58,10 @@ export default function InterviewsPage() {
     user?.role === "interviewer"
   );
 
-  const { data: slots } = useSlotsByInterviewer(selectedInterviewer?._id, {
-    status: "available",
-  });
+  // For candidates, show all slots (available, pending, booked) with color coding
+  // For interviewers, they can still filter if needed
+  const slotParams = isCandidate ? {} : { status: "available" };
+  const { data: slots } = useSlotsByInterviewer(selectedInterviewer?._id, slotParams);
 
   const createReservation = useCreateReservation();
   const acceptReservation = useAcceptReservation();
@@ -163,10 +164,17 @@ export default function InterviewsPage() {
     setReservationToReject(null);
   };
 
-  const bookedSlotIds =
+  // Separate pending and accepted reservations for proper color coding
+  const pendingReservationSlotIds =
     myReservations
-      ?.filter((r) => r.status === "pending" || r.status === "accepted")
+      ?.filter((r) => r.status === "pending")
       .map((r) => r.slotId?._id) || [];
+  const acceptedReservationSlotIds =
+    myReservations
+      ?.filter((r) => r.status === "accepted")
+      .map((r) => r.slotId?._id) || [];
+  // bookedSlotIds includes all reserved slots (for disabling clicks), but we use separate arrays for coloring
+  const bookedSlotIds = [...pendingReservationSlotIds, ...acceptedReservationSlotIds];
 
   return (
     <div className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}>
@@ -282,6 +290,8 @@ export default function InterviewsPage() {
                         slots={slots}
                         onBookSlot={handleBookSlot}
                         bookedSlotIds={bookedSlotIds}
+                        pendingReservationSlotIds={pendingReservationSlotIds}
+                        acceptedReservationSlotIds={acceptedReservationSlotIds}
                       />
                     ) : (
                       <div className="text-center py-8 text-secondary-500">

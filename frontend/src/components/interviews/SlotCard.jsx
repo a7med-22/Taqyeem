@@ -11,7 +11,7 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
       case "available":
         return "bg-green-100 text-green-800 border-green-200";
       case "pending":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+        return "bg-amber-100 text-amber-800 border-amber-200";
       case "booked":
         return "bg-red-100 text-red-800 border-red-200";
       default:
@@ -33,21 +33,45 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
   };
 
   const isAvailable = slot.status === "available";
+  const isPending = slot.status === "pending";
+  const isBooked = slot.status === "booked";
+
+  // Get card styling based on status
+  const getCardStyles = () => {
+    if (isAvailable) {
+      return "border-green-200 bg-green-50 hover:border-green-400 hover:shadow-md";
+    } else if (isPending) {
+      return "border-amber-200 bg-amber-50";
+    } else if (isBooked) {
+      return "border-red-200 bg-red-50";
+    }
+    return "border-secondary-200 bg-secondary-50";
+  };
+
+  // Get icon color based on status
+  const getIconColor = () => {
+    if (isAvailable) return "text-green-600";
+    if (isPending) return "text-amber-700";
+    if (isBooked) return "text-red-600";
+    return "text-secondary-400";
+  };
+
+  // Get text color based on status
+  const getTextColor = () => {
+    if (isAvailable) return "text-green-900";
+    if (isPending) return "text-amber-900";
+    if (isBooked) return "text-red-900";
+    return "text-secondary-600";
+  };
 
   return (
     <div
-      className={`p-4 rounded-lg border-2 transition-all ${
-        isAvailable
-          ? "border-green-200 bg-green-50 hover:border-green-400 hover:shadow-md"
-          : "border-secondary-200 bg-secondary-50"
-      }`}
+      className={`p-4 rounded-lg border-2 transition-all ${getCardStyles()}`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <svg
-            className={`w-5 h-5 ${
-              isAvailable ? "text-green-600" : "text-secondary-400"
-            }`}
+            className={`w-5 h-5 ${getIconColor()}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -59,11 +83,7 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
               d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span
-            className={`text-lg font-semibold ${
-              isAvailable ? "text-green-900" : "text-secondary-600"
-            }`}
-          >
+          <span className={`text-lg font-semibold ${getTextColor()}`}>
             {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
           </span>
         </div>
@@ -97,7 +117,7 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
       )}
 
       {!isAvailable && slot.status === "pending" && (
-        <p className="text-xs text-yellow-600 text-center">
+        <p className="text-xs text-amber-700 text-center font-medium">
           {t("slots.pendingMessage")}
         </p>
       )}

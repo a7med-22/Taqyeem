@@ -84,12 +84,12 @@ export const getSlotsByInterviewer = async (req, res, next) => {
 
   let query = { interviewerId };
 
-  // Filter by status (default to available)
-  if (status) {
+  // Filter by status - if status is "all" or not provided, show all slots
+  // Otherwise, filter by the specified status
+  if (status && status !== "all") {
     query.status = status;
-  } else {
-    query.status = "available";
   }
+  // If no status or status is "all", don't filter by status (show all)
 
   // Filter by specific date or date range
   if (date) {

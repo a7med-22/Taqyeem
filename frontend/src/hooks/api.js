@@ -364,8 +364,12 @@ export const useAcceptReservation = () => {
 
   return useMutation({
     mutationFn: reservationsAPI.acceptReservation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+    onSuccess: async () => {
+      // Invalidate and refetch pending reservations immediately
+      await queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+      await queryClient.refetchQueries({ queryKey: ["pending-reservations"] });
+      
+      // Invalidate other related queries
       queryClient.invalidateQueries({ queryKey: ["my-reservations"] });
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       queryClient.invalidateQueries({ queryKey: ["slots"] });
@@ -379,8 +383,12 @@ export const useRejectReservation = () => {
 
   return useMutation({
     mutationFn: ({ id, data }) => reservationsAPI.rejectReservation(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+    onSuccess: async () => {
+      // Invalidate and refetch pending reservations immediately
+      await queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+      await queryClient.refetchQueries({ queryKey: ["pending-reservations"] });
+      
+      // Invalidate other related queries
       queryClient.invalidateQueries({ queryKey: ["my-reservations"] });
       queryClient.invalidateQueries({ queryKey: ["slots"] });
       queryClient.invalidateQueries({ queryKey: ["interviewer-slots"] });
