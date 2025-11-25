@@ -7,13 +7,18 @@ import { destroyFile } from "../../utils/multer/cloudinary.js";
 // @route   GET /api/v1/users
 // @access  Private/Admin
 export const getUsers = async (req, res, next) => {
-  const { page = 1, limit = 10, role, search } = req.query;
+  const { page = 1, limit = 10, role, search, isActive } = req.query;
 
   // Build query
   let query = {};
 
   if (role) {
     query.role = role;
+  }
+
+  if (isActive !== undefined) {
+    // Handle both string and boolean values
+    query.isActive = isActive === "true" || isActive === true;
   }
 
   if (search) {

@@ -3,12 +3,15 @@ import {
   AlertTriangle,
   BookOpen,
   CalendarClock,
+  Filter,
+  Search,
   ShieldCheck,
   TrendingUp,
   Users,
   Video,
+  X,
 } from "lucide-react";
-import { createElement, useMemo, useState } from "react";
+import { createElement, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Navigate, useNavigate } from "react-router-dom";
@@ -29,6 +32,7 @@ import PageHeader from "../components/ui/PageHeader.jsx";
 import { Tabs } from "../components/ui/Tabs.jsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import { EditUserDialog } from "../components/ui/EditUserDialog.jsx";
+import { Input } from "../components/ui/Input.jsx";
 import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
@@ -226,8 +230,44 @@ export default function AdminPage() {
   const [userToDelete, setUserToDelete] = useState(null);
   const [userToEdit, setUserToEdit] = useState(null);
   
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+  
+  // Build filter params
+  const userFilterParams = useMemo(() => {
+    const params = {
+      page: 1,
+      limit: 100, // Get all users for admin view
+    };
+    
+    if (debouncedSearch) {
+      params.search = debouncedSearch;
+    }
+    
+    if (roleFilter) {
+      params.role = roleFilter;
+    }
+    
+    if (statusFilter !== "") {
+      params.isActive = statusFilter === "active";
+    }
+    
+    return params;
+  }, [debouncedSearch, roleFilter, statusFilter]);
+  
   // Fetch data for tabs
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers({});
+  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers(userFilterParams);
   const { data: contentData, isLoading: contentLoading } = useLearningContent({});
   const { data: reservationsData, isLoading: reservationsLoading } = useMyReservations({});
   const { data: sessionsData, isLoading: sessionsLoading } = useMySessions({});
@@ -804,6 +844,15 @@ export default function AdminPage() {
     </div>
   );
 
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery("");
+    setRoleFilter("");
+    setStatusFilter("");
+  };
+
+  const hasActiveFilters = searchQuery || roleFilter || statusFilter !== "";
+
   // Render users tab content
   const renderUsersTab = () => (
     <div className="space-y-6">
@@ -815,13 +864,97 @@ export default function AdminPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+              <Input
+                type="text"
+                placeholder={t("admin.searchUsers", { defaultValue: "Search by name or email..." })}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+                variant="modern"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Filters Row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-secondary-500" />
+                <span className="text-sm font-medium text-secondary-700">
+                  {t("common.filter", { defaultValue: "Filters" })}:
+                </span>
+              </div>
+
+              {/* Role Filter */}
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+              >
+                <option value="">{t("admin.allRoles", { defaultValue: "All Roles" })}</option>
+                <option value={USER_ROLES.CANDIDATE}>{t(`roles.${USER_ROLES.CANDIDATE}`)}</option>
+                <option value={USER_ROLES.INTERVIEWER}>{t(`roles.${USER_ROLES.INTERVIEWER}`)}</option>
+                <option value={USER_ROLES.ADMIN}>{t(`roles.${USER_ROLES.ADMIN}`)}</option>
+              </select>
+
+              {/* Status Filter */}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+              >
+                <option value="">{t("admin.allStatuses", { defaultValue: "All Statuses" })}</option>
+                <option value="active">{t("common.active")}</option>
+                <option value="inactive">{t("common.inactive")}</option>
+              </select>
+
+              {/* Clear Filters Button */}
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="text-secondary-600 hover:text-secondary-900"
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  {t("admin.clearFilters", { defaultValue: "Clear Filters" })}
+                </Button>
+              )}
+            </div>
+
+            {/* Active Filters Info */}
+            {hasActiveFilters && (
+              <div className="text-xs text-secondary-500">
+                {t("admin.showingResults", {
+                  defaultValue: "Showing {{count}} users",
+                  count: allUsers.length,
+                })}
+              </div>
+            )}
+          </div>
+
           {usersLoading ? (
             <div className="text-center py-8">
               <p className="text-sm text-secondary-500">{t("common.loading")}</p>
             </div>
           ) : allUsers.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
+              <p className="text-sm text-secondary-500">
+                {hasActiveFilters
+                  ? t("admin.noUsersFound", { defaultValue: "No users found matching your filters" })
+                  : t("admin.recentActivity.empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -848,12 +981,25 @@ export default function AdminPage() {
                         {userItem.name}
                       </p>
                       <p className="text-xs text-secondary-500">{userItem.email}</p>
-                      <StatusBadge
-                        status={userItem.role}
-                        label={t(`roles.${userItem.role}`, {
-                          defaultValue: userItem.role,
-                        })}
-                      />
+                      <div className="flex items-center gap-2 mt-1">
+                        <StatusBadge
+                          status={userItem.role}
+                          label={t(`roles.${userItem.role}`, {
+                            defaultValue: userItem.role,
+                          })}
+                        />
+                        <span
+                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                            userItem.isActive !== false
+                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                              : "bg-rose-50 text-rose-700 border-rose-200"
+                          }`}
+                        >
+                          {userItem.isActive !== false
+                            ? t("common.active")
+                            : t("common.inactive")}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -870,8 +1016,7 @@ export default function AdminPage() {
                           }}
                           disabled={
                             updateUser.isPending ||
-                            (actioning?.id === userId &&
-                              actioning?.type === "edit")
+                            (actioning?.id === userId && actioning?.type === "edit")
                           }
                         >
                           {t("common.edit", { defaultValue: "Edit" })}

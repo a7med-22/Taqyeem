@@ -339,8 +339,18 @@
         "deleteUserConfirm": "Are you sure you want to delete {{name}}? This action cannot be undone.",
         "editUser": "Edit User",
         "updateUserSuccess": "User updated successfully",
+        "activate": "Activate",
+        "deactivate": "Deactivate",
+        "activateUserSuccess": "User activated successfully",
+        "deactivateUserSuccess": "User deactivated successfully",
         "approved": "Approved",
-        "interviews": "Interviews"
+        "interviews": "Interviews",
+        "searchUsers": "Search by name or email...",
+        "allRoles": "All Roles",
+        "allStatuses": "All Statuses",
+        "clearFilters": "Clear Filters",
+        "showingResults": "Showing {{count}} users",
+        "noUsersFound": "No users found matching your filters"
     },
     "schedules": {
         "createSchedule": "Create Schedule",

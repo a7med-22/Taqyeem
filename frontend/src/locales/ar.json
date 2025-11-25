@@ -344,8 +344,18 @@
         "deleteUserConfirm": "هل أنت متأكد من حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
         "editUser": "تعديل المستخدم",
         "updateUserSuccess": "تم تحديث المستخدم بنجاح",
+        "activate": "تفعيل",
+        "deactivate": "إلغاء التفعيل",
+        "activateUserSuccess": "تم تفعيل المستخدم بنجاح",
+        "deactivateUserSuccess": "تم إلغاء تفعيل المستخدم بنجاح",
         "approved": "موافق عليه",
-        "interviews": "المقابلات"
+        "interviews": "المقابلات",
+        "searchUsers": "البحث بالاسم أو البريد الإلكتروني...",
+        "allRoles": "جميع الأدوار",
+        "allStatuses": "جميع الحالات",
+        "clearFilters": "مسح الفلاتر",
+        "showingResults": "عرض {{count}} مستخدم",
+        "noUsersFound": "لم يتم العثور على مستخدمين يطابقون الفلاتر"
     },
     "schedules": {
         "createSchedule": "إنشاء جدول",
