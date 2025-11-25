@@ -1,5 +1,6 @@
 import express from "express";
-import { authenticate, authorize, validation } from "../../middleware/index.js";
+import { authenticate, optionalAuthenticate, authorize, validation } from "../../middleware/index.js";
+import { cloudFileUpload, fileTypes } from "../../utils/multer/cloud.multer.js";
 import * as service from "./learn.service.js";
 import {
   contentIdSchema,
@@ -9,8 +10,11 @@ import {
 
 const router = express.Router();
 
-// Public routes
-router.get("/", service.getEducationalContent);
+// Multer configuration for image upload (for articles)
+const uploadImage = cloudFileUpload({ typeNeeded: fileTypes.image });
+
+// Public routes (with optional auth for admin access)
+router.get("/", optionalAuthenticate, service.getEducationalContent);
 router.get("/categories", service.getCategories);
 router.get(
   "/:id",
@@ -24,13 +28,17 @@ router.use(authenticate);
 // Admin routes
 router.post(
   "/",
+  authenticate,
   authorize("admin"),
+  uploadImage.single("thumbnail"),
   validation(createEducationalContentSchema),
   service.createEducationalContent
 );
 router.put(
   "/:id",
+  authenticate,
   authorize("admin"),
+  uploadImage.single("thumbnail"),
   validation(updateEducationalContentSchema),
   service.updateEducationalContent
 );

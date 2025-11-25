@@ -70,3 +70,38 @@ export const authenticate = async (req, res, next) => {
     });
   }
 };
+
+// Optional authentication - doesn't fail if no token provided
+export const optionalAuthenticate = async (req, res, next) => {
+  try {
+    let token;
+
+    // Check for token in headers
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      // No token provided, continue without authentication
+      return next();
+    }
+
+    // Verify token using the verifyToken utility
+    const decoded = await verifyToken({ token });
+
+    // Get user from database
+    const user = await User.findById(decoded.id).select("-password");
+
+    if (user && user.isActive && (user.isApproved || user.role === "admin")) {
+      req.user = user;
+    }
+
+    next();
+  } catch (error) {
+    // If token is invalid, continue without authentication
+    next();
+  }
+};

@@ -1,9 +1,10 @@
 import EducationalContent from "../../DB/models/educational-content.model.js";
 import { successResponse } from "../../utils/index.js";
+import { uploadFile, destroyFile } from "../../utils/multer/cloudinary.js";
 
 // @desc    Get all educational content
 // @route   GET /api/v1/learn
-// @access  Public
+// @access  Public (or Private for admin)
 export const getEducationalContent = async (req, res, next) => {
   const {
     page = 1,
@@ -15,7 +16,12 @@ export const getEducationalContent = async (req, res, next) => {
     language = "en",
   } = req.query;
 
-  let query = { isPublished: true };
+  // If admin, show all content (published and unpublished)
+  // Otherwise, only show published content
+  let query = {};
+  if (!req.user || req.user.role !== "admin") {
+    query.isPublished = true;
+  }
 
   if (type) {
     query.type = type;
@@ -87,14 +93,37 @@ export const getEducationalContentById = async (req, res, next) => {
 // @route   POST /api/v1/learn
 // @access  Private/Admin
 export const createEducationalContent = async (req, res, next) => {
-  const {
-    type,
-    title,
-    content,
-    category,
-    tags = [],
-    featured = false,
-  } = req.body;
+  // Parse JSON strings from FormData if needed
+  const parseField = (field) => {
+    if (!field) return field;
+    if (typeof field === "string") {
+      try {
+        return JSON.parse(field);
+      } catch {
+        return field;
+      }
+    }
+    return field;
+  };
+
+  const type = req.body.type;
+  const title = parseField(req.body.title);
+  const content = parseField(req.body.content);
+  const category = req.body.category;
+  const tags = parseField(req.body.tags) || [];
+  const featured = req.body.featured === "true" || req.body.featured === true;
+  const references = parseField(req.body.references) || [];
+  const isPublished = req.body.isPublished === "true" || req.body.isPublished === true;
+
+  // Handle image upload for articles
+  let thumbnailUrl = null;
+  if (type === "article" && req.file) {
+    const uploadResult = await uploadFile({
+      file: req.file,
+      filePath: `educational-content/${req.user._id}`,
+    });
+    thumbnailUrl = uploadResult.secure_url;
+  }
 
   const educationalContent = await EducationalContent.create({
     type,
@@ -104,7 +133,10 @@ export const createEducationalContent = async (req, res, next) => {
     authorId: req.user._id,
     tags,
     featured,
-    isPublished: false,
+    references,
+    thumbnailUrl,
+    isPublished,
+    publishedAt: isPublished ? new Date() : null,
   });
 
   await educationalContent.populate("authorId", "name email");
@@ -121,27 +153,65 @@ export const createEducationalContent = async (req, res, next) => {
 // @route   PUT /api/v1/learn/:id
 // @access  Private/Admin
 export const updateEducationalContent = async (req, res, next) => {
-  const { title, content, category, tags, featured, isPublished } = req.body;
+  // Parse JSON strings from FormData if needed
+  const parseField = (field) => {
+    if (!field && field !== false) return undefined;
+    if (typeof field === "string") {
+      try {
+        return JSON.parse(field);
+      } catch {
+        return field;
+      }
+    }
+    return field;
+  };
 
   const educationalContent = await EducationalContent.findById(req.params.id);
   if (!educationalContent) {
     throw new Error("Educational content not found", { cause: 404 });
   }
 
+  // Parse fields from FormData
+  const title = parseField(req.body.title);
+  const content = parseField(req.body.content);
+  const category = req.body.category;
+  const tags = parseField(req.body.tags);
+  const featured = req.body.featured !== undefined 
+    ? (req.body.featured === "true" || req.body.featured === true)
+    : undefined;
+  const references = parseField(req.body.references);
+  const isPublished = req.body.isPublished !== undefined
+    ? (req.body.isPublished === "true" || req.body.isPublished === true)
+    : undefined;
+
+  // Handle image upload for articles (if new image provided)
+  let updateData = {};
+  
+  if (title !== undefined) updateData.title = title;
+  if (content !== undefined) updateData.content = content;
+  if (category !== undefined) updateData.category = category;
+  if (tags !== undefined) updateData.tags = tags;
+  if (featured !== undefined) updateData.featured = featured;
+  if (references !== undefined) updateData.references = references;
+  if (isPublished !== undefined) {
+    updateData.isPublished = isPublished;
+    updateData.publishedAt =
+      isPublished && !educationalContent.isPublished
+        ? new Date()
+        : educationalContent.publishedAt;
+  }
+
+  if (req.file && educationalContent.type === "article") {
+    const uploadResult = await uploadFile({
+      file: req.file,
+      filePath: `educational-content/${req.user._id}`,
+    });
+    updateData.thumbnailUrl = uploadResult.secure_url;
+  }
+
   const updatedContent = await EducationalContent.findByIdAndUpdate(
     req.params.id,
-    {
-      title,
-      content,
-      category,
-      tags,
-      featured,
-      isPublished,
-      publishedAt:
-        isPublished && !educationalContent.isPublished
-          ? new Date()
-          : educationalContent.publishedAt,
-    },
+    updateData,
     { new: true, runValidators: true }
   ).populate("authorId", "name email");
 

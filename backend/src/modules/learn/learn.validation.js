@@ -4,16 +4,38 @@ import { generalRules } from "../../utils/validation-rules.js";
 // Schema for creating educational content
 export const createEducationalContentSchema = {
   body: Joi.object({
-    title: generalRules.bilingual("title").required(),
-    description: generalRules.bilingual("description").required(),
-    content: generalRules.bilingual("content").required(),
-    category: Joi.string().required().messages({
-      "string.empty": "Category is required",
-      "any.required": "Category is required",
+    type: Joi.string().valid("faq", "tip", "article").required().messages({
+      "any.only": "Type must be faq, tip, or article",
+      "any.required": "Type is required",
     }),
-    difficulty: generalRules.difficulty.required(),
+    title: generalRules.bilingual("title").required(),
+    content: generalRules.bilingual("content").required(),
+    category: Joi.string()
+      .valid(
+        "frontend-development",
+        "backend-development",
+        "soft-skills",
+        "interview-preparation",
+        "career-development"
+      )
+      .required()
+      .messages({
+        "any.only": "Invalid category",
+        "string.empty": "Category is required",
+        "any.required": "Category is required",
+      }),
     tags: generalRules.stringArray.optional(),
-    isPublished: generalRules.boolean.optional(),
+    featured: Joi.boolean().optional(),
+    references: Joi.array()
+      .items(
+        Joi.object({
+          url: Joi.string().uri().required(),
+          title: Joi.string().optional().allow(""),
+          description: Joi.string().optional().allow(""),
+        })
+      )
+      .optional(),
+    isPublished: Joi.boolean().optional(),
   }),
 };
 
@@ -21,13 +43,30 @@ export const createEducationalContentSchema = {
 export const updateEducationalContentSchema = {
   params: generalRules.paramsWithId("Content ID"),
   body: Joi.object({
+    type: Joi.string().valid("faq", "tip", "article").optional(),
     title: generalRules.bilingual("title").optional(),
-    description: generalRules.bilingual("description").optional(),
     content: generalRules.bilingual("content").optional(),
-    category: Joi.string().optional(),
-    difficulty: generalRules.difficulty.optional(),
+    category: Joi.string()
+      .valid(
+        "frontend-development",
+        "backend-development",
+        "soft-skills",
+        "interview-preparation",
+        "career-development"
+      )
+      .optional(),
     tags: generalRules.stringArray.optional(),
-    isPublished: generalRules.boolean.optional(),
+    featured: Joi.boolean().optional(),
+    references: Joi.array()
+      .items(
+        Joi.object({
+          url: Joi.string().uri().required(),
+          title: Joi.string().optional().allow(""),
+          description: Joi.string().optional().allow(""),
+        })
+      )
+      .optional(),
+    isPublished: Joi.boolean().optional(),
   }),
 };
 

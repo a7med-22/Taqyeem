@@ -78,6 +78,13 @@
         "qa": "Quality Assurance",
         "ui-ux": "UI/UX Design"
     },
+    "categories": {
+        "frontend-development": "Frontend Development",
+        "backend-development": "Backend Development",
+        "soft-skills": "Soft Skills",
+        "interview-preparation": "Interview Preparation",
+        "career-development": "Career Development"
+    },
     "dashboard": {
         "welcome": "Welcome to your dashboard",
         "subtitle": "Here's what's happening with your account",
@@ -131,7 +138,7 @@
         "noSlotsAvailable": "No available slots at this time"
     },
     "learning": {
-        "subtitle": "Enhance your skills with our learning resources",
+        "subtitle": "Learn from our FAQs, tips, and articles",
         "articles": "Articles",
         "articlesDescription": "Read the latest articles and guides",
         "browseArticles": "Browse Articles",
@@ -146,7 +153,15 @@
         "readingTime": "Reading Time",
         "views": "Views",
         "likes": "Likes",
-        "share": "Share"
+        "share": "Share",
+        "searchPlaceholder": "Search...",
+        "allCategories": "All Categories",
+        "noContent": "No content available",
+        "noFAQs": "No FAQs available",
+        "noTips": "No tips available",
+        "noArticles": "No articles available",
+        "references": "References",
+        "minRead": "min read"
     },
     "profile": {
         "subtitle": "Manage your account and preferences",
@@ -366,7 +381,36 @@
         "deleteReservationConfirmTitle": "Delete Reservation",
         "deleteReservationConfirm": "Are you sure you want to delete this reservation? This action cannot be undone.",
         "deleteSlotConfirmTitle": "Delete Slot",
-        "deleteSlotConfirm": "Are you sure you want to delete this slot? This action cannot be undone."
+        "deleteSlotConfirm": "Are you sure you want to delete this slot? This action cannot be undone.",
+        "createContent": "Create Content",
+        "editContent": "Edit Content",
+        "contentType": "Content Type",
+        "contentThumbnail": "Thumbnail Image",
+        "contentTitleEn": "Title (English)",
+        "contentTitleAr": "Title (Arabic)",
+        "contentContentEn": "Content (English)",
+        "contentContentAr": "Content (Arabic)",
+        "contentTags": "Tags",
+        "contentTagsPlaceholder": "Add a tag...",
+        "contentFeatured": "Featured",
+        "contentPublished": "Published",
+        "addReference": "Add Reference",
+        "contentReferenceUrl": "Reference URL",
+        "contentReferenceTitle": "Title (optional)",
+        "contentReferenceDescription": "Description (optional)",
+        "selectCategory": "Select Category",
+        "allTypes": "All Types",
+        "searchContent": "Search content...",
+        "createContentSuccess": "Content created successfully",
+        "updateContentSuccess": "Content updated successfully",
+        "deleteContentSuccess": "Content deleted successfully",
+        "deleteContentConfirmTitle": "Delete Content",
+        "deleteContentConfirm": "Are you sure you want to delete '{{title}}'? This action cannot be undone.",
+        "contentTitleRequired": "Title in both languages is required",
+        "contentContentRequired": "Content in both languages is required",
+        "contentCategoryRequired": "Category is required",
+        "contentInvalidImageType": "Please select an image file",
+        "contentImageTooLarge": "Image size must be less than 5MB"
     },
     "schedules": {
         "createSchedule": "Create Schedule",

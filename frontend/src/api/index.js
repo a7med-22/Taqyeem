@@ -116,8 +116,22 @@ export const learningAPI = {
   getContent: (params) => api.get("/learn", { params }),
   getContentById: (id) => api.get(`/learn/${id}`),
   getCategories: () => api.get("/learn/categories"),
-  createContent: (data) => api.post("/learn", data),
-  updateContent: (id, data) => api.put(`/learn/${id}`, data),
+  createContent: (formData) => {
+    if (formData instanceof FormData) {
+      return api.post("/learn", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.post("/learn", formData);
+  },
+  updateContent: (id, formData) => {
+    if (formData instanceof FormData) {
+      return api.put(`/learn/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.put(`/learn/${id}`, formData);
+  },
   deleteContent: (id) => api.delete(`/learn/${id}`),
   getContentStats: () => api.get("/learn/stats"),
 };

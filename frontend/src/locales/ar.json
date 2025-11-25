@@ -78,6 +78,13 @@
         "qa": "ضمان الجودة",
         "ui-ux": "تصميم واجهات المستخدم"
     },
+    "categories": {
+        "frontend-development": "تطوير الواجهات الأمامية",
+        "backend-development": "تطوير الواجهات الخلفية",
+        "soft-skills": "المهارات الناعمة",
+        "interview-preparation": "التحضير للمقابلات",
+        "career-development": "التطور المهني"
+    },
     "dashboard": {
         "welcome": "مرحباً بك في لوحة التحكم",
         "subtitle": "إليك ما يحدث مع حسابك",
@@ -136,7 +143,7 @@
         "noSlotsAvailable": "لا توجد أوقات متاحة حالياً"
     },
     "learning": {
-        "subtitle": "طور مهاراتك مع مواردنا التعليمية",
+        "subtitle": "تعلم من الأسئلة الشائعة والنصائح والمقالات لدينا",
         "articles": "المقالات",
         "articlesDescription": "اقرأ أحدث المقالات والأدلة",
         "browseArticles": "تصفح المقالات",
@@ -151,7 +158,15 @@
         "readingTime": "وقت القراءة",
         "views": "المشاهدات",
         "likes": "الإعجابات",
-        "share": "مشاركة"
+        "share": "مشاركة",
+        "searchPlaceholder": "بحث...",
+        "allCategories": "جميع الفئات",
+        "noContent": "لا يوجد محتوى متاح",
+        "noFAQs": "لا توجد أسئلة شائعة متاحة",
+        "noTips": "لا توجد نصائح متاحة",
+        "noArticles": "لا توجد مقالات متاحة",
+        "references": "المراجع",
+        "minRead": "دقيقة قراءة"
     },
     "profile": {
         "subtitle": "إدارة حسابك وتفضيلاتك",
@@ -371,7 +386,36 @@
         "deleteReservationConfirmTitle": "حذف الحجز",
         "deleteReservationConfirm": "هل أنت متأكد من حذف هذا الحجز؟ لا يمكن التراجع عن هذا الإجراء.",
         "deleteSlotConfirmTitle": "حذف الفترة الزمنية",
-        "deleteSlotConfirm": "هل أنت متأكد من حذف هذه الفترة الزمنية؟ لا يمكن التراجع عن هذا الإجراء."
+        "deleteSlotConfirm": "هل أنت متأكد من حذف هذه الفترة الزمنية؟ لا يمكن التراجع عن هذا الإجراء.",
+        "createContent": "إنشاء محتوى",
+        "editContent": "تعديل المحتوى",
+        "contentType": "نوع المحتوى",
+        "contentThumbnail": "صورة مصغرة",
+        "contentTitleEn": "العنوان (إنجليزي)",
+        "contentTitleAr": "العنوان (عربي)",
+        "contentContentEn": "المحتوى (إنجليزي)",
+        "contentContentAr": "المحتوى (عربي)",
+        "contentTags": "العلامات",
+        "contentTagsPlaceholder": "أضف علامة...",
+        "contentFeatured": "مميز",
+        "contentPublished": "منشور",
+        "addReference": "إضافة مرجع",
+        "contentReferenceUrl": "رابط المرجع",
+        "contentReferenceTitle": "العنوان (اختياري)",
+        "contentReferenceDescription": "الوصف (اختياري)",
+        "selectCategory": "اختر الفئة",
+        "allTypes": "جميع الأنواع",
+        "searchContent": "بحث في المحتوى...",
+        "createContentSuccess": "تم إنشاء المحتوى بنجاح",
+        "updateContentSuccess": "تم تحديث المحتوى بنجاح",
+        "deleteContentSuccess": "تم حذف المحتوى بنجاح",
+        "deleteContentConfirmTitle": "حذف المحتوى",
+        "deleteContentConfirm": "هل أنت متأكد من حذف '{{title}}'؟ لا يمكن التراجع عن هذا الإجراء.",
+        "contentTitleRequired": "العنوان باللغتين مطلوب",
+        "contentContentRequired": "المحتوى باللغتين مطلوب",
+        "contentCategoryRequired": "الفئة مطلوبة",
+        "contentInvalidImageType": "يرجى اختيار ملف صورة",
+        "contentImageTooLarge": "يجب أن يكون حجم الصورة أقل من 5 ميجابايت"
     },
     "schedules": {
         "createSchedule": "إنشاء جدول",

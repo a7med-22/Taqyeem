@@ -486,3 +486,37 @@ export const useLearningCategories = () => {
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
+
+export const useCreateLearningContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: learningAPI.createContent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learning-content"] });
+      queryClient.invalidateQueries({ queryKey: ["learning-categories"] });
+    },
+  });
+};
+
+export const useUpdateLearningContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => learningAPI.updateContent(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learning-content"] });
+    },
+  });
+};
+
+export const useDeleteLearningContent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: learningAPI.deleteContent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["learning-content"] });
+    },
+  });
+};

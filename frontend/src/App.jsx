@@ -83,14 +83,8 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path={ROUTES.LEARNING}
-                  element={
-                    <ProtectedRoute>
-                      <LearningPage />
-                    </ProtectedRoute>
-                  }
-                />
+                {/* Public route - no authentication required */}
+                <Route path={ROUTES.LEARNING} element={<LearningPage />} />
                 <Route
                   path={ROUTES.PROFILE}
                   element={

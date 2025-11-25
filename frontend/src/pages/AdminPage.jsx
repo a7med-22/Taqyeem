@@ -3,9 +3,12 @@ import {
   AlertTriangle,
   BookOpen,
   CalendarClock,
+  Edit,
   Filter,
+  Plus,
   Search,
   ShieldCheck,
+  Trash2,
   TrendingUp,
   Users,
   Video,
@@ -32,6 +35,7 @@ import PageHeader from "../components/ui/PageHeader.jsx";
 import { Tabs } from "../components/ui/Tabs.jsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import { EditUserDialog } from "../components/ui/EditUserDialog.jsx";
+import { CreateEditContentDialog } from "../components/ui/CreateEditContentDialog.jsx";
 import { Input } from "../components/ui/Input.jsx";
 import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
@@ -42,6 +46,10 @@ import {
   useDeleteUser,
   useUsers,
   useLearningContent,
+  useCreateLearningContent,
+  useUpdateLearningContent,
+  useDeleteLearningContent,
+  useLearningCategories,
   useAdminReservations,
   useAdminSlots,
   useDeleteAdminReservation,
@@ -252,6 +260,16 @@ export default function AdminPage() {
   const [slotDateFrom, setSlotDateFrom] = useState("");
   const [slotDateTo, setSlotDateTo] = useState("");
   
+  // Content learning state
+  const [contentSearch, setContentSearch] = useState("");
+  const [debouncedContentSearch, setDebouncedContentSearch] = useState("");
+  const [contentTypeFilter, setContentTypeFilter] = useState("");
+  const [contentCategoryFilter, setContentCategoryFilter] = useState("");
+  const [contentPublishedFilter, setContentPublishedFilter] = useState("");
+  const [contentToEdit, setContentToEdit] = useState(null);
+  const [contentToDelete, setContentToDelete] = useState(null);
+  const [isCreateContentOpen, setIsCreateContentOpen] = useState(false);
+  
   // Delete state
   const [reservationToDelete, setReservationToDelete] = useState(null);
   const [slotToDelete, setSlotToDelete] = useState(null);
@@ -277,6 +295,13 @@ export default function AdminPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [slotSearch]);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedContentSearch(contentSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [contentSearch]);
   
   // Build filter params
   const userFilterParams = useMemo(() => {
@@ -319,14 +344,37 @@ export default function AdminPage() {
     return params;
   }, [debouncedSlotSearch, slotStatusFilter, slotDateFrom, slotDateTo]);
   
+  // Build filter params for content
+  const contentFilterParams = useMemo(() => {
+    const params = { page: 1, limit: 100 };
+    if (debouncedContentSearch) params.search = debouncedContentSearch;
+    if (contentTypeFilter) params.type = contentTypeFilter;
+    if (contentCategoryFilter) params.category = contentCategoryFilter;
+    // For admin, show all content (published and unpublished)
+    // Remove isPublished filter to show all
+    return params;
+  }, [debouncedContentSearch, contentTypeFilter, contentCategoryFilter]);
+  
   // Fetch data for tabs
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers(userFilterParams);
-  const { data: contentData, isLoading: contentLoading } = useLearningContent({});
+  const { data: contentData, isLoading: contentLoading } = useLearningContent(contentFilterParams);
   const { data: adminReservationsData, isLoading: adminReservationsLoading } = useAdminReservations(reservationFilterParams);
   const { data: adminSlotsData, isLoading: adminSlotsLoading } = useAdminSlots(slotFilterParams);
+  const { data: categories = [] } = useLearningCategories();
+  
+  // Mutations
+  const createContentMutation = useCreateLearningContent();
+  const updateContentMutation = useUpdateLearningContent();
+  const deleteContentMutation = useDeleteLearningContent();
   
   const allUsers = usersData?.users || [];
-  const allContent = contentData?.content || [];
+  const allContentRaw = contentData?.content || [];
+  // Filter by published status if needed
+  const allContent = contentPublishedFilter === "" 
+    ? allContentRaw 
+    : allContentRaw.filter(c => 
+        contentPublishedFilter === "published" ? c.isPublished : !c.isPublished
+      );
   const adminReservations = adminReservationsData?.reservations || [];
   const adminSlots = adminSlotsData?.slots || [];
 
@@ -541,6 +589,43 @@ export default function AdminPage() {
   const confirmDeleteSlot = async () => {
     if (!slotToDelete) return;
     await handleDeleteSlot(slotToDelete.id);
+  };
+
+  // Content handlers
+  const handleCreateContent = async (formData) => {
+    try {
+      await createContentMutation.mutateAsync(formData);
+      toast.success(t("admin.createContentSuccess", { defaultValue: "Content created successfully" }));
+      setIsCreateContentOpen(false);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("common.error"));
+    }
+  };
+
+  const handleUpdateContent = async (formData) => {
+    if (!contentToEdit) return;
+    try {
+      await updateContentMutation.mutateAsync({ id: contentToEdit._id || contentToEdit.id, data: formData });
+      toast.success(t("admin.updateContentSuccess", { defaultValue: "Content updated successfully" }));
+      setContentToEdit(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("common.error"));
+    }
+  };
+
+  const handleDeleteContent = async (id) => {
+    try {
+      await deleteContentMutation.mutateAsync(id);
+      toast.success(t("admin.deleteContentSuccess", { defaultValue: "Content deleted successfully" }));
+      setContentToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("common.error"));
+    }
+  };
+
+  const confirmDeleteContent = async () => {
+    if (!contentToDelete) return;
+    await handleDeleteContent(contentToDelete.id);
   };
 
   const renderPendingInterviewers = () => {
@@ -1147,12 +1232,104 @@ export default function AdminPage() {
     <div className="space-y-6">
       <Card className="border border-secondary-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{t("admin.content", { defaultValue: "Learning Content" })}</CardTitle>
-          <CardDescription>
-            {t("admin.contentDescription", { defaultValue: "Manage learning content and articles" })}
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{t("admin.content", { defaultValue: "Learning Content" })}</CardTitle>
+              <CardDescription>
+                {t("admin.contentDescription", { defaultValue: "Manage learning content and articles" })}
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setIsCreateContentOpen(true)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {t("admin.createContent", { defaultValue: "Create Content" })}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+              <Input
+                type="text"
+                placeholder={t("admin.searchContent", { defaultValue: "Search content..." })}
+                value={contentSearch}
+                onChange={(e) => setContentSearch(e.target.value)}
+                className="pl-10 pr-10"
+                variant="modern"
+              />
+              {contentSearch && (
+                <button
+                  onClick={() => setContentSearch("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-secondary-500" />
+                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.contentType", { defaultValue: "Type" })}
+                  </label>
+                  <select
+                    value={contentTypeFilter}
+                    onChange={(e) => setContentTypeFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("admin.allTypes", { defaultValue: "All Types" })}</option>
+                    <option value="faq">{t("learning.faqs", { defaultValue: "FAQ" })}</option>
+                    <option value="tip">{t("learning.tips", { defaultValue: "Tip" })}</option>
+                    <option value="article">{t("learning.articles", { defaultValue: "Article" })}</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("learning.categories", { defaultValue: "Category" })}
+                  </label>
+                  <select
+                    value={contentCategoryFilter}
+                    onChange={(e) => setContentCategoryFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("learning.allCategories", { defaultValue: "All Categories" })}</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {t(`categories.${cat}`, { defaultValue: cat })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("common.status", { defaultValue: "Status" })}
+                  </label>
+                  <select
+                    value={contentPublishedFilter}
+                    onChange={(e) => setContentPublishedFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("admin.allStatuses", { defaultValue: "All Statuses" })}</option>
+                    <option value="published">{t("status.accepted", { defaultValue: "Published" })}</option>
+                    <option value="draft">{t("status.pending", { defaultValue: "Draft" })}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {contentLoading ? (
             <div className="text-center py-8">
               <p className="text-sm text-secondary-500">{t("common.loading")}</p>
@@ -1163,31 +1340,116 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {allContent.map((item) => (
-                <div
-                  key={item._id || item.id}
-                  className="rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
+              {allContent.map((item) => {
+                const currentLocale = i18n.language;
+                // Handle title as object {en, ar} or string
+                let title = "Untitled";
+                if (typeof item.title === "string") {
+                  title = item.title;
+                } else if (item.title) {
+                  title = item.title[currentLocale] || item.title.en || item.title.ar || "Untitled";
+                }
+                const contentType = item.type || "unknown";
+                return (
+                  <div
+                    key={item._id || item.id}
+                    className="flex items-start justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
+                  >
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-secondary-900">
-                        {item.title}
-                      </p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs px-2 py-1 bg-primary-100 text-primary-700 rounded-full font-medium">
+                          {contentType === "faq"
+                            ? t("learning.faqs", { defaultValue: "FAQ" })
+                            : contentType === "tip"
+                            ? t("learning.tips", { defaultValue: "Tip" })
+                            : t("learning.articles", { defaultValue: "Article" })}
+                        </span>
+                        {item.featured && (
+                          <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
+                            {t("admin.contentFeatured", { defaultValue: "Featured" })}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm font-semibold text-secondary-900">{title}</p>
                       <p className="text-xs text-secondary-500 mt-1">
-                        {item.category}
+                        {t(`categories.${item.category}`, { defaultValue: item.category })}
                       </p>
+                      {item.thumbnailUrl && (
+                        <img
+                          src={item.thumbnailUrl}
+                          alt={title}
+                          className="mt-2 w-24 h-16 object-cover rounded-lg border border-secondary-200"
+                        />
+                      )}
                     </div>
-                    <StatusBadge
-                      status={item.isPublished ? "accepted" : "pending"}
-                      label={item.isPublished ? t("status.accepted") : t("status.pending")}
-                    />
+                    <div className="flex items-center gap-2">
+                      <StatusBadge
+                        status={item.isPublished ? "accepted" : "pending"}
+                        label={item.isPublished ? t("status.accepted") : t("status.pending")}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setContentToEdit(item)}
+                        disabled={
+                          createContentMutation.isPending ||
+                          updateContentMutation.isPending ||
+                          deleteContentMutation.isPending
+                        }
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setContentToDelete({ id: item._id || item.id, title })}
+                        disabled={
+                          createContentMutation.isPending ||
+                          updateContentMutation.isPending ||
+                          deleteContentMutation.isPending
+                        }
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Create/Edit Dialog */}
+      <CreateEditContentDialog
+        isOpen={isCreateContentOpen || !!contentToEdit}
+        onClose={() => {
+          setIsCreateContentOpen(false);
+          setContentToEdit(null);
+        }}
+        onSave={contentToEdit ? handleUpdateContent : handleCreateContent}
+        content={contentToEdit}
+        isLoading={
+          createContentMutation.isPending ||
+          updateContentMutation.isPending
+        }
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!contentToDelete}
+        onClose={() => setContentToDelete(null)}
+        onConfirm={confirmDeleteContent}
+        title={t("admin.deleteContentConfirmTitle", { defaultValue: "Delete Content" })}
+        message={t("admin.deleteContentConfirm", {
+          defaultValue: "Are you sure you want to delete this content? This action cannot be undone.",
+          title: contentToDelete?.title || "",
+        })}
+        confirmText={t("common.delete")}
+        cancelText={t("common.cancel")}
+        variant="destructive"
+        isLoading={deleteContentMutation.isPending}
+      />
     </div>
   );
 

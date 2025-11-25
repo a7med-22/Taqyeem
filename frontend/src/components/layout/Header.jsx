@@ -77,6 +77,16 @@ export function Header() {
                 {t("navigation.home")}
               </NavLink>
             </motion.div>
+            <motion.div variants={navItemVariants} whileHover="hover" whileTap="tap">
+              <NavLink
+                to={ROUTES.LEARNING}
+                className={({ isActive }) =>
+                  `nav-link ${isActive ? "nav-link-active" : ""}`
+                }
+              >
+                {t("navigation.learning")}
+              </NavLink>
+            </motion.div>
             {isAuthenticated && (
               <>
                 <motion.div variants={navItemVariants} whileHover="hover" whileTap="tap">
@@ -97,16 +107,6 @@ export function Header() {
                     }
                   >
                     {t("navigation.interviews")}
-                  </NavLink>
-                </motion.div>
-                <motion.div variants={navItemVariants} whileHover="hover" whileTap="tap">
-                  <NavLink
-                    to={ROUTES.LEARNING}
-                    className={({ isActive }) =>
-                      `nav-link ${isActive ? "nav-link-active" : ""}`
-                    }
-                  >
-                    {t("navigation.learning")}
                   </NavLink>
                 </motion.div>
               </>
@@ -202,6 +202,25 @@ export function Header() {
                     {t("navigation.home")}
                   </NavLink>
                 </motion.div>
+                <motion.div
+                  whileHover={{ scale: 1.02, x: 5 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <NavLink
+                    to={ROUTES.LEARNING}
+                    className={({ isActive }) =>
+                      `block px-3 py-2 rounded-md text-base font-medium ${
+                        isActive
+                          ? "text-primary-600 bg-primary-50"
+                          : "text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50"
+                      }`
+                    }
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {t("navigation.learning")}
+                  </NavLink>
+                </motion.div>
                 {isAuthenticated && (
                   <>
                     <motion.div
@@ -240,25 +259,6 @@ export function Header() {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {t("navigation.interviews")}
-                      </NavLink>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.02, x: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <NavLink
-                        to={ROUTES.LEARNING}
-                        className={({ isActive }) =>
-                          `block px-3 py-2 rounded-md text-base font-medium ${
-                            isActive
-                              ? "text-primary-600 bg-primary-50"
-                              : "text-secondary-600 hover:text-secondary-900 hover:bg-secondary-50"
-                          }`
-                        }
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        {t("navigation.learning")}
                       </NavLink>
                     </motion.div>
                   </>
