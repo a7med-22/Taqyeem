@@ -19,16 +19,8 @@ export default function HomePage() {
   return (
     <div className={`min-h-screen ${isRTL ? "rtl" : "ltr"}`}>
       {/* Hero Section */}
-      <section className="relative bg-linear-to-br from-primary-100 via-accent-100 to-secondary-100 py-24 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary-200/30 via-accent-200/20 to-secondary-200/30"></div>
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-300/30 rounded-full blur-3xl animate-float"></div>
-        <div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-accent-300/30 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "2s" }}
-        ></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-linear-to-br from-primary-100 via-accent-100 to-secondary-100 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <div className="mb-8 animate-fade-in">
               <AppName
@@ -80,7 +72,7 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-linear-to-br from-white via-primary-50/30 to-accent-50/30 relative">
+      <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
             <h2
@@ -194,17 +186,8 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative bg-linear-to-br from-primary-600 via-primary-700 to-accent-600 py-20 overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-linear-to-br from-primary-600 via-primary-700 to-accent-600"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-black/20"></div>
-        <div className="absolute top-10 left-10 w-64 h-64 bg-white/20 rounded-full blur-3xl animate-float"></div>
-        <div
-          className="absolute bottom-10 right-10 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float"
-          style={{ animationDelay: "3s" }}
-        ></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="bg-primary-600 py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2
             className={`text-4xl md:text-5xl font-bold text-white mb-6 ${
               isRTL ? "font-arabic" : "font-sans"
