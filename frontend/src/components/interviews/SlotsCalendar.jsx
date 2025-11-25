@@ -1,16 +1,7 @@
 import PropTypes from "prop-types";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-// Helper function to convert 24h time to 12h format
-const formatTimeTo12Hour = (time24) => {
-  if (!time24) return "";
-  const [hours, minutes] = time24.split(":");
-  const hour = parseInt(hours, 10);
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minutes} ${ampm}`;
-};
+import { formatTime } from "../../utils/helpers.js";
 
 // Helper function to format date
 const formatDate = (dateString, locale) => {
@@ -167,7 +158,7 @@ export default function SlotsCalendar({
                     slot
                   )}`}
                 >
-                  {formatTimeTo12Hour(slot.startTime)}
+                  {formatTime(slot.startTime)}
                 </button>
               ))}
             </div>
@@ -187,8 +178,8 @@ export default function SlotsCalendar({
                 📅 {formatDate(selectedSlot.date, i18n.language)}
               </p>
               <p className="text-cyan-800 font-medium">
-                ⏰ {formatTimeTo12Hour(selectedSlot.startTime)} -{" "}
-                {formatTimeTo12Hour(selectedSlot.endTime)}
+                ⏰ {formatTime(selectedSlot.startTime)} -{" "}
+                {formatTime(selectedSlot.endTime)}
               </p>
               {selectedSlot.notes && (
                 <p className="text-sm text-cyan-700 mt-1">

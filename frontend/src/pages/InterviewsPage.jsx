@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
+import { formatTime } from "../utils/helpers.js";
 import {
   useAcceptReservation,
   useCreateReservation,
@@ -426,7 +427,8 @@ export default function InterviewsPage() {
                             </p>
                             <div className="flex items-center gap-4 mt-2 text-sm text-secondary-500">
                               <span>
-                                {schedule.startTime} - {schedule.endTime}
+                                {formatTime(schedule.startTime)} -{" "}
+                                {formatTime(schedule.endTime)}
                               </span>
                               <span>•</span>
                               <span>

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { formatTime } from "../../utils/helpers.js";
 import { Button } from "../ui/Button";
 import {
   Card,
@@ -47,6 +48,8 @@ export default function ReservationCard({
     ? reservation.candidateId
     : reservation.interviewerId;
   const slot = reservation.slotId;
+  const formattedStartTime = slot?.startTime ? formatTime(slot.startTime) : "--";
+  const formattedEndTime = slot?.endTime ? formatTime(slot.endTime) : "--";
 
   return (
     <Card className="card-modern">
@@ -97,7 +100,7 @@ export default function ReservationCard({
               />
             </svg>
             <span className="font-medium">
-              {slot?.startTime} - {slot?.endTime}
+              {formattedStartTime} - {formattedEndTime}
             </span>
           </div>
 

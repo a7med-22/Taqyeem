@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { formatTime } from "../../utils/helpers.js";
 import { Button } from "../ui/Button";
 
 export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
@@ -63,7 +64,7 @@ export default function SlotCard({ slot, onBook, isBooked, isLoading }) {
               isAvailable ? "text-green-900" : "text-secondary-600"
             }`}
           >
-            {slot.startTime} - {slot.endTime}
+            {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
           </span>
         </div>
         <span
