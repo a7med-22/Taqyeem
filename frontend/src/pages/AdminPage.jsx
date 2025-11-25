@@ -14,7 +14,7 @@ import {
 import { createElement, useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {
   Avatar,
   AvatarFallback,
@@ -42,8 +42,10 @@ import {
   useDeleteUser,
   useUsers,
   useLearningContent,
-  useMyReservations,
-  useMySessions,
+  useAdminReservations,
+  useAdminSlots,
+  useDeleteAdminReservation,
+  useDeleteAdminSlot,
 } from "../hooks/api.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { formatDate, formatDateTime, formatTime } from "../utils/helpers.js";
@@ -218,31 +220,63 @@ const StatusBadge = ({ status, label }) => {
 
 export default function AdminPage() {
   const { t, i18n } = useTranslation();
-  const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const { data, isLoading, isError, error } = useAdminDashboard();
   const approveInterviewer = useApproveInterviewer();
   const rejectInterviewer = useRejectInterviewer();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
+  const deleteAdminReservation = useDeleteAdminReservation();
+  const deleteAdminSlot = useDeleteAdminSlot();
   const [actioning, setActioning] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userToDelete, setUserToDelete] = useState(null);
   const [userToEdit, setUserToEdit] = useState(null);
   
-  // Search and filter state
+  // Search and filter state for users
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   
-  // Debounce search query
+  // Search and filter state for reservations & slots
+  const [reservationSearch, setReservationSearch] = useState("");
+  const [debouncedReservationSearch, setDebouncedReservationSearch] = useState("");
+  const [reservationStatusFilter, setReservationStatusFilter] = useState("");
+  const [reservationDateFrom, setReservationDateFrom] = useState("");
+  const [reservationDateTo, setReservationDateTo] = useState("");
+  
+  const [slotSearch, setSlotSearch] = useState("");
+  const [debouncedSlotSearch, setDebouncedSlotSearch] = useState("");
+  const [slotStatusFilter, setSlotStatusFilter] = useState("");
+  const [slotDateFrom, setSlotDateFrom] = useState("");
+  const [slotDateTo, setSlotDateTo] = useState("");
+  
+  // Delete state
+  const [reservationToDelete, setReservationToDelete] = useState(null);
+  const [slotToDelete, setSlotToDelete] = useState(null);
+  
+  // Debounce search queries
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedReservationSearch(reservationSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [reservationSearch]);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSlotSearch(slotSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [slotSearch]);
   
   // Build filter params
   const userFilterParams = useMemo(() => {
@@ -266,16 +300,35 @@ export default function AdminPage() {
     return params;
   }, [debouncedSearch, roleFilter, statusFilter]);
   
+  // Build filter params for reservations & slots
+  const reservationFilterParams = useMemo(() => {
+    const params = { page: 1, limit: 100 };
+    if (debouncedReservationSearch) params.search = debouncedReservationSearch;
+    if (reservationStatusFilter) params.status = reservationStatusFilter;
+    if (reservationDateFrom) params.startDate = reservationDateFrom;
+    if (reservationDateTo) params.endDate = reservationDateTo;
+    return params;
+  }, [debouncedReservationSearch, reservationStatusFilter, reservationDateFrom, reservationDateTo]);
+  
+  const slotFilterParams = useMemo(() => {
+    const params = { page: 1, limit: 100 };
+    if (debouncedSlotSearch) params.search = debouncedSlotSearch;
+    if (slotStatusFilter) params.status = slotStatusFilter;
+    if (slotDateFrom) params.startDate = slotDateFrom;
+    if (slotDateTo) params.endDate = slotDateTo;
+    return params;
+  }, [debouncedSlotSearch, slotStatusFilter, slotDateFrom, slotDateTo]);
+  
   // Fetch data for tabs
   const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers(userFilterParams);
   const { data: contentData, isLoading: contentLoading } = useLearningContent({});
-  const { data: reservationsData, isLoading: reservationsLoading } = useMyReservations({});
-  const { data: sessionsData, isLoading: sessionsLoading } = useMySessions({});
+  const { data: adminReservationsData, isLoading: adminReservationsLoading } = useAdminReservations(reservationFilterParams);
+  const { data: adminSlotsData, isLoading: adminSlotsLoading } = useAdminSlots(slotFilterParams);
   
   const allUsers = usersData?.users || [];
   const allContent = contentData?.content || [];
-  const allReservations = reservationsData || [];
-  const allSessions = sessionsData || [];
+  const adminReservations = adminReservationsData?.reservations || [];
+  const adminSlots = adminSlotsData?.slots || [];
 
   const isRTL = i18n.language === "ar";
   const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -452,6 +505,42 @@ export default function AdminPage() {
 
   const cancelEditUser = () => {
     setUserToEdit(null);
+  };
+
+  const handleDeleteReservation = async (id) => {
+    setActioning({ id, type: "deleteReservation" });
+    try {
+      await deleteAdminReservation.mutateAsync(id);
+      toast.success(t("admin.deleteReservationSuccess", { defaultValue: "Reservation deleted successfully" }));
+      setReservationToDelete(null);
+    } catch (mutationError) {
+      toast.error(mutationError.response?.data?.message || t("common.error"));
+    } finally {
+      setActioning(null);
+    }
+  };
+
+  const handleDeleteSlot = async (id) => {
+    setActioning({ id, type: "deleteSlot" });
+    try {
+      await deleteAdminSlot.mutateAsync(id);
+      toast.success(t("admin.deleteSlotSuccess", { defaultValue: "Slot deleted successfully" }));
+      setSlotToDelete(null);
+    } catch (mutationError) {
+      toast.error(mutationError.response?.data?.message || t("common.error"));
+    } finally {
+      setActioning(null);
+    }
+  };
+
+  const confirmDeleteReservation = async () => {
+    if (!reservationToDelete) return;
+    await handleDeleteReservation(reservationToDelete.id);
+  };
+
+  const confirmDeleteSlot = async () => {
+    if (!slotToDelete) return;
+    await handleDeleteSlot(slotToDelete.id);
   };
 
   const renderPendingInterviewers = () => {
@@ -1102,107 +1191,278 @@ export default function AdminPage() {
     </div>
   );
 
-  // Render interviews tab
-  const renderInterviewsTab = () => (
-    <div className="space-y-6">
+  // Render Reservations & Slots tab
+  const renderReservationsSlotsTab = () => (
+    <div className="space-y-8">
+      {/* Reservations Section */}
       <Card className="border border-secondary-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{t("admin.sessions", { defaultValue: "All Interviews" })}</CardTitle>
+          <CardTitle>{t("admin.completedReservations", { defaultValue: "Completed Reservations" })}</CardTitle>
           <CardDescription>
-            {t("admin.sessionsDescription", { defaultValue: "Monitor all interviews and sessions" })}
+            {t("admin.completedReservationsDescription", { defaultValue: "View and manage reservations from completed sessions" })}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {reservationsLoading || sessionsLoading ? (
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+              <Input
+                type="text"
+                placeholder={t("admin.searchReservations", { defaultValue: "Search by candidate or interviewer name..." })}
+                value={reservationSearch}
+                onChange={(e) => setReservationSearch(e.target.value)}
+                className="pl-10 pr-10"
+                variant="modern"
+              />
+              {reservationSearch && (
+                <button
+                  onClick={() => setReservationSearch("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-secondary-500" />
+                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("common.status", { defaultValue: "Status" })}
+                  </label>
+                  <select
+                    value={reservationStatusFilter}
+                    onChange={(e) => setReservationStatusFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("admin.allStatuses")}</option>
+                    <option value="pending">{t("status.pending")}</option>
+                    <option value="accepted">{t("status.accepted")}</option>
+                    <option value="rejected">{t("status.rejected")}</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateFrom", { defaultValue: "From Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={reservationDateFrom}
+                    onChange={(e) => setReservationDateFrom(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateTo", { defaultValue: "To Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={reservationDateTo}
+                    onChange={(e) => setReservationDateTo(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {adminReservationsLoading ? (
             <div className="text-center py-8">
               <p className="text-sm text-secondary-500">{t("common.loading")}</p>
             </div>
-          ) : allReservations.length === 0 && allSessions.length === 0 ? (
+          ) : adminReservations.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
             </div>
           ) : (
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-sm font-semibold text-secondary-900 mb-4">
-                  {t("admin.recentActivity.reservations")}
-                </h3>
-                <div className="space-y-4">
-                  {allReservations.slice(0, 10).map((reservation) => {
-                    const statusKey =
-                      statusKeyMap[reservation.status] ||
-                      `status.${reservation.status}`;
-                    return (
-                      <div
-                        key={reservation._id || reservation.id}
-                        className="flex flex-col gap-2 rounded-2xl border border-secondary-100 bg-secondary-50/40 p-3 text-sm text-secondary-700"
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold text-secondary-900">
-                            {reservation.candidateId?.name || reservation.candidate?.name} →{" "}
-                            {reservation.interviewerId?.name || reservation.interviewer?.name}
-                          </p>
-                          <StatusBadge
-                            status={reservation.status}
-                            label={t(statusKey, {
-                              defaultValue: reservation.status,
-                            })}
-                          />
-                        </div>
-                        {reservation.slotId && (
-                          <p className="text-xs text-secondary-500">
-                            {formatDate(reservation.slotId.date, locale)} ·{" "}
-                            {formatTime(reservation.slotId.startTime)} -{" "}
-                            {formatTime(reservation.slotId.endTime)}
-                          </p>
+            <div className="space-y-4">
+              {adminReservations.map((reservation) => (
+                <div
+                  key={reservation._id || reservation.id}
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-secondary-900">
+                        {reservation.candidateId?.name || reservation.candidate?.name} → {reservation.interviewerId?.name || reservation.interviewer?.name}
+                      </p>
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
+                        <p className="text-xs text-secondary-500">
+                          {reservation.candidateId?.email || reservation.candidate?.email}
+                        </p>
+                        {reservation.interviewerId?.specialization && (
+                          <>
+                            <span className="text-xs text-secondary-400">•</span>
+                            <span className="text-xs text-secondary-600 font-medium">
+                              {t(`specializations.${reservation.interviewerId.specialization}`, {
+                                defaultValue: reservation.interviewerId.specialization,
+                              })}
+                            </span>
+                          </>
                         )}
                       </div>
-                    );
-                  })}
+                      {reservation.slotId && (
+                        <p className="text-xs text-secondary-400 mt-1">
+                          {formatDate(reservation.slotId.date, locale)} · {formatTime(reservation.slotId.startTime)} - {formatTime(reservation.slotId.endTime)}
+                        </p>
+                      )}
+                    </div>
+                    <StatusBadge
+                      status={reservation.status}
+                      label={t(`status.${reservation.status}`, { defaultValue: reservation.status })}
+                    />
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setReservationToDelete({ id: reservation._id || reservation.id, candidateName: reservation.candidateId?.name })}
+                    disabled={deleteAdminReservation.isPending || (actioning?.id === (reservation._id || reservation.id) && actioning?.type === "deleteReservation")}
+                  >
+                    {t("common.delete")}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Slots Section */}
+      <Card className="border border-secondary-200 shadow-sm">
+        <CardHeader>
+          <CardTitle>{t("admin.completedSlots", { defaultValue: "Completed Slots" })}</CardTitle>
+          <CardDescription>
+            {t("admin.completedSlotsDescription", { defaultValue: "View and manage slots from completed schedules" })}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+              <Input
+                type="text"
+                placeholder={t("admin.searchSlots", { defaultValue: "Search by interviewer name or schedule title..." })}
+                value={slotSearch}
+                onChange={(e) => setSlotSearch(e.target.value)}
+                className="pl-10 pr-10"
+                variant="modern"
+              />
+              {slotSearch && (
+                <button
+                  onClick={() => setSlotSearch("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-secondary-500" />
+                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+              </div>
+              
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("common.status", { defaultValue: "Status" })}
+                  </label>
+                  <select
+                    value={slotStatusFilter}
+                    onChange={(e) => setSlotStatusFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("admin.allStatuses")}</option>
+                    <option value="available">{t("status.available")}</option>
+                    <option value="pending">{t("status.pending")}</option>
+                    <option value="booked">{t("status.booked")}</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateFrom", { defaultValue: "From Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={slotDateFrom}
+                    onChange={(e) => setSlotDateFrom(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateTo", { defaultValue: "To Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={slotDateTo}
+                    onChange={(e) => setSlotDateTo(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
                 </div>
               </div>
-              <div className="border-t border-secondary-200 pt-6">
-                <h3 className="text-sm font-semibold text-secondary-900 mb-4">
-                  {t("admin.recentActivity.sessions")}
-                </h3>
-                <div className="space-y-4">
-                  {allSessions.slice(0, 10).map((session) => {
-                    const labelKey =
-                      statusKeyMap[session.status] || `status.${session.status}`;
-                    return (
-                      <div
-                        key={session._id || session.id}
-                        className="flex flex-col gap-3 rounded-2xl border border-secondary-100 p-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-sm font-semibold text-secondary-900">
-                              {session.candidateId?.name || session.candidate?.name}
-                            </p>
-                            <p className="text-xs text-secondary-500">
-                              {session.interviewerId?.name || session.interviewer?.name}
-                            </p>
-                          </div>
-                          <StatusBadge
-                            status={session.status}
-                            label={t(labelKey, {
-                              defaultValue: session.status,
-                            })}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-secondary-500">
-                          <CalendarClock className="h-4 w-4 text-cyan-600" />
-                          <span>
-                            {formatDate(session.date, locale)} ·{" "}
-                            {formatTime(session.startTime)} -{" "}
-                            {formatTime(session.endTime)}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+            </div>
+          </div>
+
+          {adminSlotsLoading ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-secondary-500">{t("common.loading")}</p>
+            </div>
+          ) : adminSlots.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {adminSlots.map((slot) => (
+                <div
+                  key={slot._id || slot.id}
+                  className="flex items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
+                >
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-secondary-900">
+                        {slot.scheduleId?.title || "N/A"}
+                      </p>
+                      <p className="text-xs text-secondary-500">
+                        {slot.interviewerId?.name || slot.interviewer?.name}
+                      </p>
+                      <p className="text-xs text-secondary-400 mt-1">
+                        {formatDate(slot.date, locale)} · {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                      </p>
+                    </div>
+                    <StatusBadge
+                      status={slot.status}
+                      label={t(`status.${slot.status}`, { defaultValue: slot.status })}
+                    />
+                  </div>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setSlotToDelete({ id: slot._id || slot.id, scheduleTitle: slot.scheduleId?.title })}
+                    disabled={deleteAdminSlot.isPending || (actioning?.id === (slot._id || slot.id) && actioning?.type === "deleteSlot")}
+                  >
+                    {t("common.delete")}
+                  </Button>
                 </div>
-              </div>
+              ))}
             </div>
           )}
         </CardContent>
@@ -1233,11 +1493,11 @@ export default function AdminPage() {
       content: renderContentTab(),
     },
     {
-      id: "interviews",
-      label: t("admin.interviews", { defaultValue: "Interviews" }),
-      icon: <Video className="h-4 w-4" />,
-      badge: formatNumber(allReservations.length + allSessions.length),
-      content: renderInterviewsTab(),
+      id: "reservations-slots",
+      label: t("admin.reservationsSlots", { defaultValue: "Reservations & Slots" }),
+      icon: <CalendarClock className="h-4 w-4" />,
+      badge: formatNumber(adminReservations.length + adminSlots.length),
+      content: renderReservationsSlotsTab(),
     },
   ];
 
@@ -1282,6 +1542,36 @@ export default function AdminPage() {
         cancelLabel={t("common.cancel")}
         loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
         isLoading={deleteUser.isPending}
+      />
+
+      {/* Delete Reservation Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!reservationToDelete}
+        onClose={() => setReservationToDelete(null)}
+        onConfirm={confirmDeleteReservation}
+        title={t("admin.deleteReservationConfirmTitle", { defaultValue: "Delete Reservation" })}
+        message={t("admin.deleteReservationConfirm", {
+          defaultValue: `Are you sure you want to delete this reservation? This action cannot be undone.`,
+        })}
+        confirmLabel={t("common.delete", { defaultValue: "Delete" })}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
+        isLoading={deleteAdminReservation.isPending || (actioning?.type === "deleteReservation")}
+      />
+
+      {/* Delete Slot Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!slotToDelete}
+        onClose={() => setSlotToDelete(null)}
+        onConfirm={confirmDeleteSlot}
+        title={t("admin.deleteSlotConfirmTitle", { defaultValue: "Delete Slot" })}
+        message={t("admin.deleteSlotConfirm", {
+          defaultValue: `Are you sure you want to delete this slot? This action cannot be undone.`,
+        })}
+        confirmLabel={t("common.delete", { defaultValue: "Delete" })}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
+        isLoading={deleteAdminSlot.isPending || (actioning?.type === "deleteSlot")}
       />
     </div>
   );

@@ -125,4 +125,8 @@ export const learningAPI = {
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get("/admin/dashboard"),
+  getAllReservations: (params) => api.get("/admin/reservations", { params }),
+  getAllSlots: (params) => api.get("/admin/slots", { params }),
+  deleteReservation: (id) => api.delete(`/admin/reservations/${id}`),
+  deleteSlot: (id) => api.delete(`/admin/slots/${id}`),
 };

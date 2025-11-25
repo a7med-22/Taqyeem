@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
-import { formatTime } from "../../utils/helpers.js";
+import { formatDate, formatTime } from "../../utils/helpers.js";
 import { Button } from "../ui/Button";
 import {
   Card,
@@ -16,7 +16,7 @@ export default function ReservationCard({
   onReject,
   isInterviewer,
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -60,10 +60,10 @@ export default function ReservationCard({
               <img
                 src={user.avatarUrl}
                 alt={user.name}
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
               />
             ) : (
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {user?.name?.charAt(0).toUpperCase()}
               </div>
             )}
@@ -71,6 +71,16 @@ export default function ReservationCard({
               <CardTitle className="text-base">{user?.name}</CardTitle>
               <CardDescription className="text-sm">
                 {user?.email}
+                {reservation.interviewerId?.specialization && (
+                  <>
+                    {" · "}
+                    <span className="font-medium">
+                      {t(`specializations.${reservation.interviewerId.specialization}`, {
+                        defaultValue: reservation.interviewerId.specialization,
+                      })}
+                    </span>
+                  </>
+                )}
               </CardDescription>
             </div>
           </div>
@@ -85,6 +95,26 @@ export default function ReservationCard({
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
+          {slot?.date && (
+            <div className="flex items-center gap-2 text-sm text-secondary-700">
+              <svg
+                className="w-4 h-4 text-primary-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span className="font-medium">
+                {formatDate(slot.date, i18n.language)}
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-sm text-secondary-700">
             <svg
               className="w-4 h-4 text-primary-500"

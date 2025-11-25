@@ -66,6 +66,48 @@ export const useAdminDashboard = () => {
   });
 };
 
+// Admin Reservations hooks
+export const useAdminReservations = (params) => {
+  return useQuery({
+    queryKey: ["admin-reservations", params],
+    queryFn: () => adminAPI.getAllReservations(params),
+    select: (response) => response.data.data,
+  });
+};
+
+export const useDeleteAdminReservation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => adminAPI.deleteReservation(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-reservations"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+    },
+  });
+};
+
+// Admin Slots hooks
+export const useAdminSlots = (params) => {
+  return useQuery({
+    queryKey: ["admin-slots", params],
+    queryFn: () => adminAPI.getAllSlots(params),
+    select: (response) => response.data.data,
+  });
+};
+
+export const useDeleteAdminSlot = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => adminAPI.deleteSlot(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-slots"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+    },
+  });
+};
+
 export const useInterviewers = (params) => {
   return useQuery({
     queryKey: ["interviewers", params],

@@ -85,7 +85,7 @@ export const getMyReservations = async (req, res, next) => {
   const reservations = await Reservation.find(query)
     .populate("slotId", "startTime endTime date")
     .populate("candidateId", "name email avatarUrl")
-    .populate("interviewerId", "name email avatarUrl")
+    .populate("interviewerId", "name email avatarUrl specialization")
     .sort({ createdAt: -1 });
 
   successResponse({
@@ -105,6 +105,7 @@ export const getPendingReservations = async (req, res, next) => {
   })
     .populate("slotId", "startTime endTime date")
     .populate("candidateId", "name email avatarUrl")
+    .populate("interviewerId", "name email avatarUrl specialization")
     .sort({ createdAt: 1 });
 
   successResponse({

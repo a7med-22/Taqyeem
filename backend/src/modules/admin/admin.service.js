@@ -309,3 +309,241 @@ export const getDashboard = async (req, res, next) => {
   }
 };
 
+// @desc    Get all reservations (Admin only)
+// @route   GET /api/v1/admin/reservations
+// @access  Private/Admin
+export const getAllReservations = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      search,
+      interviewerId,
+      candidateId,
+      startDate,
+      endDate,
+    } = req.query;
+
+    // Build query - get all reservations (admin has full access)
+    let query = {};
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by interviewer
+    if (interviewerId) {
+      query.interviewerId = interviewerId;
+    }
+
+    // Filter by candidate
+    if (candidateId) {
+      query.candidateId = candidateId;
+    }
+
+    // Execute query - get all first (for search/date filtering)
+    let reservations = await Reservation.find(query)
+      .populate("slotId", "date startTime endTime status scheduleId")
+      .populate("candidateId", "name email avatarUrl")
+      .populate("interviewerId", "name email avatarUrl specialization")
+      .sort({ createdAt: -1 });
+
+    // Filter by search (name/email/specialization)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      reservations = reservations.filter((reservation) => {
+        const candidateName =
+          reservation.candidateId?.name?.toLowerCase() || "";
+        const candidateEmail =
+          reservation.candidateId?.email?.toLowerCase() || "";
+        const interviewerName =
+          reservation.interviewerId?.name?.toLowerCase() || "";
+        const interviewerEmail =
+          reservation.interviewerId?.email?.toLowerCase() || "";
+        const interviewerSpecialization =
+          reservation.interviewerId?.specialization?.toLowerCase() || "";
+
+        return (
+          candidateName.includes(searchLower) ||
+          candidateEmail.includes(searchLower) ||
+          interviewerName.includes(searchLower) ||
+          interviewerEmail.includes(searchLower) ||
+          interviewerSpecialization.includes(searchLower)
+        );
+      });
+    }
+
+    // Filter by date range (based on slot date)
+    if (startDate || endDate) {
+      reservations = reservations.filter((reservation) => {
+        if (!reservation.slotId?.date) return false;
+        const slotDate = new Date(reservation.slotId.date);
+        if (startDate && slotDate < new Date(startDate)) return false;
+        if (endDate && slotDate > new Date(endDate)) return false;
+        return true;
+      });
+    }
+
+    const total = reservations.length;
+
+    // Apply pagination after filtering
+    const paginatedReservations = reservations.slice(
+      (page - 1) * limit,
+      page * limit
+    );
+
+    successResponse({
+      res,
+      message: "Reservations retrieved successfully",
+      data: {
+        reservations: paginatedReservations,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total: total,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all slots (Admin only)
+// @route   GET /api/v1/admin/slots
+// @access  Private/Admin
+export const getAllSlots = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      search,
+      interviewerId,
+      startDate,
+      endDate,
+    } = req.query;
+
+    // Build query - get all slots (admin has full access)
+    let query = {};
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by interviewer
+    if (interviewerId) {
+      query.interviewerId = interviewerId;
+    }
+
+    // Date range filter
+    if (startDate || endDate) {
+      query.date = {};
+      if (startDate) {
+        query.date.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.date.$lte = new Date(endDate);
+      }
+    }
+
+    // Execute query - get all first (for search filtering)
+    let slots = await Slot.find(query)
+      .populate("scheduleId", "title description date")
+      .populate("interviewerId", "name email avatarUrl")
+      .sort({ date: -1, startTime: 1 });
+
+    // Filter by search (interviewer name, schedule title)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      slots = slots.filter((slot) => {
+        const interviewerName = slot.interviewerId?.name?.toLowerCase() || "";
+        const interviewerEmail = slot.interviewerId?.email?.toLowerCase() || "";
+        const scheduleTitle = slot.scheduleId?.title?.toLowerCase() || "";
+
+        return (
+          interviewerName.includes(searchLower) ||
+          interviewerEmail.includes(searchLower) ||
+          scheduleTitle.includes(searchLower)
+        );
+      });
+    }
+
+    const total = slots.length;
+
+    // Apply pagination after filtering
+    const paginatedSlots = slots.slice((page - 1) * limit, page * limit);
+
+    successResponse({
+      res,
+      message: "Slots retrieved successfully",
+      data: {
+        slots: paginatedSlots,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total: total,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete reservation (Admin only)
+// @route   DELETE /api/v1/admin/reservations/:id
+// @access  Private/Admin
+export const deleteReservation = async (req, res, next) => {
+  try {
+    const reservation = await Reservation.findById(req.params.id)
+      .populate("slotId")
+      .populate("reservationId");
+
+    if (!reservation) {
+      throw new Error("Reservation not found", { cause: 404 });
+    }
+
+    // Admin can delete any reservation (no restriction)
+
+    // Delete the reservation
+    await Reservation.findByIdAndDelete(req.params.id);
+
+    // Note: We don't delete the session or slot as they are historical records
+
+    successResponse({
+      res,
+      message: "Reservation deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete slot (Admin only)
+// @route   DELETE /api/v1/admin/slots/:id
+// @access  Private/Admin
+export const deleteSlot = async (req, res, next) => {
+  try {
+    const slot = await Slot.findById(req.params.id).populate("scheduleId");
+
+    if (!slot) {
+      throw new Error("Slot not found", { cause: 404 });
+    }
+
+    // Admin can delete any slot (no restriction)
+
+    // Delete the slot
+    await Slot.findByIdAndDelete(req.params.id);
+
+    successResponse({
+      res,
+      message: "Slot deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
