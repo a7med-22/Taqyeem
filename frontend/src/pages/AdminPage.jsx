@@ -26,7 +26,7 @@ import {
   CardTitle,
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
-import { USER_ROLES } from "../config/app.js";
+import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
   useApproveInterviewer,
@@ -46,6 +46,21 @@ const getInitials = (name = "") =>
     .join("")
     .slice(0, 2)
     .toUpperCase() || "TQ";
+
+const isAbsoluteUrl = (url = "") => /^https?:\/\//i.test(url);
+
+const resolveCvUrl = (url) => {
+  if (!url) return null;
+  if (isAbsoluteUrl(url)) return url;
+  let fallbackOrigin = window.location.origin;
+  try {
+    fallbackOrigin = new URL(APP_CONFIG.apiBaseUrl).origin;
+  } catch {
+    // ignore, fallback to current origin
+  }
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${fallbackOrigin}${normalizedPath}`;
+};
 
 const calculateTrendChange = (series = []) => {
   if (!series.length) return 0;
@@ -345,6 +360,7 @@ export default function AdminPage() {
               })
             : "";
           const yearsOfExperience = candidate.yearsOfExperience ?? 0;
+          const cvHref = resolveCvUrl(candidate.cvUrl);
           const isApproveLoading =
             actioning?.id === candidate.id && actioning?.type === "approve";
           const isRejectLoading =
@@ -382,9 +398,9 @@ export default function AdminPage() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                {candidate.cvUrl && (
+                {cvHref && (
                   <a
-                    href={candidate.cvUrl}
+                    href={cvHref}
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs font-medium text-cyan-600 underline-offset-4 hover:underline"

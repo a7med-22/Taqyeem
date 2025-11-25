@@ -11,9 +11,28 @@ export const cloud = () => {
   return cloudinary;
 };
 
-export const uploadFile = async ({ file, filePath = "general" }) => {
+export const uploadFile = async ({ file, filePath = "general", resourceType = "auto" }) => {
+  // Determine resource type based on file mimetype if not specified
+  let uploadResourceType = resourceType;
+  if (resourceType === "auto" && file.mimetype) {
+    if (file.mimetype.startsWith("image/")) {
+      uploadResourceType = "image";
+    } else if (
+      file.mimetype.includes("pdf") ||
+      file.mimetype.includes("document") ||
+      file.mimetype.includes("msword") ||
+      file.mimetype.includes("wordprocessingml")
+    ) {
+      uploadResourceType = "raw";
+    } else if (file.mimetype.startsWith("video/")) {
+      uploadResourceType = "video";
+    }
+  }
+
   return await cloud().uploader.upload(file.path, {
     folder: `${process.env.CLOUDINARY_FOLDER || "taqyeem"}/${filePath}`,
+    resource_type: uploadResourceType,
+    access_mode: "public", // Ensure files are publicly accessible
   });
 };
 

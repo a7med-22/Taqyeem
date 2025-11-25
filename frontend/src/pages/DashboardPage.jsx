@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
+import { USER_ROLES } from "../config/app.js";
 import { useAuth } from "../hooks/useAuth.js";
 
 export default function DashboardPage() {
@@ -18,6 +19,10 @@ export default function DashboardPage() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  if (user?.role === USER_ROLES.ADMIN) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (
@@ -113,27 +118,51 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full justify-start gap-3"
-                  onClick={() => (window.location.href = "/interviews")}
-                >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                {user?.role === USER_ROLES.ADMIN ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-3"
+                    onClick={() => (window.location.href = "/admin")}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  {t("interviews.schedule")}
-                </Button>
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    {t("navigation.admin")}
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-3"
+                    onClick={() => (window.location.href = "/interviews")}
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    {t("interviews.schedule")}
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   size="sm"
