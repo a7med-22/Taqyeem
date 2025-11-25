@@ -2,9 +2,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
+import { ROUTES, USER_ROLES } from "../config/app.js";
 import { useAuth } from "../hooks/useAuth.js";
-import { Avatar } from "./ui/Avatar.jsx";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/Avatar.jsx";
 import { Button } from "./ui/Button.jsx";
+import { getInitials } from "../utils/helpers.js";
 
 export function LanguageToggle() {
   const { language, setLanguage } = useAuth();
@@ -32,9 +34,10 @@ export function LanguageToggle() {
 
 export function UserMenu() {
   const { user, logout } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const isRTL = i18n.language === "ar";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,20 +46,31 @@ export function UserMenu() {
       }
     };
 
+    const handleEscape = (event) => {
+      if (event.key === "Escape") {
+        setIsDropdownOpen(false);
+      }
+    };
+
     if (isDropdownOpen) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+      document.addEventListener("keydown", handleEscape);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isDropdownOpen]);
 
   if (!user) return null;
 
   const handleLogout = () => {
+    setIsDropdownOpen(false);
     logout();
-    window.location.href = "/login";
+    window.location.href = ROUTES.LOGIN;
   };
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
@@ -93,36 +107,44 @@ export function UserMenu() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
+    hidden: { opacity: 0, x: isRTL ? 20 : -20 },
     visible: { opacity: 1, x: 0 },
   };
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <motion.button
+      <button
         onClick={toggleDropdown}
-        className="flex items-center gap-3 p-3 rounded-xl"
+        className={`flex items-center gap-2 md:gap-3 rounded-xl px-2 py-1.5 md:px-3 md:py-2 transition-colors ${
+          isDropdownOpen ? "bg-primary-50" : ""
+        }`}
+        aria-label={t("navigation.profile")}
+        aria-expanded={isDropdownOpen}
       >
-        <Avatar
-          src={user?.avatar}
-          alt={user?.name}
-          className="ring-2 ring-primary-200"
-        />
+        <Avatar className="h-8 w-8 md:h-9 md:w-9">
+          {user.avatarUrl ? (
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
+          ) : (
+            <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-xs md:text-sm font-semibold">
+              {getInitials(user.name)}
+            </AvatarFallback>
+          )}
+        </Avatar>
         <div className="hidden md:block text-left">
-          <p className="text-xs text-secondary-500 font-medium uppercase tracking-wider">
-            {user?.role ? t(`roles.${user.role}`) : t("roles.candidate")}
+          <p className="text-xs text-secondary-600 font-medium uppercase tracking-wide">
+            {user.role ? t(`roles.${user.role}`) : t("roles.candidate")}
           </p>
-          <p className="text-sm font-semibold text-secondary-800 capitalize">
-            {user?.name || t("auth.user")}
+          <p className="text-sm font-semibold text-secondary-900 capitalize">
+            {user.name || t("auth.user")}
           </p>
         </div>
-        <motion.svg
-          className="w-5 h-5 text-secondary-400"
+        <svg
+          className={`w-5 h-5 text-secondary-400 transition-transform duration-200 ${
+            isDropdownOpen ? "rotate-180" : ""
+          }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
-          animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
         >
           <path
             strokeLinecap="round"
@@ -130,92 +152,141 @@ export function UserMenu() {
             strokeWidth="2"
             d="M19 9l-7 7-7-7"
           />
-        </motion.svg>
-      </motion.button>
+        </svg>
+      </button>
 
       <AnimatePresence>
         {isDropdownOpen && (
           <motion.div
-            className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-[20px] rounded-xl py-2 z-50"
+            className={`absolute ${
+              isRTL ? "left-0" : "right-0"
+            } mt-2 w-72 md:w-80 bg-white rounded-xl border border-secondary-200 shadow-2xl z-50 overflow-hidden`}
             variants={dropdownVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
           >
+            {/* User Info Header */}
             <motion.div
               variants={itemVariants}
-              className="px-4 py-3 border-b border-secondary-100"
+              className="px-4 py-3 border-b border-secondary-200 bg-gradient-to-r from-primary-50/50 to-secondary-50/50"
             >
               <div className="flex items-center gap-3">
-                <Avatar
-                  src={user?.avatar}
-                  alt={user?.name}
-                  className="w-10 h-10 ring-2 ring-primary-200"
-                />
-                <div>
-                  <p className="text-sm font-semibold text-secondary-800 capitalize">
-                    {user?.name || t("auth.user")}
+                <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary-200">
+                  {user.avatarUrl ? (
+                    <AvatarImage src={user.avatarUrl} alt={user.name} />
+                  ) : (
+                    <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-sm font-semibold">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-secondary-800 capitalize truncate">
+                    {user.name || t("auth.user")}
                   </p>
-                  <p className="text-xs text-secondary-500 font-medium uppercase tracking-wide">
-                    {user?.role
-                      ? t(`roles.${user.role}`)
-                      : t("roles.candidate")}
+                  <p className="text-xs text-secondary-500 truncate">
+                    {user.email}
                   </p>
+                  <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium bg-primary-100 text-primary-700 rounded-full">
+                    {user.role ? t(`roles.${user.role}`) : t("roles.candidate")}
+                  </span>
                 </div>
               </div>
             </motion.div>
-            <motion.div variants={itemVariants}>
-              <NavLink
-                to="/profile"
-                className="flex items-center px-4 py-3 text-sm text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 transition-all duration-200 rounded-lg mx-2 my-1"
-                onClick={() => setIsDropdownOpen(false)}
-              >
-                <motion.svg
-                  className="w-5 h-5 mr-3 text-primary-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
+
+            {/* Menu Items */}
+            <div className="py-2">
+              <motion.div variants={itemVariants}>
+                <NavLink
+                  to={ROUTES.PROFILE}
+                  onClick={() => setIsDropdownOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-primary-50 text-primary-700"
+                        : "text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+                    }`
+                  }
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </motion.svg>
-                {t("navigation.profile")}
-              </NavLink>
-            </motion.div>
-            <motion.div variants={itemVariants}>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsDropdownOpen(false);
-                }}
-                className="flex items-center w-full text-left px-4 py-3 text-sm text-secondary-700 hover:bg-red-50 hover:text-red-700 transition-all duration-200 rounded-lg mx-2 my-1"
-              >
-                <motion.svg
-                  className="w-5 h-5 mr-3 text-red-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.25, duration: 0.3 }}
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary-100 text-primary-600">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                  </div>
+                  {t("navigation.profile")}
+                </NavLink>
+              </motion.div>
+
+              {user.role === USER_ROLES.ADMIN && (
+                <motion.div variants={itemVariants}>
+                  <NavLink
+                    to={ROUTES.ADMIN}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-amber-50 text-amber-700"
+                          : "text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+                      }`
+                    }
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600">
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                        />
+                      </svg>
+                    </div>
+                    {t("navigation.admin")}
+                  </NavLink>
+                </motion.div>
+              )}
+
+              <div className="h-px bg-secondary-200 mx-4 my-2"></div>
+
+              <motion.div variants={itemVariants}>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-                  />
-                </motion.svg>
-                {t("navigation.logout")}
-              </button>
-            </motion.div>
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600">
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                      />
+                    </svg>
+                  </div>
+                  {t("navigation.logout")}
+                </button>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
