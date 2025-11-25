@@ -1,12 +1,12 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
 import { ROUTES, USER_ROLES } from "../config/app.js";
 import { useAuth } from "../hooks/useAuth.js";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/Avatar.jsx";
-import { Button } from "./ui/Button.jsx";
 import { getInitials } from "../utils/helpers.js";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar.jsx";
+import { Button } from "./ui/Button.jsx";
 
 export function LanguageToggle() {
   const { language, setLanguage } = useAuth();

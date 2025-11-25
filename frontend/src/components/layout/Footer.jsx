@@ -25,13 +25,16 @@ export function Footer() {
               {t("app.tagline")}
             </p>
             <div className="mt-6 flex space-x-4">
-              {/* Twitter Icon */}
+              {/* Twitter/X Icon */}
               <a
                 href="#"
-                className="w-10 h-10 rounded-xl bg-linear-to-r from-primary-500 to-primary-700 flex items-center justify-center text-white hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center hover:-translate-y-1 transition-all duration-200 group"
+                aria-label="Twitter"
               >
                 <svg
-                  className="w-6 h-6 text-primary-600"
+                  className="w-6 h-6 text-[#1DA1F2] group-hover:text-[#0d8bd9] transition-colors"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -41,10 +44,13 @@ export function Footer() {
               {/* LinkedIn Icon */}
               <a
                 href="#"
-                className="w-10 h-10 rounded-xl bg-linear-to-r from-primary-500 to-primary-700 flex items-center justify-center text-white hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center hover:-translate-y-1 transition-all duration-200 group"
+                aria-label="LinkedIn"
               >
                 <svg
-                  className="w-6 h-6 text-primary-600"
+                  className="w-6 h-6 text-[#0077B5] group-hover:text-[#005885] transition-colors"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
