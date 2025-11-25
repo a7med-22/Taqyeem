@@ -76,10 +76,13 @@ export const bulkCreateEducationalContentSchema = {
     content: Joi.array()
       .items(
         Joi.object({
-          type: Joi.string().valid("faq", "tip", "article").required().messages({
-            "any.only": "Type must be faq, tip, or article",
-            "any.required": "Type is required",
-          }),
+          type: Joi.string()
+            .valid("faq", "tip", "article")
+            .required()
+            .messages({
+              "any.only": "Type must be faq, tip, or article",
+              "any.required": "Type is required",
+            }),
           title: generalRules.bilingual("title").required(),
           content: generalRules.bilingual("content").required(),
           category: Joi.string()
