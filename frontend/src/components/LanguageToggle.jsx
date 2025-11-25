@@ -1,4 +1,5 @@
-import { AnimatePresence } from "framer-motion";
+// eslint-disable-next-line no-unused-vars
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router-dom";
@@ -125,7 +126,7 @@ export function UserMenu() {
           {user.avatarUrl ? (
             <AvatarImage src={user.avatarUrl} alt={user.name} />
           ) : (
-            <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-xs md:text-sm font-semibold">
+            <AvatarFallback className="bg-linear-to-br from-primary-500 to-secondary-500 text-white text-xs md:text-sm font-semibold">
               {getInitials(user.name)}
             </AvatarFallback>
           )}
@@ -169,14 +170,14 @@ export function UserMenu() {
             {/* User Info Header */}
             <motion.div
               variants={itemVariants}
-              className="px-4 py-3 border-b border-secondary-200 bg-gradient-to-r from-primary-50/50 to-secondary-50/50"
+              className="px-4 py-3 border-b border-secondary-200 bg-linear-to-r from-primary-50/50 to-secondary-50/50"
             >
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 shadow-sm ring-2 ring-primary-200">
                   {user.avatarUrl ? (
                     <AvatarImage src={user.avatarUrl} alt={user.name} />
                   ) : (
-                    <AvatarFallback className="bg-gradient-to-br from-primary-500 to-secondary-500 text-white text-sm font-semibold">
+                    <AvatarFallback className="bg-linear-to-br from-primary-500 to-secondary-500 text-white text-sm font-semibold">
                       {getInitials(user.name)}
                     </AvatarFallback>
                   )}
