@@ -193,7 +193,8 @@
         "notifications": "الإشعارات",
         "privacy": "الخصوصية",
         "memberSince": "عضو منذ",
-        "deactivateAccount": "إلغاء تفعيل الحساب"
+        "deactivateAccount": "إلغاء تفعيل الحساب",
+        "role": "الدور"
     },
     "common": {
         "save": "حفظ",

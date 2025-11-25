@@ -188,7 +188,8 @@
         "notifications": "Notifications",
         "privacy": "Privacy",
         "memberSince": "Member since",
-        "deactivateAccount": "Deactivate Account"
+        "deactivateAccount": "Deactivate Account",
+        "role": "Role"
     },
     "common": {
         "save": "Save",
