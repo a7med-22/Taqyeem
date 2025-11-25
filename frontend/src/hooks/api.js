@@ -111,6 +111,18 @@ export const useRejectInterviewer = () => {
   });
 };
 
+export const useDeleteUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => usersAPI.deleteUser(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-dashboard"]);
+      queryClient.invalidateQueries(["users"]);
+    },
+  });
+};
+
 // Days hooks
 export const useDays = (params) => {
   return useQuery({

@@ -337,7 +337,12 @@
         "approveSuccess": "تمت الموافقة على المحاور بنجاح",
         "rejectSuccess": "تم رفض المحاور بنجاح",
         "trendUp": "نمو",
-        "trendDown": "انخفاض"
+        "trendDown": "انخفاض",
+        "deleteUser": "حذف",
+        "deleteUserSuccess": "تم حذف المستخدم بنجاح",
+        "deleteUserConfirmTitle": "حذف المستخدم",
+        "deleteUserConfirm": "هل أنت متأكد من حذف {{name}}؟ لا يمكن التراجع عن هذا الإجراء.",
+        "interviews": "المقابلات"
     },
     "schedules": {
         "createSchedule": "إنشاء جدول",

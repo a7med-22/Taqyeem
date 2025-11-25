@@ -25,5 +25,6 @@ router.put("/me/avatar", upload.single("avatar"), userService.updateAvatar);
 router.put("/me/deactivate", userService.deactivateAccount);
 router.put("/:id/approve", authorize("admin"), userService.approveInterviewer);
 router.put("/:id/reject", authorize("admin"), userService.rejectInterviewer);
+router.delete("/:id", authorize("admin"), validation(getUserByIdSchema), userService.deleteUser);
 
 export default router;

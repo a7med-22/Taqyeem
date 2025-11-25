@@ -27,13 +27,11 @@ import {
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { Tabs } from "../components/ui/Tabs.jsx";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
   useApproveInterviewer,
   useRejectInterviewer,
-  useDeleteUser,
   useUsers,
   useLearningContent,
   useMyReservations,
@@ -217,13 +215,11 @@ export default function AdminPage() {
   const { data, isLoading, isError, error } = useAdminDashboard();
   const approveInterviewer = useApproveInterviewer();
   const rejectInterviewer = useRejectInterviewer();
-  const deleteUser = useDeleteUser();
   const [actioning, setActioning] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [userToDelete, setUserToDelete] = useState(null);
   
   // Fetch data for tabs
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers({});
+  const { data: usersData, isLoading: usersLoading } = useUsers({});
   const { data: contentData, isLoading: contentLoading } = useLearningContent({});
   const { data: reservationsData, isLoading: reservationsLoading } = useMyReservations({});
   const { data: sessionsData, isLoading: sessionsLoading } = useMySessions({});
@@ -361,30 +357,6 @@ export default function AdminPage() {
     } finally {
       setActioning(null);
     }
-  };
-
-  const handleDeleteUser = async (id) => {
-    setActioning({ id, type: "delete" });
-    try {
-      await deleteUser.mutateAsync(id);
-      toast.success(t("admin.deleteUserSuccess", { defaultValue: "User deleted successfully" }));
-      setUserToDelete(null);
-      // Refetch users to get updated list
-      await refetchUsers();
-    } catch (mutationError) {
-      toast.error(mutationError.response?.data?.message || t("common.error"));
-    } finally {
-      setActioning(null);
-    }
-  };
-
-  const confirmDeleteUser = async () => {
-    if (!userToDelete) return;
-    await handleDeleteUser(userToDelete.id);
-  };
-
-  const cancelDeleteUser = () => {
-    setUserToDelete(null);
   };
 
   const renderPendingInterviewers = () => {
@@ -798,64 +770,39 @@ export default function AdminPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {allUsers.map((userItem) => {
-                const userId = userItem._id || userItem.id;
-                const currentUserId = user?._id || user?.id;
-                return (
+              {allUsers.map((user) => (
                 <div
-                  key={userId}
+                  key={user._id || user.id}
                   className="flex items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <Avatar className="h-12 w-12">
-                      {userItem.avatarUrl ? (
-                        <AvatarImage src={userItem.avatarUrl} alt={userItem.name} />
+                      {user.avatarUrl ? (
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
                       ) : (
                         <AvatarFallback>
-                          {getInitials(userItem.name)}
+                          {getInitials(user.name)}
                         </AvatarFallback>
                       )}
                     </Avatar>
                     <div>
                       <p className="text-sm font-semibold text-secondary-900">
-                        {userItem.name}
+                        {user.name}
                       </p>
-                      <p className="text-xs text-secondary-500">{userItem.email}</p>
+                      <p className="text-xs text-secondary-500">{user.email}</p>
                       <StatusBadge
-                        status={userItem.role}
-                        label={t(`roles.${userItem.role}`, {
-                          defaultValue: userItem.role,
+                        status={user.role}
+                        label={t(`roles.${user.role}`, {
+                          defaultValue: user.role,
                         })}
                       />
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-secondary-400">
-                      {formatDate(userItem.createdAt, locale)}
-                    </span>
-                    {userItem.role !== "admin" && userId !== currentUserId && (
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          setUserToDelete({ id: userId, name: userItem.name });
-                        }}
-                        disabled={
-                          deleteUser.isPending ||
-                          (actioning?.id === userId &&
-                            actioning?.type === "delete")
-                        }
-                      >
-                        {deleteUser.isPending &&
-                        actioning?.id === userId &&
-                        actioning?.type === "delete"
-                          ? t("common.loading")
-                          : t("admin.deleteUser", { defaultValue: "Delete" })}
-                      </Button>
-                    )}
-                  </div>
+                  <span className="text-xs text-secondary-400">
+                    {formatDate(user.createdAt, locale)}
+                  </span>
                 </div>
-              )})}
+              ))}
             </div>
           )}
         </CardContent>
@@ -1065,22 +1012,272 @@ export default function AdminPage() {
           onChange={setActiveTab}
         />
       </div>
+    </div>
+  );
+}
+          <div className="space-y-6 lg:col-span-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <TrendCard
+                title={t("admin.trends.users")}
+                value={formatNumber(
+                  (trends.users || []).reduce((sum, value) => sum + value, 0)
+                )}
+                series={trends.users || []}
+                stroke="#0891b2"
+                changeLabel={t("admin.trends.vsLastWeek")}
+                footnote={t("admin.trends.lastDays", {
+                  count: trends.labels?.length || 0,
+                })}
+                icon={TrendingUp}
+              />
+              <TrendCard
+                title={t("admin.trends.reservations")}
+                value={formatNumber(
+                  (trends.reservations || []).reduce(
+                    (sum, value) => sum + value,
+                    0
+                  )
+                )}
+                series={trends.reservations || []}
+                stroke="#a855f7"
+                changeLabel={t("admin.trends.vsLastWeek")}
+                footnote={t("admin.trends.lastDays", {
+                  count: trends.labels?.length || 0,
+                })}
+                icon={Activity}
+              />
+            </div>
 
-      {/* Delete User Confirmation Dialog */}
-      <ConfirmDialog
-        isOpen={!!userToDelete}
-        onClose={cancelDeleteUser}
-        onConfirm={confirmDeleteUser}
-        title={t("admin.deleteUserConfirmTitle", { defaultValue: "Delete User" })}
-        message={t("admin.deleteUserConfirm", {
-          defaultValue: `Are you sure you want to delete ${userToDelete?.name}? This action cannot be undone.`,
-          name: userToDelete?.name,
-        })}
-        confirmLabel={t("common.delete", { defaultValue: "Delete" })}
-        cancelLabel={t("common.cancel")}
-        loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
-        isLoading={deleteUser.isPending}
-      />
+            <Card className="border border-secondary-200 shadow-sm">
+              <CardHeader>
+                <CardTitle>{t("admin.pendingSection.title")}</CardTitle>
+                <CardDescription>
+                  {t("admin.pendingSection.description")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>{renderPendingInterviewers()}</CardContent>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            <Card className="border border-secondary-200 shadow-sm">
+              <CardHeader>
+                <CardTitle>{t("admin.system.title")}</CardTitle>
+                <CardDescription>
+                  {t("admin.quickActionsDescription")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm text-secondary-600">
+                <div className="rounded-2xl border border-secondary-200 bg-secondary-50/60 p-4">
+                  <p className="text-xs uppercase tracking-wide text-secondary-500">
+                    {t("admin.system.uptime")}
+                  </p>
+                  <p className="text-lg font-semibold text-secondary-900">
+                    {uptimeLabel}
+                  </p>
+                  {system?.lastUpdated && (
+                    <p className="text-xs text-secondary-500">
+                      {t("admin.system.lastUpdated")}:{" "}
+                      {formatDateTime(system.lastUpdated, locale)}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-secondary-500">
+                    {t("admin.system.quickActions")}
+                  </p>
+                  <div className="mt-3 grid gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/dashboard")}
+                    >
+                      {t("admin.system.users")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/interviews")}
+                    >
+                      {t("admin.system.interviews")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/learning")}
+                    >
+                      {t("admin.system.learning")}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Card className="border border-secondary-200 shadow-sm">
+            <CardHeader>
+              <CardTitle>{t("admin.recentActivity.title")}</CardTitle>
+              <CardDescription>
+                {t("admin.recentActivity.subtitle", {
+                  defaultValue: t("admin.overview", { defaultValue: "" }),
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-secondary-900">
+                    {t("admin.recentActivity.newUsers")}
+                  </p>
+                  <span className="text-xs text-secondary-500">
+                    {formatNumber(recent.users?.length || 0)}
+                  </span>
+                </div>
+                {renderRecentList(
+                  recent.users || [],
+                  t("admin.recentActivity.empty"),
+                  (item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10">
+                          {item.avatarUrl ? (
+                            <AvatarImage src={item.avatarUrl} alt={item.name} />
+                          ) : (
+                            <AvatarFallback>
+                              {getInitials(item.name)}
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium text-secondary-900">
+                            {item.name}
+                          </p>
+                          <p className="text-xs text-secondary-500">
+                            {t(`roles.${item.role}`, {
+                              defaultValue: item.role,
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-secondary-400">
+                        {formatDate(item.createdAt, locale)}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+
+              <div className="border-t border-dashed border-secondary-200 pt-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-secondary-900">
+                    {t("admin.recentActivity.reservations")}
+                  </p>
+                  <span className="text-xs text-secondary-500">
+                    {formatNumber(recent.reservations?.length || 0)}
+                  </span>
+                </div>
+                {renderRecentList(
+                  recent.reservations || [],
+                  t("admin.recentActivity.empty"),
+                  (reservation) => {
+                    const statusKey =
+                      statusKeyMap[reservation.status] ||
+                      `status.${reservation.status}`;
+                    return (
+                      <div
+                        key={reservation.id}
+                        className="flex flex-col gap-2 rounded-2xl border border-secondary-100 bg-secondary-50/40 p-3 text-sm text-secondary-700"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-secondary-900">
+                            {reservation.candidate?.name} →{" "}
+                            {reservation.interviewer?.name}
+                          </p>
+                          <StatusBadge
+                            status={reservation.status}
+                            label={t(statusKey, {
+                              defaultValue: reservation.status,
+                            })}
+                          />
+                        </div>
+                        {reservation.slot && (
+                          <p className="text-xs text-secondary-500">
+                            {formatDate(reservation.slot.date, locale)} ·{" "}
+                            {formatTime(reservation.slot.startTime)} -{" "}
+                            {formatTime(reservation.slot.endTime)}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border border-secondary-200 shadow-sm">
+            <CardHeader>
+              <CardTitle>{t("admin.recentActivity.sessions")}</CardTitle>
+              <CardDescription>
+                {t("admin.recentActivity.description", {
+                  defaultValue: t("admin.overview", { defaultValue: "" }),
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {renderRecentList(
+                recent.sessions || [],
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <CalendarClock className="h-12 w-12 text-secondary-300 mb-3" />
+                  <p className="text-sm font-medium text-secondary-500">
+                    {t("admin.recentActivity.empty")}
+                  </p>
+                </div>,
+                (session) => {
+                  const labelKey =
+                    statusKeyMap[session.status] || `status.${session.status}`;
+                  return (
+                    <div
+                      key={session.id}
+                      className="flex flex-col gap-3 rounded-2xl border border-secondary-100 p-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-secondary-900">
+                            {session.candidate?.name}
+                          </p>
+                          <p className="text-xs text-secondary-500">
+                            {session.interviewer?.name}
+                          </p>
+                        </div>
+                        <StatusBadge
+                          status={session.status}
+                          label={t(labelKey, {
+                            defaultValue: session.status,
+                          })}
+                        />
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-secondary-500">
+                        <CalendarClock className="h-4 w-4 text-cyan-600" />
+                        <span>
+                          {formatDate(session.date, locale)} ·{" "}
+                          {formatTime(session.startTime)} -{" "}
+                          {formatTime(session.endTime)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      </div>
     </div>
   );
 }

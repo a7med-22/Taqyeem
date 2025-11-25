@@ -332,7 +332,12 @@
         "approveSuccess": "Interviewer approved successfully",
         "rejectSuccess": "Interviewer rejected successfully",
         "trendUp": "Growth",
-        "trendDown": "Decline"
+        "trendDown": "Decline",
+        "deleteUser": "Delete",
+        "deleteUserSuccess": "User deleted successfully",
+        "deleteUserConfirmTitle": "Delete User",
+        "deleteUserConfirm": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+        "interviews": "Interviews"
     },
     "schedules": {
         "createSchedule": "Create Schedule",

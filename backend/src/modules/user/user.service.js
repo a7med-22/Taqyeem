@@ -274,3 +274,52 @@ export const rejectInterviewer = async (req, res, next) => {
     message: "Interviewer rejected and removed successfully",
   });
 };
+
+// @desc    Delete user (Admin only)
+// @route   DELETE /api/v1/users/:id
+// @access  Private/Admin
+export const deleteUser = async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    throw new Error("User not found", { cause: 404 });
+  }
+
+  // Prevent deleting admin accounts
+  if (user.role === "admin") {
+    throw new Error("Cannot delete admin accounts", { cause: 400 });
+  }
+
+  // Prevent admin from deleting themselves
+  if (user._id.toString() === req.user._id.toString()) {
+    throw new Error("Cannot delete your own account", { cause: 400 });
+  }
+
+  // Delete CV file from Cloudinary if exists
+  if (user.cvPublicId) {
+    try {
+      await destroyFile({ publicId: user.cvPublicId });
+    } catch (error) {
+      // Log error but continue with user deletion
+      console.error("Error deleting CV from Cloudinary:", error);
+    }
+  }
+
+  // Delete avatar from Cloudinary if exists
+  if (user.avatarPublicId) {
+    try {
+      await destroyFile({ publicId: user.avatarPublicId });
+    } catch (error) {
+      // Log error but continue with user deletion
+      console.error("Error deleting avatar from Cloudinary:", error);
+    }
+  }
+
+  // Delete the user from database
+  await User.findByIdAndDelete(req.params.id);
+
+  successResponse({
+    res,
+    message: "User deleted successfully",
+  });
+};

@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import { formatTime } from "../utils/helpers.js";
 import {
   useAcceptReservation,
@@ -517,56 +518,17 @@ export default function InterviewsPage() {
       </div>
 
       {/* Delete Confirmation Dialog */}
-      {scheduleToDelete && (
-        <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-in fade-in zoom-in duration-200 border border-secondary-200">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-secondary-900">
-                  {t("schedules.confirmDeleteTitle")}
-                </h3>
-              </div>
-            </div>
-            <p className="text-secondary-600 mb-6">
-              {t("schedules.confirmDelete", { title: scheduleToDelete.title })}
-            </p>
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="outline"
-                onClick={cancelDeleteSchedule}
-                disabled={deleteSchedule.isPending}
-              >
-                {t("common.cancel")}
-              </Button>
-              <Button
-                variant="default"
-                onClick={confirmDeleteSchedule}
-                disabled={deleteSchedule.isPending}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                {deleteSchedule.isPending
-                  ? t("common.deleting")
-                  : t("common.delete")}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        isOpen={!!scheduleToDelete}
+        onClose={cancelDeleteSchedule}
+        onConfirm={confirmDeleteSchedule}
+        title={t("schedules.confirmDeleteTitle")}
+        message={t("schedules.confirmDelete", { title: scheduleToDelete?.title })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting")}
+        isLoading={deleteSchedule.isPending}
+      />
     </div>
   );
 }
