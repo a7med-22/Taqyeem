@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../components/ui/Button.jsx";
 import {
   Card,
@@ -109,26 +110,70 @@ export default function LearningPage() {
     },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <div className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <PageHeader
-          title={t("navigation.learning", { defaultValue: "Learning" })}
-          subtitle={t("learning.subtitle", {
-            defaultValue: "Learn from our FAQs, tips, and articles",
-          })}
-        />
+    <motion.div
+      className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          <PageHeader
+            title={t("navigation.learning", { defaultValue: "Learning" })}
+            subtitle={t("learning.subtitle", {
+              defaultValue: "Learn from our FAQs, tips, and articles",
+            })}
+          />
+        </motion.div>
 
         {/* Type Tabs - Primary Categorization */}
-        <div className="flex gap-2 mb-6 border-b-2 border-secondary-200">
-          {typeTabs.map((tab) => {
+        <motion.div
+          variants={itemVariants}
+          className="flex gap-2 mb-6 border-b-2 border-secondary-200"
+        >
+          {typeTabs.map((tab, index) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             const count = tabCounts[tab.id] || 0;
             return (
-              <button
+              <motion.button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.3 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all relative ${
                   isActive
                     ? "text-primary-600"
@@ -137,27 +182,40 @@ export default function LearningPage() {
               >
                 <Icon className="h-5 w-5" />
                 {tab.label}
-                <span
-                  className={`px-2 py-0.5 text-xs rounded-full font-medium ${
-                    isActive
-                      ? "bg-primary-100 text-primary-700"
-                      : "bg-secondary-100 text-secondary-600"
-                  }`}
-                >
-                  {count}
-                </span>
+                <AnimatePresence>
+                  {isActive && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.2 }}
+                      className="px-2 py-0.5 text-xs rounded-full font-medium bg-primary-100 text-primary-700"
+                    >
+                      {count}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
                 {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
                 )}
-              </button>
+              </motion.button>
             );
           })}
-        </div>
+        </motion.div>
 
         {/* Search and Category Tabs Section */}
-        <div className="mb-6 space-y-4">
+        <motion.div variants={itemVariants} className="mb-6 space-y-4">
           {/* Search Bar */}
-          <div className="relative max-w-2xl">
+          <motion.div
+            className="relative max-w-2xl"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary-400" />
             <Input
               type="text"
@@ -169,20 +227,37 @@ export default function LearningPage() {
               className="pl-10 pr-10"
               variant="modern"
             />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+            <AnimatePresence>
+              {searchQuery && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0 }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+                >
+                  <X className="h-4 w-4" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Category Tabs - Secondary Categorization */}
-          <div className="flex flex-wrap gap-2 border-b-2 border-secondary-200 pb-4">
-            <button
+          <motion.div
+            className="flex flex-wrap gap-2 border-b-2 border-secondary-200 pb-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <motion.button
               onClick={() => setSelectedCategory("")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2 }}
               className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all relative border-b-2 ${
                 selectedCategory === ""
                   ? "text-primary-600 border-primary-500"
@@ -200,16 +275,25 @@ export default function LearningPage() {
                 {allContent.length}
               </span>
               {selectedCategory === "" && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5" />
+                <motion.div
+                  layoutId="activeCategory"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
               )}
-            </button>
-            {orderedCategories.map((category) => {
+            </motion.button>
+            {orderedCategories.map((category, index) => {
               const count = categoryCounts[category] || 0;
               const isSelected = selectedCategory === category;
               return (
-                <button
+                <motion.button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.2 }}
                   className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all relative border-b-2 ${
                     isSelected
                       ? "text-primary-600 border-primary-500"
@@ -227,62 +311,106 @@ export default function LearningPage() {
                     {count}
                   </span>
                   {isSelected && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5" />
+                    <motion.div
+                      layoutId="activeCategory"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
                   )}
-                </button>
+                </motion.button>
               );
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Content Display */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <p className="mt-4 text-secondary-500">{t("common.loading")}</p>
-          </div>
-        ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-500">{t("common.error")}</p>
-          </div>
-        ) : content.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="max-w-md mx-auto">
-              <div className="text-6xl mb-4">📚</div>
-              <p className="text-lg font-medium text-secondary-900 mb-2">
-                {t("learning.noContent", {
-                  defaultValue: "No content available",
-                })}
-              </p>
-              <p className="text-secondary-500">
-                {selectedCategory
-                  ? t("learning.noContentInCategory", {
-                      defaultValue: "Try selecting a different category or search term",
-                    })
-                  : t("learning.noContentDescription", {
-                      defaultValue: "Check back later for new content",
-                    })}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {activeTab === "faq" && (
-              <FAQsList faqs={content.filter((c) => c.type === "faq")} locale={locale} />
-            )}
-            {activeTab === "tip" && (
-              <TipsList tips={content.filter((c) => c.type === "tip")} locale={locale} />
-            )}
-            {activeTab === "article" && (
-              <ArticlesList
-                articles={content.filter((c) => c.type === "article")}
-                locale={locale}
+        <AnimatePresence mode="wait">
+          {isLoading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-12"
+            >
+              <motion.div
+                className="inline-block rounded-full h-8 w-8 border-b-2 border-primary-600"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+              <p className="mt-4 text-secondary-500">{t("common.loading")}</p>
+            </motion.div>
+          ) : error ? (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-12"
+            >
+              <p className="text-red-500">{t("common.error")}</p>
+            </motion.div>
+          ) : content.length === 0 ? (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-center py-12"
+            >
+              <div className="max-w-md mx-auto">
+                <motion.div
+                  className="text-6xl mb-4"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                >
+                  📚
+                </motion.div>
+                <p className="text-lg font-medium text-secondary-900 mb-2">
+                  {t("learning.noContent", {
+                    defaultValue: "No content available",
+                  })}
+                </p>
+                <p className="text-secondary-500">
+                  {selectedCategory
+                    ? t("learning.noContentInCategory", {
+                        defaultValue: "Try selecting a different category or search term",
+                      })
+                    : t("learning.noContentDescription", {
+                        defaultValue: "Check back later for new content",
+                      })}
+                </p>
+              </div>
+            </motion.div>
+          ) : (
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {activeTab === "faq" && (
+                <FAQsList faqs={content.filter((c) => c.type === "faq")} locale={locale} />
+              )}
+              {activeTab === "tip" && (
+                <TipsList tips={content.filter((c) => c.type === "tip")} locale={locale} />
+              )}
+              {activeTab === "article" && (
+                <ArticlesList
+                  articles={content.filter((c) => c.type === "article")}
+                  locale={locale}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -290,6 +418,28 @@ export default function LearningPage() {
 function FAQsList({ faqs, locale }) {
   const { t } = useTranslation();
   const [expandedId, setExpandedId] = useState(null);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut",
+      },
+    },
+  };
 
   if (faqs.length === 0) {
     return (
@@ -300,28 +450,52 @@ function FAQsList({ faqs, locale }) {
   }
 
   return (
-    <div className="space-y-4">
-      {faqs.map((faq) => {
+    <motion.div
+      className="space-y-4"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {faqs.map((faq, index) => {
         const isExpanded = expandedId === faq._id;
         const title = faq.title?.[locale] || faq.title?.en || "";
         const content = faq.content?.[locale] || faq.content?.en || "";
         const references = faq.references || [];
 
         return (
-          <Card key={faq._id} className="border border-secondary-200 hover:shadow-md transition-shadow">
+          <motion.div
+            key={faq._id}
+            variants={itemVariants}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05, duration: 0.3 }}
+          >
+            <Card className="border border-secondary-200 hover:shadow-md transition-shadow">
             <CardHeader
               className="cursor-pointer hover:bg-secondary-50 transition-colors"
               onClick={() => setExpandedId(isExpanded ? null : faq._id)}
             >
               <div className="flex items-start justify-between gap-4">
                 <CardTitle className="text-lg pr-8">{title}</CardTitle>
-                <button className="text-2xl text-primary-600 hover:text-primary-700 flex-shrink-0">
+                <motion.button
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-2xl text-primary-600 hover:text-primary-700 flex-shrink-0"
+                >
                   {isExpanded ? "−" : "+"}
-                </button>
+                </motion.button>
               </div>
             </CardHeader>
-            {isExpanded && (
-              <CardContent className="pt-0">
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <CardContent className="pt-0">
                 <div className="prose max-w-none">
                   <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">{content}</p>
                 </div>
@@ -331,11 +505,14 @@ function FAQsList({ faqs, locale }) {
                   </div>
                 )}
               </CardContent>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </Card>
+          </motion.div>
         );
       })}
-    </div>
+    </motion.div>
   );
 }
 
@@ -352,20 +529,53 @@ function TipsList({ tips, locale }) {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tips.map((tip) => {
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {tips.map((tip, index) => {
           const title = tip.title?.[locale] || tip.title?.en || "";
           const content = tip.content?.[locale] || tip.content?.en || "";
           const preview = content.substring(0, 150) + (content.length > 150 ? "..." : "");
 
           return (
-            <Card
+            <motion.div
               key={tip._id}
-              className="card-modern cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1"
-              onClick={() => setSelectedTip(tip)}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, y: -5 }}
+              whileTap={{ scale: 0.98 }}
             >
+              <Card
+                className="card-modern cursor-pointer hover:shadow-xl transition-all"
+                onClick={() => setSelectedTip(tip)}
+              >
               <CardHeader>
                 <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
               </CardHeader>
@@ -378,17 +588,20 @@ function TipsList({ tips, locale }) {
                 )}
               </CardContent>
             </Card>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
-      {selectedTip && (
-        <ContentDetailModal
-          content={selectedTip}
-          locale={locale}
-          onClose={() => setSelectedTip(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedTip && (
+          <ContentDetailModal
+            content={selectedTip}
+            locale={locale}
+            onClose={() => setSelectedTip(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -408,21 +621,54 @@ function ArticlesList({ articles, locale }) {
     );
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {articles.map((article) => {
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {articles.map((article, index) => {
           const title = article.title?.[locale] || article.title?.en || "";
           const content = article.content?.[locale] || article.content?.en || "";
           const preview = content.substring(0, 150) + (content.length > 150 ? "..." : "");
           const readingTime = article.readingTime?.[locale] || article.readingTime?.en || 0;
 
           return (
-            <Card
+            <motion.div
               key={article._id}
-              className="card-modern cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 overflow-hidden group"
-              onClick={() => setSelectedArticle(article)}
+              variants={itemVariants}
+              whileHover={{ scale: 1.02, y: -5 }}
+              whileTap={{ scale: 0.98 }}
             >
+              <Card
+                className="card-modern cursor-pointer hover:shadow-xl transition-all overflow-hidden group"
+                onClick={() => setSelectedArticle(article)}
+              >
               {article.thumbnailUrl && (
                 <div className="aspect-video w-full overflow-hidden bg-secondary-100">
                   <img
@@ -459,17 +705,20 @@ function ArticlesList({ articles, locale }) {
                 </div>
               </CardContent>
             </Card>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
-      {selectedArticle && (
-        <ContentDetailModal
-          content={selectedArticle}
-          locale={locale}
-          onClose={() => setSelectedArticle(null)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedArticle && (
+          <ContentDetailModal
+            content={selectedArticle}
+            locale={locale}
+            onClose={() => setSelectedArticle(null)}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -484,10 +733,21 @@ function ContentDetailModal({ content, locale, onClose }) {
   const readingTime = content.readingTime?.[locale] || content.readingTime?.en || 0;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div
+    <motion.div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div
         className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
       >
         <div className="p-6 border-b border-secondary-200 flex items-start justify-between sticky top-0 bg-white z-10">
           <div className="flex-1 pr-4">
@@ -530,8 +790,8 @@ function ContentDetailModal({ content, locale, onClose }) {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
