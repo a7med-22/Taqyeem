@@ -1,0 +1,155 @@
+{
+  "content": [
+    {
+      "type": "tip",
+      "title": {
+        "en": "Use Semantic HTML for Better Accessibility",
+        "ar": "استخدم HTML الدلالي لتحسين إمكانية الوصول"
+      },
+      "content": {
+        "en": "Always use semantic HTML elements like <header>, <nav>, <main>, <article>, <section>, and <footer> instead of generic <div> elements. Semantic HTML improves accessibility for screen readers, helps with SEO, and makes your code more readable and maintainable. It also provides better structure for CSS styling and JavaScript interactions.",
+        "ar": "استخدم دائماً عناصر HTML الدلالية مثل <header> و <nav> و <main> و <article> و <section> و <footer> بدلاً من عناصر <div> العامة. يحسّن HTML الدلالي إمكانية الوصول لقارئات الشاشة، ويساعد في SEO، ويجعل كودك أكثر قابلية للقراءة والصيانة. كما يوفر بنية أفضل لتنسيق CSS والتفاعلات JavaScript."
+      },
+      "category": "frontend-development",
+      "tags": ["html", "accessibility", "semantic", "best-practices"],
+      "featured": true,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Optimize Images for Web Performance",
+        "ar": "حسّن الصور لأداء الويب"
+      },
+      "content": {
+        "en": "Optimize images before uploading to reduce load times: compress images using tools like TinyPNG or ImageOptim, use appropriate formats (WebP for modern browsers, JPEG for photos, PNG for transparency), implement lazy loading for images below the fold, and provide responsive images using srcset. Consider using CDN services for image delivery to improve global load times.",
+        "ar": "حسّن الصور قبل الرفع لتقليل أوقات التحميل: اضغط الصور باستخدام أدوات مثل TinyPNG أو ImageOptim، استخدم التنسيقات المناسبة (WebP للمتصفحات الحديثة، JPEG للصور، PNG للشفافية)، نفّذ التحميل الكسول للصور أسفل الطية، وقدم صوراً متجاوبة باستخدام srcset. فكر في استخدام خدمات CDN لتسليم الصور لتحسين أوقات التحميل العالمية."
+      },
+      "category": "frontend-development",
+      "tags": ["performance", "images", "optimization", "web"],
+      "featured": false,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Always Validate and Sanitize User Input",
+        "ar": "تحقق دائماً من صحة وتعقيم إدخال المستخدم"
+      },
+      "content": {
+        "en": "Never trust user input. Always validate on both client and server sides. Client-side validation improves UX but can be bypassed, so server-side validation is essential. Sanitize inputs to prevent XSS attacks, SQL injection, and other security vulnerabilities. Use validation libraries like Joi, Yup, or express-validator for Node.js, and never execute user input directly in database queries.",
+        "ar": "لا تثق أبداً بإدخال المستخدم. تحقق دائماً من كلا الجانبين (العميل والخادم). تحسين التحقق من جانب العميل تجربة المستخدم ولكن يمكن تجاوزه، لذا فإن التحقق من جانب الخادم ضروري. عقم المدخلات لمنع هجمات XSS وحقن SQL والثغرات الأمنية الأخرى. استخدم مكتبات التحقق مثل Joi أو Yup أو express-validator لـ Node.js، ولا تنفذ إدخال المستخدم مباشرة في استعلامات قاعدة البيانات."
+      },
+      "category": "backend-development",
+      "tags": ["security", "validation", "best-practices", "backend"],
+      "featured": true,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Use Environment Variables for Sensitive Data",
+        "ar": "استخدم متغيرات البيئة للبيانات الحساسة"
+      },
+      "content": {
+        "en": "Never hardcode sensitive information like API keys, database passwords, or secret tokens in your code. Use environment variables instead. Create a .env file for local development (and add it to .gitignore), use different environments for development, staging, and production. Libraries like dotenv for Node.js make it easy to load environment variables. This keeps your secrets secure and makes configuration management easier.",
+        "ar": "لا تقم بترميز المعلومات الحساسة مثل مفاتيح API أو كلمات مرور قاعدة البيانات أو الرموز السرية في كودك. استخدم متغيرات البيئة بدلاً من ذلك. أنشئ ملف .env للتطوير المحلي (وأضفه إلى .gitignore)، استخدم بيئات مختلفة للتطوير والاختبار والإنتاج. تجعل مكتبات مثل dotenv لـ Node.js من السهل تحميل متغيرات البيئة. هذا يحافظ على أسرارك آمنة ويجعل إدارة التكوين أسهل."
+      },
+      "category": "backend-development",
+      "tags": ["security", "environment-variables", "configuration"],
+      "featured": true,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Practice Active Listening in Team Meetings",
+        "ar": "مارس الاستماع النشط في اجتماعات الفريق"
+      },
+      "content": {
+        "en": "Active listening involves fully concentrating on what others are saying, understanding their message, and responding thoughtfully. In team meetings: avoid interrupting, ask clarifying questions, paraphrase what you heard to confirm understanding, take notes on key points, and give your full attention (avoid multitasking). This builds trust, prevents misunderstandings, and leads to better collaboration and decision-making.",
+        "ar": "يتضمن الاستماع النشط التركيز الكامل على ما يقوله الآخرون وفهم رسالتهم والاستجابة بعناية. في اجتماعات الفريق: تجنب المقاطعة، اطرح أسئلة توضيحية، أعيد صياغة ما سمعته لتأكيد الفهم، دوّن النقاط الرئيسية، وامنح انتباهك الكامل (تجنب تعدد المهام). هذا يبني الثقة ويمنع سوء الفهم ويؤدي إلى تعاون أفضل واتخاذ قرارات أفضل."
+      },
+      "category": "soft-skills",
+      "tags": ["communication", "teamwork", "soft-skills"],
+      "featured": false,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Document Your Code as You Write It",
+        "ar": "وثّق كودك أثناء كتابته"
+      },
+      "content": {
+        "en": "Write documentation while the code is fresh in your mind, not later. Good documentation includes: clear comments explaining 'why' not just 'what', README files with setup instructions, API documentation for endpoints, inline comments for complex logic, and changelogs for major updates. Well-documented code saves time for your future self and your teammates, making onboarding and maintenance much easier.",
+        "ar": "اكتب الوثائق بينما الكود جديد في ذهنك، وليس لاحقاً. تشمل الوثائق الجيدة: تعليقات واضحة تشرح 'لماذا' وليس فقط 'ماذا'، ملفات README مع تعليمات الإعداد، وثائق API للنقاط الطرفية، تعليقات داخلية للمنطق المعقد، وسجلات التغيير للتحديثات الرئيسية. الكود الموثق جيداً يوفر الوقت لذاتك المستقبلية وفريقك، مما يجعل الإدماج والصيانة أسهل بكثير."
+      },
+      "category": "soft-skills",
+      "tags": ["documentation", "coding-standards", "best-practices"],
+      "featured": false,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Practice Coding Problems Daily Before Interviews",
+        "ar": "تدرب على مشاكل البرمجة يومياً قبل المقابلات"
+      },
+      "content": {
+        "en": "Consistency beats intensity. Solve 1-2 coding problems daily rather than cramming 20 problems the night before. Focus on understanding patterns and approaches, not just memorizing solutions. Practice on platforms like LeetCode, but also implement real-world projects. Time yourself to simulate interview conditions. Review solutions and understand different approaches. Regular practice builds muscle memory and confidence.",
+        "ar": "الاتساق يهزم الشدة. حل مشكلة إلى مشكلتين برمجيتين يومياً بدلاً من حفظ 20 مشكلة في الليلة السابقة. ركز على فهم الأنماط والمناهج، وليس فقط حفظ الحلول. تدرب على منصات مثل LeetCode، ولكن أيضاً نفّذ مشاريع واقعية. حدد الوقت لنفسك لمحاكاة ظروف المقابلة. راجع الحلول وافهم المناهج المختلفة. الممارسة المنتظمة تبني الذاكرة العضلية والثقة."
+      },
+      "category": "interview-preparation",
+      "tags": ["coding-practice", "interview", "algorithms"],
+      "featured": true,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Prepare STAR Stories for Behavioral Questions",
+        "ar": "جهّز قصص STAR للأسئلة السلوكية"
+      },
+      "content": {
+        "en": "Prepare 5-7 STAR stories (Situation, Task, Action, Result) covering different scenarios: handling conflict, showing leadership, overcoming challenges, working in teams, learning from mistakes, managing deadlines, and solving problems. Practice telling these stories concisely (2-3 minutes each). Be specific about your role and impact. Have backup stories ready. These stories demonstrate your soft skills and cultural fit, which are just as important as technical skills.",
+        "ar": "جهّز 5-7 قصص STAR (الموقف، المهمة، الإجراء، النتيجة) تغطي سيناريوهات مختلفة: التعامل مع النزاع، إظهار القيادة، التغلب على التحديات، العمل في فرق، التعلم من الأخطاء، إدارة المواعيد النهائية، وحل المشكلات. تدرب على سرد هذه القصص بإيجاز (2-3 دقائق لكل منها). كن محدداً بشأن دورك وتأثيرك. احتفظ بقصص احتياطية جاهزة. هذه القصص تُظهر مهاراتك الشخصية والملاءمة الثقافية، وهي بنفس أهمية المهارات التقنية."
+      },
+      "category": "interview-preparation",
+      "tags": ["interview", "behavioral", "preparation"],
+      "featured": false,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Build a Strong Portfolio with Real Projects",
+        "ar": "ابنِ محفظة قوية بمشاريع حقيقية"
+      },
+      "content": {
+        "en": "Your portfolio should showcase real projects, not just tutorials. Build projects that solve actual problems, demonstrate your skills, and show progression over time. Include: a variety of technologies, clean code repositories on GitHub, live demos when possible, clear README files, and documentation of your thought process. A strong portfolio is often more impressive than just listing technologies on your resume.",
+        "ar": "يجب أن تعرض محفظتك مشاريع حقيقية، وليس فقط دروس. أنشئ مشاريع تحل مشاكل فعلية، وتُظهر مهاراتك، وتُظهر التقدم بمرور الوقت. شمل: مجموعة متنوعة من التقنيات، مستودعات كود نظيفة على GitHub، عروض حية عندما يكون ذلك ممكناً، ملفات README واضحة، وتوثيق عملية تفكيرك. المحفظة القوية غالباً ما تكون أكثر إثارة للإعجاب من مجرد سرد التقنيات في سيرتك الذاتية."
+      },
+      "category": "career-development",
+      "tags": ["portfolio", "projects", "career"],
+      "featured": true,
+      "isPublished": true
+    },
+    {
+      "type": "tip",
+      "title": {
+        "en": "Contribute to Open Source to Build Your Reputation",
+        "ar": "ساهم في المصادر المفتوحة لبناء سمعتك"
+      },
+      "content": {
+        "en": "Contributing to open source projects helps you: learn from experienced developers, build a public reputation, improve your coding skills, network with other developers, and create a portfolio of contributions. Start small: fix typos, improve documentation, tackle 'good first issue' labels. Choose projects you use or care about. Your GitHub contributions graph shows consistency and dedication. This can significantly boost your career prospects.",
+        "ar": "المساهمة في مشاريع المصادر المفتوحة تساعدك على: التعلم من المطورين ذوي الخبرة، بناء سمعة عامة، تحسين مهارات البرمجة، التواصل مع مطورين آخرين، وإنشاء محفظة من المساهمات. ابدأ صغيراً: أصلح الأخطاء الإملائية، حسّن الوثائق، تعامل مع علامات 'مشكلة أولى جيدة'. اختر مشاريع تستخدمها أو تهتم بها. يظهر رسم مساهماتك على GitHub الاتساق والتفاني. يمكن أن يعزز هذا بشكل كبير آفاق حياتك المهنية."
+      },
+      "category": "career-development",
+      "tags": ["open-source", "github", "career", "networking"],
+      "featured": false,
+      "isPublished": true
+    }
+  ]
+}
+

@@ -1,0 +1,199 @@
+{
+    "content": [
+        {
+            "type": "faq",
+            "title": {
+                "en": "What is React and why should I learn it?",
+                "ar": "ما هو React ولماذا يجب أن أتعلمه؟"
+            },
+            "content": {
+                "en": "React is a JavaScript library for building user interfaces, particularly web applications. It's component-based, meaning you build encapsulated components that manage their own state, then compose them to make complex UIs. React is popular because it's efficient, flexible, and has a large ecosystem. Many companies use React, so learning it can significantly improve your job prospects as a frontend developer.",
+                "ar": "React هي مكتبة JavaScript لبناء واجهات المستخدم، وخاصة تطبيقات الويب. إنها قائمة على المكونات، مما يعني أنك تبني مكونات مغلفة تدير حالتها الخاصة، ثم تجمعها لإنشاء واجهات مستخدم معقدة. React شائعة لأنها فعالة ومرنة ولديها نظام بيئي كبير. تستخدم العديد من الشركات React، لذا فإن تعلمها يمكن أن يحسن بشكل كبير فرصك الوظيفية كمطور واجهة أمامية."
+            },
+            "category": "frontend-development",
+            "tags": [
+                "react",
+                "javascript",
+                "frontend",
+                "web-development"
+            ],
+            "featured": true,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "What's the difference between useState and useEffect in React?",
+                "ar": "ما الفرق بين useState و useEffect في React؟"
+            },
+            "content": {
+                "en": "useState is a Hook that lets you add state to functional components. It returns a stateful value and a function to update it. useEffect, on the other hand, lets you perform side effects in functional components. It's similar to componentDidMount, componentDidUpdate, and componentWillUnmount combined. Use useState for managing component state, and useEffect for side effects like data fetching, subscriptions, or manually changing the DOM.",
+                "ar": "useState هو Hook يسمح لك بإضافة حالة إلى المكونات الوظيفية. يُرجع قيمة ذات حالة ودالة لتحديثها. من ناحية أخرى، useEffect يسمح لك بتنفيذ التأثيرات الجانبية في المكونات الوظيفية. إنه مشابه لـ componentDidMount و componentDidUpdate و componentWillUnmount مجتمعة. استخدم useState لإدارة حالة المكون، واستخدم useEffect للتأثيرات الجانبية مثل جلب البيانات أو الاشتراكات أو تغيير DOM يدوياً."
+            },
+            "category": "frontend-development",
+            "tags": [
+                "react",
+                "hooks",
+                "state-management"
+            ],
+            "featured": false,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "How do I handle errors in Node.js?",
+                "ar": "كيف أتعامل مع الأخطاء في Node.js؟"
+            },
+            "content": {
+                "en": "Error handling in Node.js can be done in several ways: 1) Use try-catch blocks for synchronous code, 2) Handle errors in Promise chains with .catch(), 3) Use async/await with try-catch for asynchronous operations, 4) Implement error handling middleware in Express.js, 5) Use error events for streams and other event emitters, 6) Always handle errors at the top level to prevent crashes. It's important to log errors appropriately and return meaningful error messages to clients.",
+                "ar": "يمكن التعامل مع الأخطاء في Node.js بعدة طرق: 1) استخدام كتل try-catch للكود المتزامن، 2) معالجة الأخطاء في سلاسل Promise مع .catch()، 3) استخدام async/await مع try-catch للعمليات غير المتزامنة، 4) تنفيذ middleware معالجة الأخطاء في Express.js، 5) استخدام أحداث الخطأ للتدفقات ومصدر الأحداث الأخرى، 6) دائماً معالجة الأخطاء على المستوى الأعلى لمنع التعطل. من المهم تسجيل الأخطاء بشكل مناسب وإرجاع رسائل خطأ ذات معنى للعملاء."
+            },
+            "category": "backend-development",
+            "tags": [
+                "nodejs",
+                "error-handling",
+                "backend",
+                "express"
+            ],
+            "featured": true,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "What is REST API and how does it work?",
+                "ar": "ما هو REST API وكيف يعمل؟"
+            },
+            "content": {
+                "en": "REST (Representational State Transfer) is an architectural style for designing networked applications. A REST API uses HTTP requests to access and use data. The main principles are: stateless (each request contains all information needed), client-server architecture, uniform interface, and layered system. REST APIs use standard HTTP methods: GET (retrieve), POST (create), PUT (update), DELETE (remove). Resources are identified by URIs, and data is typically in JSON format.",
+                "ar": "REST (نقل حالة التمثيل) هو نمط معماري لتصميم التطبيقات المتصلة بالشبكة. يستخدم REST API طلبات HTTP للوصول إلى البيانات واستخدامها. المبادئ الرئيسية هي: بدون حالة (كل طلب يحتوي على جميع المعلومات اللازمة)، بنية العميل-الخادم، واجهة موحدة، ونظام طبقات. تستخدم REST APIs طرق HTTP القياسية: GET (استرجاع)، POST (إنشاء)، PUT (تحديث)، DELETE (حذف). يتم تحديد الموارد بواسطة URIs، والبيانات عادة في تنسيق JSON."
+            },
+            "category": "backend-development",
+            "tags": [
+                "rest",
+                "api",
+                "backend",
+                "http"
+            ],
+            "featured": true,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "How can I improve my communication skills as a developer?",
+                "ar": "كيف يمكنني تحسين مهارات التواصل كمتطور؟"
+            },
+            "content": {
+                "en": "To improve communication skills: 1) Practice explaining technical concepts to non-technical people, 2) Write clear, concise code comments and documentation, 3) Participate in code reviews and give constructive feedback, 4) Join developer communities and engage in discussions, 5) Practice active listening during meetings, 6) Improve written communication through technical writing, 7) Learn to ask clarifying questions when requirements are unclear, 8) Practice presenting your work to peers and stakeholders.",
+                "ar": "لتحسين مهارات التواصل: 1) تدرب على شرح المفاهيم التقنية لأشخاص غير تقنيين، 2) اكتب تعليقات ووثائق واضحة ومختصرة، 3) شارك في مراجعات الكود وأعطِ ملاحظات بناءة، 4) انضم إلى مجتمعات المطورين وشارك في المناقشات، 5) تدرب على الاستماع النشط أثناء الاجتماعات، 6) حسّن التواصل الكتابي من خلال الكتابة التقنية، 7) تعلم طرح أسئلة توضيحية عندما تكون المتطلبات غير واضحة، 8) تدرب على تقديم عملك لأقرانك وأصحاب المصلحة."
+            },
+            "category": "soft-skills",
+            "tags": [
+                "communication",
+                "soft-skills",
+                "career"
+            ],
+            "featured": false,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "How do I prepare for a technical coding interview?",
+                "ar": "كيف أستعد لمقابلة برمجية تقنية؟"
+            },
+            "content": {
+                "en": "To prepare for coding interviews: 1) Practice algorithm and data structure problems on platforms like LeetCode, HackerRank, or CodeSignal, 2) Review fundamental computer science concepts (arrays, linked lists, trees, graphs, sorting algorithms), 3) Practice explaining your thought process out loud, 4) Review common system design questions, 5) Practice writing clean, bug-free code under time pressure, 6) Mock interviews with peers or use platforms like Pramp, 7) Review your projects and be ready to explain them in detail, 8) Get comfortable with your chosen programming language.",
+                "ar": "للتحضير لمقابلات البرمجة: 1) تدرب على مشاكل الخوارزميات وهياكل البيانات على منصات مثل LeetCode أو HackerRank أو CodeSignal، 2) راجع مفاهيم علوم الحاسوب الأساسية (المصفوفات، القوائم المرتبطة، الأشجار، الرسوم البيانية، خوارزميات الترتيب)، 3) تدرب على شرح عملية تفكيرك بصوت عالٍ، 4) راجع أسئلة تصميم النظام الشائعة، 5) تدرب على كتابة كود نظيف خالٍ من الأخطاء تحت ضغط الوقت، 6) مقابلات وهمية مع أقرانك أو استخدم منصات مثل Pramp، 7) راجع مشاريعك وكن مستعداً لشرحها بالتفصيل، 8) تعود على لغة البرمجة التي اخترتها."
+            },
+            "category": "interview-preparation",
+            "tags": [
+                "interview",
+                "coding",
+                "algorithms",
+                "preparation"
+            ],
+            "featured": true,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "What should I expect in a behavioral interview?",
+                "ar": "ماذا يجب أن أتوقع في مقابلة السلوك؟"
+            },
+            "content": {
+                "en": "Behavioral interviews assess your past experiences and how you handle situations. Common questions include: 'Tell me about a time when...' scenarios about teamwork, conflict resolution, problem-solving, leadership, and handling pressure. Use the STAR method (Situation, Task, Action, Result) to structure your answers. Prepare examples that demonstrate soft skills, cultural fit, and your ability to work in a team. Be honest and specific, focusing on your role and the impact you made.",
+                "ar": "تقيّم المقابلات السلوكية تجاربك السابقة وكيفية تعاملك مع المواقف. تشمل الأسئلة الشائعة سيناريوهات 'أخبرني عن وقت عندما...' حول العمل الجماعي وحل النزاعات وحل المشكلات والقيادة والتعامل مع الضغط. استخدم طريقة STAR (الموقف، المهمة، الإجراء، النتيجة) لتنظيم إجاباتك. جهّز أمثلة تُظهر المهارات الشخصية والملاءمة الثقافية وقدرتك على العمل في فريق. كن صادقاً ومحدداً، وركز على دورك والتأثير الذي أحدثته."
+            },
+            "category": "interview-preparation",
+            "tags": [
+                "interview",
+                "behavioral",
+                "soft-skills"
+            ],
+            "featured": false,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "How do I negotiate my first job offer?",
+                "ar": "كيف أتفاوض على عرض عملي الأول؟"
+            },
+            "content": {
+                "en": "When negotiating your first job offer: 1) Research market rates for your role and location, 2) Consider the entire package (salary, benefits, equity, vacation time), 3) Be polite and professional in your communication, 4) Express enthusiasm for the role while discussing compensation, 5) Ask for time to consider the offer if needed, 6) Prepare a counteroffer based on market research, 7) Be ready to negotiate other aspects if salary is firm (bonuses, remote work, professional development), 8) Remember that negotiation is normal and expected. Don't be afraid to ask for what you're worth.",
+                "ar": "عند التفاوض على عرض عملك الأول: 1) ابحث عن معدلات السوق لدورك وموقعك، 2) فكر في الحزمة الكاملة (الراتب، المزايا، حقوق الملكية، وقت الإجازة)، 3) كن مهذباً ومهنياً في تواصلك، 4) عبر عن حماسك للدور أثناء مناقشة التعويض، 5) اطلب وقتاً للتفكير في العرض إذا لزم الأمر، 6) جهّز عرضاً مضاداً بناءً على البحث السوقي، 7) كن مستعداً للتفاوض على جوانب أخرى إذا كان الراتب ثابتاً (المكافآت، العمل عن بُعد، التطوير المهني)، 8) تذكر أن التفاوض طبيعي ومتوقع. لا تخف من طلب ما تستحقه."
+            },
+            "category": "career-development",
+            "tags": [
+                "career",
+                "negotiation",
+                "job-offer",
+                "salary"
+            ],
+            "featured": true,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "What are the best practices for version control with Git?",
+                "ar": "ما هي أفضل الممارسات للتحكم في الإصدار مع Git؟"
+            },
+            "content": {
+                "en": "Best practices for Git: 1) Write clear, descriptive commit messages, 2) Commit often with logical, atomic changes, 3) Use branches for features and fixes (never commit directly to main/master), 4) Keep commits focused on a single change, 5) Use .gitignore to exclude unnecessary files, 6) Pull before pushing to avoid conflicts, 7) Review changes before committing, 8) Use meaningful branch names, 9) Rebase or merge carefully to maintain history, 10) Tag important releases. Following these practices makes collaboration easier and code history more meaningful.",
+                "ar": "أفضل الممارسات لـ Git: 1) اكتب رسائل commit واضحة ووصفية، 2) قم بالـ commit بشكل متكرر مع تغييرات منطقية وذرية، 3) استخدم الفروع للميزات والإصلاحات (لا تقم بالـ commit مباشرة إلى main/master)، 4) ركز الـ commits على تغيير واحد، 5) استخدم .gitignore لاستبعاد الملفات غير الضرورية، 6) اسحب قبل الدفع لتجنب التعارضات، 7) راجع التغييرات قبل الـ commit، 8) استخدم أسماء فروع ذات معنى، 9) قم بإعادة التأسيس أو الدمج بعناية للحفاظ على التاريخ، 10) ضع علامات على الإصدارات المهمة. اتباع هذه الممارسات يجعل التعاون أسهل وتاريخ الكود أكثر معنى."
+            },
+            "category": "backend-development",
+            "tags": [
+                "git",
+                "version-control",
+                "best-practices"
+            ],
+            "featured": false,
+            "isPublished": true
+        },
+        {
+            "type": "faq",
+            "title": {
+                "en": "How do I manage work-life balance as a developer?",
+                "ar": "كيف أدار التوازن بين العمل والحياة كمطور؟"
+            },
+            "content": {
+                "en": "Managing work-life balance: 1) Set clear boundaries between work and personal time, 2) Learn to say no when you're at capacity, 3) Use time management techniques like Pomodoro, 4) Take regular breaks and avoid burnout, 5) Pursue hobbies and interests outside of coding, 6) Maintain physical health through exercise, 7) Prioritize sleep and rest, 8) Communicate your boundaries clearly with your team, 9) Use automation and tools to be more efficient, 10) Remember that constant learning doesn't mean working all the time. Balance is key to long-term success and happiness.",
+                "ar": "إدارة التوازن بين العمل والحياة: 1) حدد حدوداً واضحة بين وقت العمل والوقت الشخصي، 2) تعلم قول لا عندما تكون في القدرة، 3) استخدم تقنيات إدارة الوقت مثل Pomodoro، 4) خذ استراحات منتظمة وتجنب الإرهاق، 5) اتبع الهوايات والاهتمامات خارج البرمجة، 6) حافظ على الصحة البدنية من خلال التمارين، 7) أولي الأولوية للنوم والراحة، 8) تواصل بوضوح حدودك مع فريقك، 9) استخدم الأتمتة والأدوات لتصبح أكثر كفاءة، 10) تذكر أن التعلم المستمر لا يعني العمل في كل وقت. التوازن هو مفتاح النجاح والسعادة على المدى الطويل."
+            },
+            "category": "career-development",
+            "tags": [
+                "work-life-balance",
+                "productivity",
+                "career"
+            ],
+            "featured": false,
+            "isPublished": true
+        }
+    ]
+}
