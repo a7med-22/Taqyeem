@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarClock,
   Edit,
+  FileText,
   Filter,
   Plus,
   Search,
@@ -31,29 +32,29 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/Card.jsx";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
+import { CreateEditContentDialog } from "../components/ui/CreateEditContentDialog.jsx";
+import { EditUserDialog } from "../components/ui/EditUserDialog.jsx";
+import { Input } from "../components/ui/Input.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { Tabs } from "../components/ui/Tabs.jsx";
-import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
-import { EditUserDialog } from "../components/ui/EditUserDialog.jsx";
-import { CreateEditContentDialog } from "../components/ui/CreateEditContentDialog.jsx";
-import { Input } from "../components/ui/Input.jsx";
 import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
-  useApproveInterviewer,
-  useRejectInterviewer,
-  useUpdateUser,
-  useDeleteUser,
-  useUsers,
-  useLearningContent,
-  useCreateLearningContent,
-  useUpdateLearningContent,
-  useDeleteLearningContent,
-  useLearningCategories,
   useAdminReservations,
   useAdminSlots,
+  useApproveInterviewer,
+  useCreateLearningContent,
   useDeleteAdminReservation,
   useDeleteAdminSlot,
+  useDeleteLearningContent,
+  useDeleteUser,
+  useLearningCategories,
+  useLearningContent,
+  useRejectInterviewer,
+  useUpdateLearningContent,
+  useUpdateUser,
+  useUsers,
 } from "../hooks/api.js";
 import { useAuth } from "../hooks/useAuth.js";
 import { formatDate, formatDateTime, formatTime } from "../utils/helpers.js";
@@ -240,26 +241,28 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userToDelete, setUserToDelete] = useState(null);
   const [userToEdit, setUserToEdit] = useState(null);
-  
+
   // Search and filter state for users
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  
+  const [approvalFilter, setApprovalFilter] = useState("");
+
   // Search and filter state for reservations & slots
   const [reservationSearch, setReservationSearch] = useState("");
-  const [debouncedReservationSearch, setDebouncedReservationSearch] = useState("");
+  const [debouncedReservationSearch, setDebouncedReservationSearch] =
+    useState("");
   const [reservationStatusFilter, setReservationStatusFilter] = useState("");
   const [reservationDateFrom, setReservationDateFrom] = useState("");
   const [reservationDateTo, setReservationDateTo] = useState("");
-  
+
   const [slotSearch, setSlotSearch] = useState("");
   const [debouncedSlotSearch, setDebouncedSlotSearch] = useState("");
   const [slotStatusFilter, setSlotStatusFilter] = useState("");
   const [slotDateFrom, setSlotDateFrom] = useState("");
   const [slotDateTo, setSlotDateTo] = useState("");
-  
+
   // Content learning state
   const [contentSearch, setContentSearch] = useState("");
   const [debouncedContentSearch, setDebouncedContentSearch] = useState("");
@@ -269,11 +272,11 @@ export default function AdminPage() {
   const [contentToEdit, setContentToEdit] = useState(null);
   const [contentToDelete, setContentToDelete] = useState(null);
   const [isCreateContentOpen, setIsCreateContentOpen] = useState(false);
-  
+
   // Delete state
   const [reservationToDelete, setReservationToDelete] = useState(null);
   const [slotToDelete, setSlotToDelete] = useState(null);
-  
+
   // Debounce search queries
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -281,50 +284,53 @@ export default function AdminPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedReservationSearch(reservationSearch);
     }, 300);
     return () => clearTimeout(timer);
   }, [reservationSearch]);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSlotSearch(slotSearch);
     }, 300);
     return () => clearTimeout(timer);
   }, [slotSearch]);
-  
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedContentSearch(contentSearch);
     }, 300);
     return () => clearTimeout(timer);
   }, [contentSearch]);
-  
+
   // Build filter params
   const userFilterParams = useMemo(() => {
     const params = {
       page: 1,
       limit: 100, // Get all users for admin view
     };
-    
+
     if (debouncedSearch) {
       params.search = debouncedSearch;
     }
-    
+
     if (roleFilter) {
       params.role = roleFilter;
     }
-    
+
     if (statusFilter !== "") {
       params.isActive = statusFilter === "active";
     }
-    
+
+    // Note: Approval filter is handled client-side since the API might not support it
+    // We'll filter the results after fetching
+
     return params;
   }, [debouncedSearch, roleFilter, statusFilter]);
-  
+
   // Build filter params for reservations & slots
   const reservationFilterParams = useMemo(() => {
     const params = { page: 1, limit: 100 };
@@ -333,8 +339,13 @@ export default function AdminPage() {
     if (reservationDateFrom) params.startDate = reservationDateFrom;
     if (reservationDateTo) params.endDate = reservationDateTo;
     return params;
-  }, [debouncedReservationSearch, reservationStatusFilter, reservationDateFrom, reservationDateTo]);
-  
+  }, [
+    debouncedReservationSearch,
+    reservationStatusFilter,
+    reservationDateFrom,
+    reservationDateTo,
+  ]);
+
   const slotFilterParams = useMemo(() => {
     const params = { page: 1, limit: 100 };
     if (debouncedSlotSearch) params.search = debouncedSlotSearch;
@@ -343,7 +354,7 @@ export default function AdminPage() {
     if (slotDateTo) params.endDate = slotDateTo;
     return params;
   }, [debouncedSlotSearch, slotStatusFilter, slotDateFrom, slotDateTo]);
-  
+
   // Build filter params for content
   const contentFilterParams = useMemo(() => {
     const params = { page: 1, limit: 100 };
@@ -354,27 +365,52 @@ export default function AdminPage() {
     // Remove isPublished filter to show all
     return params;
   }, [debouncedContentSearch, contentTypeFilter, contentCategoryFilter]);
-  
+
   // Fetch data for tabs
-  const { data: usersData, isLoading: usersLoading, refetch: refetchUsers } = useUsers(userFilterParams);
-  const { data: contentData, isLoading: contentLoading } = useLearningContent(contentFilterParams);
-  const { data: adminReservationsData, isLoading: adminReservationsLoading } = useAdminReservations(reservationFilterParams);
-  const { data: adminSlotsData, isLoading: adminSlotsLoading } = useAdminSlots(slotFilterParams);
+  const {
+    data: usersData,
+    isLoading: usersLoading,
+    refetch: refetchUsers,
+  } = useUsers(userFilterParams);
+  const { data: contentData, isLoading: contentLoading } =
+    useLearningContent(contentFilterParams);
+  const { data: adminReservationsData, isLoading: adminReservationsLoading } =
+    useAdminReservations(reservationFilterParams);
+  const { data: adminSlotsData, isLoading: adminSlotsLoading } =
+    useAdminSlots(slotFilterParams);
   const { data: categories = [] } = useLearningCategories();
-  
+
   // Mutations
   const createContentMutation = useCreateLearningContent();
   const updateContentMutation = useUpdateLearningContent();
   const deleteContentMutation = useDeleteLearningContent();
-  
-  const allUsers = usersData?.users || [];
+
+  // Filter by approval status client-side
+  const allUsers = useMemo(() => {
+    const allUsersRaw = usersData?.users || [];
+    if (approvalFilter === "") return allUsersRaw;
+    if (approvalFilter === "approved") {
+      return allUsersRaw.filter(
+        (u) => u.role !== "interviewer" || u.isApproved === true
+      );
+    }
+    if (approvalFilter === "pending") {
+      return allUsersRaw.filter(
+        (u) => u.role === "interviewer" && u.isApproved === false
+      );
+    }
+    return allUsersRaw;
+  }, [usersData?.users, approvalFilter]);
   const allContentRaw = contentData?.content || [];
   // Filter by published status if needed
-  const allContent = contentPublishedFilter === "" 
-    ? allContentRaw 
-    : allContentRaw.filter(c => 
-        contentPublishedFilter === "published" ? c.isPublished : !c.isPublished
-      );
+  const allContent =
+    contentPublishedFilter === ""
+      ? allContentRaw
+      : allContentRaw.filter((c) =>
+          contentPublishedFilter === "published"
+            ? c.isPublished
+            : !c.isPublished
+        );
   const adminReservations = adminReservationsData?.reservations || [];
   const adminSlots = adminSlotsData?.slots || [];
 
@@ -512,7 +548,11 @@ export default function AdminPage() {
     setActioning({ id, type: "delete" });
     try {
       await deleteUser.mutateAsync(id);
-      toast.success(t("admin.deleteUserSuccess", { defaultValue: "User deleted successfully" }));
+      toast.success(
+        t("admin.deleteUserSuccess", {
+          defaultValue: "User deleted successfully",
+        })
+      );
       setUserToDelete(null);
       // Refetch users to get updated list
       await refetchUsers();
@@ -534,14 +574,18 @@ export default function AdminPage() {
 
   const handleUpdateUser = async (data) => {
     if (!userToEdit) return;
-    
+
     setActioning({ id: userToEdit.id, type: "edit" });
     try {
       await updateUser.mutateAsync({
         id: userToEdit.id,
         data,
       });
-      toast.success(t("admin.updateUserSuccess", { defaultValue: "User updated successfully" }));
+      toast.success(
+        t("admin.updateUserSuccess", {
+          defaultValue: "User updated successfully",
+        })
+      );
       setUserToEdit(null);
       await refetchUsers();
     } catch (mutationError) {
@@ -559,7 +603,11 @@ export default function AdminPage() {
     setActioning({ id, type: "deleteReservation" });
     try {
       await deleteAdminReservation.mutateAsync(id);
-      toast.success(t("admin.deleteReservationSuccess", { defaultValue: "Reservation deleted successfully" }));
+      toast.success(
+        t("admin.deleteReservationSuccess", {
+          defaultValue: "Reservation deleted successfully",
+        })
+      );
       setReservationToDelete(null);
     } catch (mutationError) {
       toast.error(mutationError.response?.data?.message || t("common.error"));
@@ -572,7 +620,11 @@ export default function AdminPage() {
     setActioning({ id, type: "deleteSlot" });
     try {
       await deleteAdminSlot.mutateAsync(id);
-      toast.success(t("admin.deleteSlotSuccess", { defaultValue: "Slot deleted successfully" }));
+      toast.success(
+        t("admin.deleteSlotSuccess", {
+          defaultValue: "Slot deleted successfully",
+        })
+      );
       setSlotToDelete(null);
     } catch (mutationError) {
       toast.error(mutationError.response?.data?.message || t("common.error"));
@@ -595,7 +647,11 @@ export default function AdminPage() {
   const handleCreateContent = async (formData) => {
     try {
       await createContentMutation.mutateAsync(formData);
-      toast.success(t("admin.createContentSuccess", { defaultValue: "Content created successfully" }));
+      toast.success(
+        t("admin.createContentSuccess", {
+          defaultValue: "Content created successfully",
+        })
+      );
       setIsCreateContentOpen(false);
     } catch (error) {
       toast.error(error.response?.data?.message || t("common.error"));
@@ -605,8 +661,15 @@ export default function AdminPage() {
   const handleUpdateContent = async (formData) => {
     if (!contentToEdit) return;
     try {
-      await updateContentMutation.mutateAsync({ id: contentToEdit._id || contentToEdit.id, data: formData });
-      toast.success(t("admin.updateContentSuccess", { defaultValue: "Content updated successfully" }));
+      await updateContentMutation.mutateAsync({
+        id: contentToEdit._id || contentToEdit.id,
+        data: formData,
+      });
+      toast.success(
+        t("admin.updateContentSuccess", {
+          defaultValue: "Content updated successfully",
+        })
+      );
       setContentToEdit(null);
     } catch (error) {
       toast.error(error.response?.data?.message || t("common.error"));
@@ -616,7 +679,11 @@ export default function AdminPage() {
   const handleDeleteContent = async (id) => {
     try {
       await deleteContentMutation.mutateAsync(id);
-      toast.success(t("admin.deleteContentSuccess", { defaultValue: "Content deleted successfully" }));
+      toast.success(
+        t("admin.deleteContentSuccess", {
+          defaultValue: "Content deleted successfully",
+        })
+      );
       setContentToDelete(null);
     } catch (error) {
       toast.error(error.response?.data?.message || t("common.error"));
@@ -1023,18 +1090,24 @@ export default function AdminPage() {
     setSearchQuery("");
     setRoleFilter("");
     setStatusFilter("");
+    setApprovalFilter("");
   };
 
-  const hasActiveFilters = searchQuery || roleFilter || statusFilter !== "";
+  const hasActiveFilters =
+    searchQuery || roleFilter || statusFilter !== "" || approvalFilter !== "";
 
   // Render users tab content
   const renderUsersTab = () => (
     <div className="space-y-6">
       <Card className="border border-secondary-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{t("admin.users", { defaultValue: "All Users" })}</CardTitle>
+          <CardTitle>
+            {t("admin.users", { defaultValue: "All Users" })}
+          </CardTitle>
           <CardDescription>
-            {t("admin.usersDescription", { defaultValue: "Manage user accounts and permissions" })}
+            {t("admin.usersDescription", {
+              defaultValue: "Manage user accounts and permissions",
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1045,7 +1118,9 @@ export default function AdminPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
               <Input
                 type="text"
-                placeholder={t("admin.searchUsers", { defaultValue: "Search by name or email..." })}
+                placeholder={t("admin.searchUsers", {
+                  defaultValue: "Search by name or email...",
+                })}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-10"
@@ -1076,10 +1151,18 @@ export default function AdminPage() {
                 onChange={(e) => setRoleFilter(e.target.value)}
                 className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
               >
-                <option value="">{t("admin.allRoles", { defaultValue: "All Roles" })}</option>
-                <option value={USER_ROLES.CANDIDATE}>{t(`roles.${USER_ROLES.CANDIDATE}`)}</option>
-                <option value={USER_ROLES.INTERVIEWER}>{t(`roles.${USER_ROLES.INTERVIEWER}`)}</option>
-                <option value={USER_ROLES.ADMIN}>{t(`roles.${USER_ROLES.ADMIN}`)}</option>
+                <option value="">
+                  {t("admin.allRoles", { defaultValue: "All Roles" })}
+                </option>
+                <option value={USER_ROLES.CANDIDATE}>
+                  {t(`roles.${USER_ROLES.CANDIDATE}`)}
+                </option>
+                <option value={USER_ROLES.INTERVIEWER}>
+                  {t(`roles.${USER_ROLES.INTERVIEWER}`)}
+                </option>
+                <option value={USER_ROLES.ADMIN}>
+                  {t(`roles.${USER_ROLES.ADMIN}`)}
+                </option>
               </select>
 
               {/* Status Filter */}
@@ -1088,9 +1171,32 @@ export default function AdminPage() {
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
               >
-                <option value="">{t("admin.allStatuses", { defaultValue: "All Statuses" })}</option>
+                <option value="">
+                  {t("admin.allStatuses", { defaultValue: "All Statuses" })}
+                </option>
                 <option value="active">{t("common.active")}</option>
                 <option value="inactive">{t("common.inactive")}</option>
+              </select>
+
+              {/* Approval Status Filter (for interviewers) */}
+              <select
+                value={approvalFilter}
+                onChange={(e) => setApprovalFilter(e.target.value)}
+                className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+              >
+                <option value="">
+                  {t("admin.allApprovalStatuses", {
+                    defaultValue: "All Approval Statuses",
+                  })}
+                </option>
+                <option value="approved">
+                  {t("admin.approved", { defaultValue: "Approved" })}
+                </option>
+                <option value="pending">
+                  {t("admin.pendingApproval", {
+                    defaultValue: "Pending Approval",
+                  })}
+                </option>
               </select>
 
               {/* Clear Filters Button */}
@@ -1120,13 +1226,17 @@ export default function AdminPage() {
 
           {usersLoading ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("common.loading")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("common.loading")}
+              </p>
             </div>
           ) : allUsers.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-sm text-secondary-500">
                 {hasActiveFilters
-                  ? t("admin.noUsersFound", { defaultValue: "No users found matching your filters" })
+                  ? t("admin.noUsersFound", {
+                      defaultValue: "No users found matching your filters",
+                    })
                   : t("admin.recentActivity.empty")}
               </p>
             </div>
@@ -1136,90 +1246,139 @@ export default function AdminPage() {
                 const userId = userItem._id || userItem.id;
                 const currentUserId = user?._id || user?.id;
                 return (
-                <div
-                  key={userId}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      {userItem.avatarUrl ? (
-                        <AvatarImage src={userItem.avatarUrl} alt={userItem.name} />
-                      ) : (
-                        <AvatarFallback>
-                          {getInitials(userItem.name)}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-semibold text-secondary-900">
-                        {userItem.name}
-                      </p>
-                      <p className="text-xs text-secondary-500">{userItem.email}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <StatusBadge
-                          status={userItem.role}
-                          label={t(`roles.${userItem.role}`, {
-                            defaultValue: userItem.role,
-                          })}
-                        />
-                        <span
-                          className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
-                            userItem.isActive !== false
-                              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                              : "bg-rose-50 text-rose-700 border-rose-200"
-                          }`}
-                        >
-                          {userItem.isActive !== false
-                            ? t("common.active")
-                            : t("common.inactive")}
-                        </span>
+                  <div
+                    key={userId}
+                    className={`flex items-center justify-between gap-4 rounded-2xl border p-4 transition-colors ${
+                      userItem.role === USER_ROLES.INTERVIEWER &&
+                      !userItem.isApproved
+                        ? "border-amber-300 bg-amber-50/30 hover:border-amber-400"
+                        : "border-secondary-200 hover:border-primary-200"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-12 w-12">
+                        {userItem.avatarUrl ? (
+                          <AvatarImage
+                            src={userItem.avatarUrl}
+                            alt={userItem.name}
+                          />
+                        ) : (
+                          <AvatarFallback>
+                            {getInitials(userItem.name)}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div>
+                        <p className="text-sm font-semibold text-secondary-900">
+                          {userItem.name}
+                        </p>
+                        <p className="text-xs text-secondary-500">
+                          {userItem.email}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <StatusBadge
+                            status={userItem.role}
+                            label={t(`roles.${userItem.role}`, {
+                              defaultValue: userItem.role,
+                            })}
+                          />
+                          {userItem.role === USER_ROLES.INTERVIEWER && (
+                            <StatusBadge
+                              status={
+                                userItem.isApproved ? "accepted" : "pending"
+                              }
+                              label={
+                                userItem.isApproved
+                                  ? t("admin.approved", {
+                                      defaultValue: "Approved",
+                                    })
+                                  : t("admin.pendingApproval", {
+                                      defaultValue: "Pending Approval",
+                                    })
+                              }
+                            />
+                          )}
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                              userItem.isActive !== false
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : "bg-rose-50 text-rose-700 border-rose-200"
+                            }`}
+                          >
+                            {userItem.isActive !== false
+                              ? t("common.active")
+                              : t("common.inactive")}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs text-secondary-400">
+                        {formatDate(userItem.createdAt, locale)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {userItem.role === USER_ROLES.INTERVIEWER &&
+                          userItem.cvUrl && (
+                            <a
+                              href={resolveCvUrl(userItem.cvUrl)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-cyan-600 bg-cyan-50 border border-cyan-200 rounded-lg hover:bg-cyan-100 hover:border-cyan-300 transition-colors"
+                              title={t("admin.viewCV", {
+                                defaultValue: "View CV",
+                              })}
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              {t("admin.cv", { defaultValue: "CV" })}
+                            </a>
+                          )}
+                        {userId !== currentUserId && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setUserToEdit({ id: userId, ...userItem });
+                            }}
+                            disabled={
+                              updateUser.isPending ||
+                              (actioning?.id === userId &&
+                                actioning?.type === "edit")
+                            }
+                          >
+                            {t("common.edit", { defaultValue: "Edit" })}
+                          </Button>
+                        )}
+                        {userItem.role !== "admin" &&
+                          userId !== currentUserId && (
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => {
+                                setUserToDelete({
+                                  id: userId,
+                                  name: userItem.name,
+                                });
+                              }}
+                              disabled={
+                                deleteUser.isPending ||
+                                (actioning?.id === userId &&
+                                  actioning?.type === "delete")
+                              }
+                            >
+                              {deleteUser.isPending &&
+                              actioning?.id === userId &&
+                              actioning?.type === "delete"
+                                ? t("common.loading")
+                                : t("admin.deleteUser", {
+                                    defaultValue: "Delete",
+                                  })}
+                            </Button>
+                          )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-secondary-400">
-                      {formatDate(userItem.createdAt, locale)}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {userId !== currentUserId && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setUserToEdit({ id: userId, ...userItem });
-                          }}
-                          disabled={
-                            updateUser.isPending ||
-                            (actioning?.id === userId && actioning?.type === "edit")
-                          }
-                        >
-                          {t("common.edit", { defaultValue: "Edit" })}
-                        </Button>
-                      )}
-                      {userItem.role !== "admin" && userId !== currentUserId && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => {
-                            setUserToDelete({ id: userId, name: userItem.name });
-                          }}
-                          disabled={
-                            deleteUser.isPending ||
-                            (actioning?.id === userId &&
-                              actioning?.type === "delete")
-                          }
-                        >
-                          {deleteUser.isPending &&
-                          actioning?.id === userId &&
-                          actioning?.type === "delete"
-                            ? t("common.loading")
-                            : t("admin.deleteUser", { defaultValue: "Delete" })}
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )})}
+                );
+              })}
             </div>
           )}
         </CardContent>
@@ -1234,9 +1393,13 @@ export default function AdminPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>{t("admin.content", { defaultValue: "Learning Content" })}</CardTitle>
+              <CardTitle>
+                {t("admin.content", { defaultValue: "Learning Content" })}
+              </CardTitle>
               <CardDescription>
-                {t("admin.contentDescription", { defaultValue: "Manage learning content and articles" })}
+                {t("admin.contentDescription", {
+                  defaultValue: "Manage learning content and articles",
+                })}
               </CardDescription>
             </div>
             <Button
@@ -1255,7 +1418,9 @@ export default function AdminPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
               <Input
                 type="text"
-                placeholder={t("admin.searchContent", { defaultValue: "Search content..." })}
+                placeholder={t("admin.searchContent", {
+                  defaultValue: "Search content...",
+                })}
                 value={contentSearch}
                 onChange={(e) => setContentSearch(e.target.value)}
                 className="pl-10 pr-10"
@@ -1274,9 +1439,11 @@ export default function AdminPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-secondary-500" />
-                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+                <span className="text-sm font-medium text-secondary-700">
+                  {t("common.filter")}:
+                </span>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-secondary-600">
@@ -1287,10 +1454,18 @@ export default function AdminPage() {
                     onChange={(e) => setContentTypeFilter(e.target.value)}
                     className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
                   >
-                    <option value="">{t("admin.allTypes", { defaultValue: "All Types" })}</option>
-                    <option value="faq">{t("learning.faqs", { defaultValue: "FAQ" })}</option>
-                    <option value="tip">{t("learning.tips", { defaultValue: "Tip" })}</option>
-                    <option value="article">{t("learning.articles", { defaultValue: "Article" })}</option>
+                    <option value="">
+                      {t("admin.allTypes", { defaultValue: "All Types" })}
+                    </option>
+                    <option value="faq">
+                      {t("learning.faqs", { defaultValue: "FAQ" })}
+                    </option>
+                    <option value="tip">
+                      {t("learning.tips", { defaultValue: "Tip" })}
+                    </option>
+                    <option value="article">
+                      {t("learning.articles", { defaultValue: "Article" })}
+                    </option>
                   </select>
                 </div>
 
@@ -1303,7 +1478,11 @@ export default function AdminPage() {
                     onChange={(e) => setContentCategoryFilter(e.target.value)}
                     className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
                   >
-                    <option value="">{t("learning.allCategories", { defaultValue: "All Categories" })}</option>
+                    <option value="">
+                      {t("learning.allCategories", {
+                        defaultValue: "All Categories",
+                      })}
+                    </option>
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>
                         {t(`categories.${cat}`, { defaultValue: cat })}
@@ -1321,9 +1500,15 @@ export default function AdminPage() {
                     onChange={(e) => setContentPublishedFilter(e.target.value)}
                     className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
                   >
-                    <option value="">{t("admin.allStatuses", { defaultValue: "All Statuses" })}</option>
-                    <option value="published">{t("status.accepted", { defaultValue: "Published" })}</option>
-                    <option value="draft">{t("status.pending", { defaultValue: "Draft" })}</option>
+                    <option value="">
+                      {t("admin.allStatuses", { defaultValue: "All Statuses" })}
+                    </option>
+                    <option value="published">
+                      {t("status.accepted", { defaultValue: "Published" })}
+                    </option>
+                    <option value="draft">
+                      {t("status.pending", { defaultValue: "Draft" })}
+                    </option>
                   </select>
                 </div>
               </div>
@@ -1332,11 +1517,15 @@ export default function AdminPage() {
 
           {contentLoading ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("common.loading")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("common.loading")}
+              </p>
             </div>
           ) : allContent.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("admin.recentActivity.empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1347,7 +1536,11 @@ export default function AdminPage() {
                 if (typeof item.title === "string") {
                   title = item.title;
                 } else if (item.title) {
-                  title = item.title[currentLocale] || item.title.en || item.title.ar || "Untitled";
+                  title =
+                    item.title[currentLocale] ||
+                    item.title.en ||
+                    item.title.ar ||
+                    "Untitled";
                 }
                 const contentType = item.type || "unknown";
                 return (
@@ -1362,17 +1555,25 @@ export default function AdminPage() {
                             ? t("learning.faqs", { defaultValue: "FAQ" })
                             : contentType === "tip"
                             ? t("learning.tips", { defaultValue: "Tip" })
-                            : t("learning.articles", { defaultValue: "Article" })}
+                            : t("learning.articles", {
+                                defaultValue: "Article",
+                              })}
                         </span>
                         {item.featured && (
                           <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">
-                            {t("admin.contentFeatured", { defaultValue: "Featured" })}
+                            {t("admin.contentFeatured", {
+                              defaultValue: "Featured",
+                            })}
                           </span>
                         )}
                       </div>
-                      <p className="text-sm font-semibold text-secondary-900">{title}</p>
+                      <p className="text-sm font-semibold text-secondary-900">
+                        {title}
+                      </p>
                       <p className="text-xs text-secondary-500 mt-1">
-                        {t(`categories.${item.category}`, { defaultValue: item.category })}
+                        {t(`categories.${item.category}`, {
+                          defaultValue: item.category,
+                        })}
                       </p>
                       {item.thumbnailUrl && (
                         <img
@@ -1385,7 +1586,11 @@ export default function AdminPage() {
                     <div className="flex items-center gap-2">
                       <StatusBadge
                         status={item.isPublished ? "accepted" : "pending"}
-                        label={item.isPublished ? t("status.accepted") : t("status.pending")}
+                        label={
+                          item.isPublished
+                            ? t("status.accepted")
+                            : t("status.pending")
+                        }
                       />
                       <Button
                         variant="outline"
@@ -1402,7 +1607,9 @@ export default function AdminPage() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => setContentToDelete({ id: item._id || item.id, title })}
+                        onClick={() =>
+                          setContentToDelete({ id: item._id || item.id, title })
+                        }
                         disabled={
                           createContentMutation.isPending ||
                           updateContentMutation.isPending ||
@@ -1430,8 +1637,7 @@ export default function AdminPage() {
         onSave={contentToEdit ? handleUpdateContent : handleCreateContent}
         content={contentToEdit}
         isLoading={
-          createContentMutation.isPending ||
-          updateContentMutation.isPending
+          createContentMutation.isPending || updateContentMutation.isPending
         }
       />
 
@@ -1440,9 +1646,12 @@ export default function AdminPage() {
         isOpen={!!contentToDelete}
         onClose={() => setContentToDelete(null)}
         onConfirm={confirmDeleteContent}
-        title={t("admin.deleteContentConfirmTitle", { defaultValue: "Delete Content" })}
+        title={t("admin.deleteContentConfirmTitle", {
+          defaultValue: "Delete Content",
+        })}
         message={t("admin.deleteContentConfirm", {
-          defaultValue: "Are you sure you want to delete this content? This action cannot be undone.",
+          defaultValue:
+            "Are you sure you want to delete this content? This action cannot be undone.",
           title: contentToDelete?.title || "",
         })}
         confirmLabel={t("common.delete")}
@@ -1459,9 +1668,16 @@ export default function AdminPage() {
       {/* Reservations Section */}
       <Card className="border border-secondary-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{t("admin.completedReservations", { defaultValue: "Completed Reservations" })}</CardTitle>
+          <CardTitle>
+            {t("admin.completedReservations", {
+              defaultValue: "Completed Reservations",
+            })}
+          </CardTitle>
           <CardDescription>
-            {t("admin.completedReservationsDescription", { defaultValue: "View and manage reservations from completed sessions" })}
+            {t("admin.completedReservationsDescription", {
+              defaultValue:
+                "View and manage reservations from completed sessions",
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1471,7 +1687,9 @@ export default function AdminPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
               <Input
                 type="text"
-                placeholder={t("admin.searchReservations", { defaultValue: "Search by candidate or interviewer name..." })}
+                placeholder={t("admin.searchReservations", {
+                  defaultValue: "Search by candidate or interviewer name...",
+                })}
                 value={reservationSearch}
                 onChange={(e) => setReservationSearch(e.target.value)}
                 className="pl-10 pr-10"
@@ -1490,9 +1708,11 @@ export default function AdminPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-secondary-500" />
-                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+                <span className="text-sm font-medium text-secondary-700">
+                  {t("common.filter")}:
+                </span>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-secondary-600">
@@ -1522,7 +1742,7 @@ export default function AdminPage() {
                     variant="modern"
                   />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-secondary-600">
                     {t("admin.dateTo", { defaultValue: "To Date" })}
@@ -1541,11 +1761,15 @@ export default function AdminPage() {
 
           {adminReservationsLoading ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("common.loading")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("common.loading")}
+              </p>
             </div>
           ) : adminReservations.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("admin.recentActivity.empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1557,39 +1781,63 @@ export default function AdminPage() {
                   <div className="flex items-center gap-3 flex-1">
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-secondary-900">
-                        {reservation.candidateId?.name || reservation.candidate?.name} → {reservation.interviewerId?.name || reservation.interviewer?.name}
+                        {reservation.candidateId?.name ||
+                          reservation.candidate?.name}{" "}
+                        →{" "}
+                        {reservation.interviewerId?.name ||
+                          reservation.interviewer?.name}
                       </p>
                       <div className="flex items-center gap-2 flex-wrap mt-1">
                         <p className="text-xs text-secondary-500">
-                          {reservation.candidateId?.email || reservation.candidate?.email}
+                          {reservation.candidateId?.email ||
+                            reservation.candidate?.email}
                         </p>
                         {reservation.interviewerId?.specialization && (
                           <>
-                            <span className="text-xs text-secondary-400">•</span>
+                            <span className="text-xs text-secondary-400">
+                              •
+                            </span>
                             <span className="text-xs text-secondary-600 font-medium">
-                              {t(`specializations.${reservation.interviewerId.specialization}`, {
-                                defaultValue: reservation.interviewerId.specialization,
-                              })}
+                              {t(
+                                `specializations.${reservation.interviewerId.specialization}`,
+                                {
+                                  defaultValue:
+                                    reservation.interviewerId.specialization,
+                                }
+                              )}
                             </span>
                           </>
                         )}
                       </div>
                       {reservation.slotId && (
                         <p className="text-xs text-secondary-400 mt-1">
-                          {formatDate(reservation.slotId.date, locale)} · {formatTime(reservation.slotId.startTime)} - {formatTime(reservation.slotId.endTime)}
+                          {formatDate(reservation.slotId.date, locale)} ·{" "}
+                          {formatTime(reservation.slotId.startTime)} -{" "}
+                          {formatTime(reservation.slotId.endTime)}
                         </p>
                       )}
                     </div>
                     <StatusBadge
                       status={reservation.status}
-                      label={t(`status.${reservation.status}`, { defaultValue: reservation.status })}
+                      label={t(`status.${reservation.status}`, {
+                        defaultValue: reservation.status,
+                      })}
                     />
                   </div>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setReservationToDelete({ id: reservation._id || reservation.id, candidateName: reservation.candidateId?.name })}
-                    disabled={deleteAdminReservation.isPending || (actioning?.id === (reservation._id || reservation.id) && actioning?.type === "deleteReservation")}
+                    onClick={() =>
+                      setReservationToDelete({
+                        id: reservation._id || reservation.id,
+                        candidateName: reservation.candidateId?.name,
+                      })
+                    }
+                    disabled={
+                      deleteAdminReservation.isPending ||
+                      (actioning?.id === (reservation._id || reservation.id) &&
+                        actioning?.type === "deleteReservation")
+                    }
                   >
                     {t("common.delete")}
                   </Button>
@@ -1603,9 +1851,13 @@ export default function AdminPage() {
       {/* Slots Section */}
       <Card className="border border-secondary-200 shadow-sm">
         <CardHeader>
-          <CardTitle>{t("admin.completedSlots", { defaultValue: "Completed Slots" })}</CardTitle>
+          <CardTitle>
+            {t("admin.completedSlots", { defaultValue: "Completed Slots" })}
+          </CardTitle>
           <CardDescription>
-            {t("admin.completedSlotsDescription", { defaultValue: "View and manage slots from completed schedules" })}
+            {t("admin.completedSlotsDescription", {
+              defaultValue: "View and manage slots from completed schedules",
+            })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -1615,7 +1867,10 @@ export default function AdminPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
               <Input
                 type="text"
-                placeholder={t("admin.searchSlots", { defaultValue: "Search by interviewer name or schedule title..." })}
+                placeholder={t("admin.searchSlots", {
+                  defaultValue:
+                    "Search by interviewer name or schedule title...",
+                })}
                 value={slotSearch}
                 onChange={(e) => setSlotSearch(e.target.value)}
                 className="pl-10 pr-10"
@@ -1634,9 +1889,11 @@ export default function AdminPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-secondary-500" />
-                <span className="text-sm font-medium text-secondary-700">{t("common.filter")}:</span>
+                <span className="text-sm font-medium text-secondary-700">
+                  {t("common.filter")}:
+                </span>
               </div>
-              
+
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-secondary-600">
@@ -1666,7 +1923,7 @@ export default function AdminPage() {
                     variant="modern"
                   />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                   <label className="text-xs font-medium text-secondary-600">
                     {t("admin.dateTo", { defaultValue: "To Date" })}
@@ -1685,11 +1942,15 @@ export default function AdminPage() {
 
           {adminSlotsLoading ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("common.loading")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("common.loading")}
+              </p>
             </div>
           ) : adminSlots.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-secondary-500">{t("admin.recentActivity.empty")}</p>
+              <p className="text-sm text-secondary-500">
+                {t("admin.recentActivity.empty")}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -1707,19 +1968,32 @@ export default function AdminPage() {
                         {slot.interviewerId?.name || slot.interviewer?.name}
                       </p>
                       <p className="text-xs text-secondary-400 mt-1">
-                        {formatDate(slot.date, locale)} · {formatTime(slot.startTime)} - {formatTime(slot.endTime)}
+                        {formatDate(slot.date, locale)} ·{" "}
+                        {formatTime(slot.startTime)} -{" "}
+                        {formatTime(slot.endTime)}
                       </p>
                     </div>
                     <StatusBadge
                       status={slot.status}
-                      label={t(`status.${slot.status}`, { defaultValue: slot.status })}
+                      label={t(`status.${slot.status}`, {
+                        defaultValue: slot.status,
+                      })}
                     />
                   </div>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => setSlotToDelete({ id: slot._id || slot.id, scheduleTitle: slot.scheduleId?.title })}
-                    disabled={deleteAdminSlot.isPending || (actioning?.id === (slot._id || slot.id) && actioning?.type === "deleteSlot")}
+                    onClick={() =>
+                      setSlotToDelete({
+                        id: slot._id || slot.id,
+                        scheduleTitle: slot.scheduleId?.title,
+                      })
+                    }
+                    disabled={
+                      deleteAdminSlot.isPending ||
+                      (actioning?.id === (slot._id || slot.id) &&
+                        actioning?.type === "deleteSlot")
+                    }
                   >
                     {t("common.delete")}
                   </Button>
@@ -1756,7 +2030,9 @@ export default function AdminPage() {
     },
     {
       id: "reservations-slots",
-      label: t("admin.reservationsSlots", { defaultValue: "Reservations & Slots" }),
+      label: t("admin.reservationsSlots", {
+        defaultValue: "Reservations & Slots",
+      }),
       icon: <CalendarClock className="h-4 w-4" />,
       badge: formatNumber(adminReservations.length + adminSlots.length),
       content: renderReservationsSlotsTab(),
@@ -1771,11 +2047,7 @@ export default function AdminPage() {
           subtitle={t("admin.subtitle")}
         />
 
-        <Tabs
-          tabs={tabs}
-          defaultTab={activeTab}
-          onChange={setActiveTab}
-        />
+        <Tabs tabs={tabs} defaultTab={activeTab} onChange={setActiveTab} />
       </div>
 
       {/* Edit User Dialog */}
@@ -1795,7 +2067,9 @@ export default function AdminPage() {
         isOpen={!!userToDelete}
         onClose={cancelDeleteUser}
         onConfirm={confirmDeleteUser}
-        title={t("admin.deleteUserConfirmTitle", { defaultValue: "Delete User" })}
+        title={t("admin.deleteUserConfirmTitle", {
+          defaultValue: "Delete User",
+        })}
         message={t("admin.deleteUserConfirm", {
           defaultValue: `Are you sure you want to delete ${userToDelete?.name}? This action cannot be undone.`,
           name: userToDelete?.name,
@@ -1811,14 +2085,19 @@ export default function AdminPage() {
         isOpen={!!reservationToDelete}
         onClose={() => setReservationToDelete(null)}
         onConfirm={confirmDeleteReservation}
-        title={t("admin.deleteReservationConfirmTitle", { defaultValue: "Delete Reservation" })}
+        title={t("admin.deleteReservationConfirmTitle", {
+          defaultValue: "Delete Reservation",
+        })}
         message={t("admin.deleteReservationConfirm", {
           defaultValue: `Are you sure you want to delete this reservation? This action cannot be undone.`,
         })}
         confirmLabel={t("common.delete", { defaultValue: "Delete" })}
         cancelLabel={t("common.cancel")}
         loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
-        isLoading={deleteAdminReservation.isPending || (actioning?.type === "deleteReservation")}
+        isLoading={
+          deleteAdminReservation.isPending ||
+          actioning?.type === "deleteReservation"
+        }
       />
 
       {/* Delete Slot Confirmation Dialog */}
@@ -1826,14 +2105,18 @@ export default function AdminPage() {
         isOpen={!!slotToDelete}
         onClose={() => setSlotToDelete(null)}
         onConfirm={confirmDeleteSlot}
-        title={t("admin.deleteSlotConfirmTitle", { defaultValue: "Delete Slot" })}
+        title={t("admin.deleteSlotConfirmTitle", {
+          defaultValue: "Delete Slot",
+        })}
         message={t("admin.deleteSlotConfirm", {
           defaultValue: `Are you sure you want to delete this slot? This action cannot be undone.`,
         })}
         confirmLabel={t("common.delete", { defaultValue: "Delete" })}
         cancelLabel={t("common.cancel")}
         loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
-        isLoading={deleteAdminSlot.isPending || (actioning?.type === "deleteSlot")}
+        isLoading={
+          deleteAdminSlot.isPending || actioning?.type === "deleteSlot"
+        }
       />
     </div>
   );
