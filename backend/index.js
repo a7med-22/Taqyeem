@@ -37,9 +37,23 @@ const limiter = rateLimit({
 });
 
 // CORS middleware - must be before rate limiter
+// Support multiple origins for production and development
+const allowedOrigins = process.env.FRONTEND_URL
+  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
+  : ["http://localhost:5173"];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -58,17 +72,20 @@ app.use("/", appController);
 
 // Error handling middleware
 app.use(notFound);
+app.use(globalErrorHandling);
 
-const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || "localhost";
+// Only start server if not in Vercel serverless environment
+// Vercel will use the api/index.js entry point instead
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+  const PORT = process.env.PORT || 5000;
+  const HOST = process.env.HOST || "localhost";
 
-app.listen(PORT, () => {
-  console.log(`🚀 Taqyeem API server running`);
-  console.log(`🌐 URL: http://${HOST}:${PORT}`);
-  console.log(`📚 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`⚡ Ready to accept requests!`);
-});
+  app.listen(PORT, () => {
+    console.log(`🚀 Taqyeem API server running`);
+    console.log(`🌐 URL: http://${HOST}:${PORT}`);
+    console.log(`📚 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`⚡ Ready to accept requests!`);
+  });
+}
 
 export default app;
-
-app.use(globalErrorHandling);
