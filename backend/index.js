@@ -39,7 +39,9 @@ const limiter = rateLimit({
 // CORS middleware - must be before rate limiter
 // Support multiple origins for production and development
 const allowedOrigins = process.env.FRONTEND_URL
-  ? process.env.FRONTEND_URL.split(",").map((url) => url.trim())
+  ? process.env.FRONTEND_URL.split(",").map((url) =>
+      url.trim().replace(/\/$/, "")
+    )
   : ["http://localhost:5173"];
 
 app.use(
@@ -47,14 +49,33 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
-      if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === "development") {
+
+      // Normalize origin (remove trailing slash)
+      const normalizedOrigin = origin.replace(/\/$/, "");
+
+      // Check if origin is in allowed list
+      const isAllowed = allowedOrigins.some((allowed) => {
+        const normalizedAllowed = allowed.replace(/\/$/, "");
+        return (
+          normalizedOrigin === normalizedAllowed ||
+          normalizedOrigin.startsWith(normalizedAllowed)
+        );
+      });
+
+      if (isAllowed || process.env.NODE_ENV === "development") {
         callback(null, true);
       } else {
+        console.error(
+          `CORS blocked origin: ${origin}. Allowed: ${allowedOrigins.join(
+            ", "
+          )}`
+        );
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
