@@ -85,8 +85,11 @@ app.use("/api/", limiter);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (only for non-serverless environments)
+// In Vercel serverless, connection is handled in api/index.js
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+  connectDB();
+}
 
 // Use app controller for all routes
 app.use("/", appController);
