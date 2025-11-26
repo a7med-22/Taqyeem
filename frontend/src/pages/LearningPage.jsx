@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { BookOpen, ExternalLink, HelpCircle, Lightbulb, Search, Video, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../components/ui/Button.jsx";
 import {
   Card,
   CardContent,
@@ -9,10 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/Card.jsx";
-import PageHeader from "../components/ui/PageHeader.jsx";
 import { Input } from "../components/ui/Input.jsx";
-import { Search, HelpCircle, Lightbulb, BookOpen, ExternalLink, Video, X } from "lucide-react";
-import { useLearningContent, useLearningCategories } from "../hooks/api.js";
+import PageHeader from "../components/ui/PageHeader.jsx";
+import { useLearningCategories, useLearningContent } from "../hooks/api.js";
 
 export default function LearningPage() {
   const { t, i18n } = useTranslation();
@@ -159,52 +158,64 @@ export default function LearningPage() {
         {/* Type Tabs - Primary Categorization */}
         <motion.div
           variants={itemVariants}
-          className="flex gap-2 mb-6 border-b-2 border-secondary-200"
+          className="mb-6 border-b-2 border-secondary-200 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+          }}
         >
-          {typeTabs.map((tab, index) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            const count = tabCounts[tab.id] || 0;
-            return (
-              <motion.button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.3 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all relative ${
-                  isActive
-                    ? "text-primary-600"
-                    : "text-secondary-600 hover:text-secondary-900"
-                }`}
-              >
-                <Icon className="h-5 w-5" />
-                {tab.label}
-                <AnimatePresence>
+          <style>{`
+            [class*="type-tabs-container"]::-webkit-scrollbar {
+              display: none;
+            }
+          `}</style>
+          <div className="flex gap-2 min-w-max sm:min-w-0 type-tabs-container">
+            {typeTabs.map((tab, index) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const count = tabCounts[tab.id] || 0;
+              return (
+                <motion.button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.3 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-semibold transition-all relative shrink-0 ${
+                    isActive
+                      ? "text-primary-600"
+                      : "text-secondary-600 hover:text-secondary-900"
+                  }`}
+                >
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                  <span className="whitespace-nowrap">{tab.label}</span>
+                  <AnimatePresence>
+                    {isActive && (
+                      <motion.span
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                        className="px-1.5 sm:px-2 py-0.5 text-xs rounded-full font-medium bg-primary-100 text-primary-700 whitespace-nowrap"
+                      >
+                        {count}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                   {isActive && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
-                      className="px-2 py-0.5 text-xs rounded-full font-medium bg-primary-100 text-primary-700"
-                    >
-                      {count}
-                    </motion.span>
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
                   )}
-                </AnimatePresence>
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </motion.button>
-            );
-          })}
+                </motion.button>
+              );
+            })}
+          </div>
         </motion.div>
 
         {/* Search and Category Tabs Section */}
