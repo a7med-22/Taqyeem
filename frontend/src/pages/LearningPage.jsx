@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -21,6 +22,15 @@ import { Input } from "../components/ui/Input.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { useLearningCategories, useLearningContent } from "../hooks/api.js";
 
+// Standard category order - always show these categories
+const categoryOrder = [
+  "frontend-development",
+  "backend-development",
+  "soft-skills",
+  "interview-preparation",
+  "career-development",
+];
+
 export default function LearningPage() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
@@ -32,15 +42,6 @@ export default function LearningPage() {
 
   // Get categories
   const { data: categories = [] } = useLearningCategories();
-
-  // Standard category order - always show these categories
-  const categoryOrder = [
-    "frontend-development",
-    "backend-development",
-    "soft-skills",
-    "interview-preparation",
-    "career-development",
-  ];
 
   // Always show standard categories, plus any extras from API
   const orderedCategories = useMemo(() => {
@@ -85,7 +86,9 @@ export default function LearningPage() {
   }, [activeTab, searchQuery, locale]);
 
   const { data: allContentData } = useLearningContent(allContentParams);
-  const allContent = allContentData?.content || [];
+  const allContent = useMemo(() => {
+    return allContentData?.content || [];
+  }, [allContentData?.content]);
 
   // Calculate counts for each category based on active tab type
   const categoryCounts = useMemo(() => {
