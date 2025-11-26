@@ -193,6 +193,7 @@ export const getDashboard = async (req, res, next) => {
       id: reservation._id,
       status: reservation.status,
       createdAt: reservation.createdAt,
+      rejectionReason: reservation.rejectionReason || null,
       candidate: reservation.candidateId
         ? {
             id: reservation.candidateId._id,

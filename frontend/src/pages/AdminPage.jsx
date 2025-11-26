@@ -1017,6 +1017,20 @@ export default function AdminPage() {
                           {formatTime(reservation.slot.endTime)}
                         </p>
                       )}
+                      {reservation.status === "rejected" &&
+                        reservation.rejectionReason && (
+                          <div className="mt-2 p-2 bg-red-50 rounded-lg border border-red-200">
+                            <p className="text-xs text-red-700">
+                              <span className="font-medium">
+                                {t("reservations.rejectionReason", {
+                                  defaultValue: "Rejection Reason",
+                                })}
+                                :
+                              </span>{" "}
+                              {reservation.rejectionReason}
+                            </p>
+                          </div>
+                        )}
                     </div>
                   );
                 }
