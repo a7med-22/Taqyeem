@@ -1,5 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, ExternalLink, HelpCircle, Lightbulb, Search, Video, X } from "lucide-react";
+import {
+  BookOpen,
+  ExternalLink,
+  HelpCircle,
+  Lightbulb,
+  Search,
+  Video,
+  X,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,7 +25,7 @@ export default function LearningPage() {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const locale = i18n.language;
-  
+
   const [activeTab, setActiveTab] = useState("faq");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,7 +54,8 @@ export default function LearningPage() {
   // Fetch content based on active tab type and selected category
   const contentParams = useMemo(() => {
     const params = {
-      type: activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
+      type:
+        activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
       page: 1,
       limit: 1000,
       language: locale,
@@ -56,13 +65,18 @@ export default function LearningPage() {
     return params;
   }, [activeTab, selectedCategory, searchQuery, locale]);
 
-  const { data: contentData, isLoading, error } = useLearningContent(contentParams);
+  const {
+    data: contentData,
+    isLoading,
+    error,
+  } = useLearningContent(contentParams);
   const content = contentData?.content || [];
 
   // Fetch all content for current tab to calculate category counts
   const allContentParams = useMemo(() => {
     return {
-      type: activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
+      type:
+        activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
       page: 1,
       limit: 1000,
       language: locale,
@@ -209,7 +223,11 @@ export default function LearningPage() {
                     <motion.div
                       layoutId="activeTab"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </motion.button>
@@ -325,7 +343,11 @@ export default function LearningPage() {
                     <motion.div
                       layoutId="activeCategory"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 30,
+                      }}
                     />
                   )}
                 </motion.button>
@@ -386,7 +408,8 @@ export default function LearningPage() {
                 <p className="text-secondary-500">
                   {selectedCategory
                     ? t("learning.noContentInCategory", {
-                        defaultValue: "Try selecting a different category or search term",
+                        defaultValue:
+                          "Try selecting a different category or search term",
                       })
                     : t("learning.noContentDescription", {
                         defaultValue: "Check back later for new content",
@@ -395,29 +418,35 @@ export default function LearningPage() {
               </div>
             </motion.div>
           ) : (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6"
-            >
-              {activeTab === "faq" && (
-                <FAQsList faqs={content.filter((c) => c.type === "faq")} locale={locale} />
-              )}
-              {activeTab === "tip" && (
-                <TipsList tips={content.filter((c) => c.type === "tip")} locale={locale} />
-              )}
-              {activeTab === "article" && (
-                <ArticlesList
-                  articles={content.filter((c) => c.type === "article")}
-                  locale={locale}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                {activeTab === "faq" && (
+                  <FAQsList
+                    faqs={content.filter((c) => c.type === "faq")}
+                    locale={locale}
+                  />
+                )}
+                {activeTab === "tip" && (
+                  <TipsList
+                    tips={content.filter((c) => c.type === "tip")}
+                    locale={locale}
+                  />
+                )}
+                {activeTab === "article" && (
+                  <ArticlesList
+                    articles={content.filter((c) => c.type === "article")}
+                    locale={locale}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
           )}
         </AnimatePresence>
       </motion.div>
@@ -455,7 +484,9 @@ function FAQsList({ faqs, locale }) {
   if (faqs.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-secondary-500">{t("learning.noFAQs", { defaultValue: "No FAQs available" })}</p>
+        <p className="text-secondary-500">
+          {t("learning.noFAQs", { defaultValue: "No FAQs available" })}
+        </p>
       </div>
     );
   }
@@ -482,44 +513,46 @@ function FAQsList({ faqs, locale }) {
             transition={{ delay: index * 0.05, duration: 0.3 }}
           >
             <Card className="border border-secondary-200 hover:shadow-md transition-shadow">
-            <CardHeader
-              className="cursor-pointer hover:bg-secondary-50 transition-colors"
-              onClick={() => setExpandedId(isExpanded ? null : faq._id)}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-lg pr-8">{title}</CardTitle>
-                <motion.button
-                  animate={{ rotate: isExpanded ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-2xl text-primary-600 hover:text-primary-700 flex-shrink-0"
-                >
-                  {isExpanded ? "−" : "+"}
-                </motion.button>
-              </div>
-            </CardHeader>
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  style={{ overflow: "hidden" }}
-                >
-                  <CardContent className="pt-0">
-                <div className="prose max-w-none">
-                  <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">{content}</p>
+              <CardHeader
+                className="cursor-pointer hover:bg-secondary-50 transition-colors"
+                onClick={() => setExpandedId(isExpanded ? null : faq._id)}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <CardTitle className="text-lg pr-8">{title}</CardTitle>
+                  <motion.button
+                    animate={{ rotate: isExpanded ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-2xl text-primary-600 hover:text-primary-700 shrink-0"
+                  >
+                    {isExpanded ? "−" : "+"}
+                  </motion.button>
                 </div>
-                {references.length > 0 && (
-                  <div className="mt-6">
-                    <ReferencesSection references={references} />
-                  </div>
+              </CardHeader>
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    style={{ overflow: "hidden" }}
+                  >
+                    <CardContent className="pt-0">
+                      <div className="prose max-w-none">
+                        <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">
+                          {content}
+                        </p>
+                      </div>
+                      {references.length > 0 && (
+                        <div className="mt-6">
+                          <ReferencesSection references={references} />
+                        </div>
+                      )}
+                    </CardContent>
+                  </motion.div>
                 )}
-              </CardContent>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </Card>
+              </AnimatePresence>
+            </Card>
           </motion.div>
         );
       })}
@@ -535,7 +568,9 @@ function TipsList({ tips, locale }) {
   if (tips.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-secondary-500">{t("learning.noTips", { defaultValue: "No tips available" })}</p>
+        <p className="text-secondary-500">
+          {t("learning.noTips", { defaultValue: "No tips available" })}
+        </p>
       </div>
     );
   }
@@ -566,15 +601,16 @@ function TipsList({ tips, locale }) {
   return (
     <>
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        {tips.map((tip, index) => {
+        {tips.map((tip) => {
           const title = tip.title?.[locale] || tip.title?.en || "";
           const content = tip.content?.[locale] || tip.content?.en || "";
-          const preview = content.substring(0, 150) + (content.length > 150 ? "..." : "");
+          const preview =
+            content.substring(0, 150) + (content.length > 150 ? "..." : "");
 
           return (
             <motion.div
@@ -582,23 +618,31 @@ function TipsList({ tips, locale }) {
               variants={itemVariants}
               whileHover={{ scale: 1.02, y: -5 }}
               whileTap={{ scale: 0.98 }}
+              className="h-full"
             >
               <Card
-                className="card-modern cursor-pointer hover:shadow-xl transition-all"
+                className="card-modern cursor-pointer hover:shadow-xl transition-all h-full flex flex-col"
                 onClick={() => setSelectedTip(tip)}
               >
-              <CardHeader>
-                <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-secondary-600 line-clamp-3 mb-3">{preview}</p>
-                {tip.references && tip.references.length > 0 && (
-                  <p className="text-xs text-primary-600 font-medium">
-                    {tip.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
+                <CardHeader className="shrink-0">
+                  <CardTitle className="text-lg line-clamp-2">
+                    {title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-sm text-secondary-600 line-clamp-3 mb-3 grow">
+                    {preview}
                   </p>
-                )}
-              </CardContent>
-            </Card>
+                  {tip.references && tip.references.length > 0 && (
+                    <p className="text-xs text-primary-600 font-medium mt-auto">
+                      {tip.references.length}{" "}
+                      {t("learning.references", {
+                        defaultValue: "reference(s)",
+                      })}
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
             </motion.div>
           );
         })}
@@ -658,16 +702,19 @@ function ArticlesList({ articles, locale }) {
   return (
     <>
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr"
         initial="hidden"
         animate="visible"
         variants={containerVariants}
       >
-        {articles.map((article, index) => {
+        {articles.map((article) => {
           const title = article.title?.[locale] || article.title?.en || "";
-          const content = article.content?.[locale] || article.content?.en || "";
-          const preview = content.substring(0, 150) + (content.length > 150 ? "..." : "");
-          const readingTime = article.readingTime?.[locale] || article.readingTime?.en || 0;
+          const content =
+            article.content?.[locale] || article.content?.en || "";
+          const preview =
+            content.substring(0, 150) + (content.length > 150 ? "..." : "");
+          const readingTime =
+            article.readingTime?.[locale] || article.readingTime?.en || 0;
 
           return (
             <motion.div
@@ -675,47 +722,58 @@ function ArticlesList({ articles, locale }) {
               variants={itemVariants}
               whileHover={{ scale: 1.02, y: -5 }}
               whileTap={{ scale: 0.98 }}
+              className="h-full"
             >
               <Card
-                className="card-modern cursor-pointer hover:shadow-xl transition-all overflow-hidden group"
+                className="card-modern cursor-pointer hover:shadow-xl transition-all overflow-hidden group h-full flex flex-col"
                 onClick={() => setSelectedArticle(article)}
               >
-              {article.thumbnailUrl && (
-                <div className="aspect-video w-full overflow-hidden bg-secondary-100">
-                  <img
-                    src={article.thumbnailUrl}
-                    alt={title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              )}
-              <CardHeader>
-                <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
-                <CardDescription>
-                  {readingTime > 0 && (
-                    <span className="text-xs text-secondary-500">
-                      {readingTime} {t("learning.minRead", { defaultValue: "min read" })}
-                    </span>
-                  )}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-secondary-600 line-clamp-3 mb-3">{preview}</p>
-                <div className="flex items-center gap-4 text-xs">
-                  {article.references && article.references.length > 0 && (
-                    <p className="text-primary-600 font-medium">
-                      {article.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
-                    </p>
-                  )}
-                  {article.recommendedVideos && article.recommendedVideos.length > 0 && (
-                    <p className="text-cyan-600 font-medium flex items-center gap-1">
-                      <Video className="w-3 h-3" />
-                      {article.recommendedVideos.length} {t("learning.videos", { defaultValue: "video(s)" })}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                {article.thumbnailUrl && (
+                  <div className="aspect-video w-full overflow-hidden bg-secondary-100 shrink-0">
+                    <img
+                      src={article.thumbnailUrl}
+                      alt={title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <CardHeader className="shrink-0">
+                  <CardTitle className="text-lg line-clamp-2">
+                    {title}
+                  </CardTitle>
+                  <CardDescription>
+                    {readingTime > 0 && (
+                      <span className="text-xs text-secondary-500">
+                        {readingTime}{" "}
+                        {t("learning.minRead", { defaultValue: "min read" })}
+                      </span>
+                    )}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <p className="text-sm text-secondary-600 line-clamp-3 mb-3 grow">
+                    {preview}
+                  </p>
+                  <div className="flex items-center gap-4 text-xs mt-auto">
+                    {article.references && article.references.length > 0 && (
+                      <p className="text-primary-600 font-medium">
+                        {article.references.length}{" "}
+                        {t("learning.references", {
+                          defaultValue: "reference(s)",
+                        })}
+                      </p>
+                    )}
+                    {article.recommendedVideos &&
+                      article.recommendedVideos.length > 0 && (
+                        <p className="text-cyan-600 font-medium flex items-center gap-1">
+                          <Video className="w-3 h-3" />
+                          {article.recommendedVideos.length}{" "}
+                          {t("learning.videos", { defaultValue: "video(s)" })}
+                        </p>
+                      )}
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
           );
         })}
@@ -741,7 +799,8 @@ function ContentDetailModal({ content, locale, onClose }) {
   const contentText = content.content?.[locale] || content.content?.en || "";
   const references = content.references || [];
   const recommendedVideos = content.recommendedVideos || [];
-  const readingTime = content.readingTime?.[locale] || content.readingTime?.en || 0;
+  const readingTime =
+    content.readingTime?.[locale] || content.readingTime?.en || 0;
 
   return (
     <motion.div
@@ -758,20 +817,28 @@ function ContentDetailModal({ content, locale, onClose }) {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        transition={{ duration: 0.3, type: "spring", stiffness: 300, damping: 30 }}
+        transition={{
+          duration: 0.3,
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+        }}
       >
         <div className="p-6 border-b border-secondary-200 flex items-start justify-between sticky top-0 bg-white z-10">
           <div className="flex-1 pr-4">
-            <h2 className="text-2xl font-bold text-secondary-900 mb-2">{title}</h2>
+            <h2 className="text-2xl font-bold text-secondary-900 mb-2">
+              {title}
+            </h2>
             {readingTime > 0 && (
               <p className="text-sm text-secondary-500">
-                {readingTime} {t("learning.minRead", { defaultValue: "min read" })}
+                {readingTime}{" "}
+                {t("learning.minRead", { defaultValue: "min read" })}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-secondary-400 hover:text-secondary-600 text-3xl leading-none flex-shrink-0"
+            className="text-secondary-400 hover:text-secondary-600 text-3xl leading-none shrink-0"
           >
             ×
           </button>
@@ -786,7 +853,9 @@ function ContentDetailModal({ content, locale, onClose }) {
             />
           )}
           <div className="prose max-w-none">
-            <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">{contentText}</p>
+            <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">
+              {contentText}
+            </p>
           </div>
 
           {recommendedVideos.length > 0 && content.type === "article" && (
@@ -828,13 +897,19 @@ function ReferencesSection({ references }) {
             className="block p-4 border border-secondary-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
           >
             <div className="flex items-start gap-3">
-              <ExternalLink className="h-5 w-5 text-primary-600 mt-0.5 flex-shrink-0" />
+              <ExternalLink className="h-5 w-5 text-primary-600 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <h4 className="font-semibold text-secondary-900">{ref.title || ref.url}</h4>
+                <h4 className="font-semibold text-secondary-900">
+                  {ref.title || ref.url}
+                </h4>
                 {ref.description && (
-                  <p className="text-sm text-secondary-600 mt-1">{ref.description}</p>
+                  <p className="text-sm text-secondary-600 mt-1">
+                    {ref.description}
+                  </p>
                 )}
-                <p className="text-xs text-primary-600 mt-2 break-all">{ref.url}</p>
+                <p className="text-xs text-primary-600 mt-2 break-all">
+                  {ref.url}
+                </p>
               </div>
             </div>
           </a>
@@ -853,7 +928,9 @@ function RecommendedVideosSection({ videos }) {
   // Extract YouTube video ID from URL
   const getYouTubeVideoId = (url) => {
     if (!url) return null;
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/
+    );
     return match ? match[1] : null;
   };
 
@@ -868,7 +945,9 @@ function RecommendedVideosSection({ videos }) {
     <div>
       <h3 className="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
         <Video className="h-5 w-5" />
-        {t("learning.recommendedVideos", { defaultValue: "Recommended Videos" })}
+        {t("learning.recommendedVideos", {
+          defaultValue: "Recommended Videos",
+        })}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {videos.map((video, index) => {
@@ -906,7 +985,9 @@ function RecommendedVideosSection({ videos }) {
                   {video.title || video.url}
                 </h4>
                 {video.description && (
-                  <p className="text-sm text-secondary-600 mt-1 line-clamp-2">{video.description}</p>
+                  <p className="text-sm text-secondary-600 mt-1 line-clamp-2">
+                    {video.description}
+                  </p>
                 )}
               </div>
             </a>
