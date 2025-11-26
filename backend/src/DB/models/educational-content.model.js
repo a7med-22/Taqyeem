@@ -67,6 +67,25 @@ const educationalContentSchema = new mongoose.Schema(
         },
       },
     ],
+    recommendedVideos: [
+      {
+        url: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        title: {
+          type: String,
+          trim: true,
+          default: "",
+        },
+        description: {
+          type: String,
+          trim: true,
+          default: "",
+        },
+      },
+    ],
     authorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

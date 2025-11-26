@@ -26,7 +26,17 @@ export const createEducationalContentSchema = {
       }),
     tags: generalRules.stringArray.optional(),
     featured: Joi.boolean().optional(),
+    thumbnailUrl: Joi.string().uri().optional().allow("", null),
     references: Joi.array()
+      .items(
+        Joi.object({
+          url: Joi.string().uri().required(),
+          title: Joi.string().optional().allow(""),
+          description: Joi.string().optional().allow(""),
+        })
+      )
+      .optional(),
+    recommendedVideos: Joi.array()
       .items(
         Joi.object({
           url: Joi.string().uri().required(),
@@ -57,7 +67,17 @@ export const updateEducationalContentSchema = {
       .optional(),
     tags: generalRules.stringArray.optional(),
     featured: Joi.boolean().optional(),
+    thumbnailUrl: Joi.string().uri().optional().allow("", null),
     references: Joi.array()
+      .items(
+        Joi.object({
+          url: Joi.string().uri().required(),
+          title: Joi.string().optional().allow(""),
+          description: Joi.string().optional().allow(""),
+        })
+      )
+      .optional(),
+    recommendedVideos: Joi.array()
       .items(
         Joi.object({
           url: Joi.string().uri().required(),
@@ -101,7 +121,17 @@ export const bulkCreateEducationalContentSchema = {
             }),
           tags: generalRules.stringArray.optional(),
           featured: Joi.boolean().optional(),
+          thumbnailUrl: Joi.string().uri().optional().allow("", null),
           references: Joi.array()
+            .items(
+              Joi.object({
+                url: Joi.string().uri().required(),
+                title: Joi.string().optional().allow(""),
+                description: Joi.string().optional().allow(""),
+              })
+            )
+            .optional(),
+          recommendedVideos: Joi.array()
             .items(
               Joi.object({
                 url: Joi.string().uri().required(),

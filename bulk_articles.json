@@ -31,6 +31,18 @@
                     "title": "ECMAScript Specification",
                     "description": "Official ECMAScript language specification"
                 }
+            ],
+            "recommendedVideos": [
+                {
+                    "url": "https://www.youtube.com/watch?v=NCwa_xi0Uuc",
+                    "title": "ES6 Tutorial: Learn Modern JavaScript",
+                    "description": "Comprehensive YouTube tutorial covering all ES6+ features"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=W6NZfCO5SIk",
+                    "title": "JavaScript ES6, ES7, ES8 - Complete Course",
+                    "description": "Complete course on modern JavaScript features"
+                }
             ]
         },
         {
@@ -65,6 +77,23 @@
                     "title": "REST API Tutorial",
                     "description": "Learn REST API design principles"
                 }
+            ],
+            "recommendedVideos": [
+                {
+                    "url": "https://www.youtube.com/watch?v=pKd0Rpw7O48",
+                    "title": "REST API Tutorial - Complete Guide",
+                    "description": "Complete guide to building REST APIs with Node.js and Express"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=fgdpvwEWJ9M",
+                    "title": "Build a REST API with Node.js and Express",
+                    "description": "Step-by-step tutorial on building scalable REST APIs"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=Oe421EPjeBE",
+                    "title": "Node.js API Best Practices",
+                    "description": "Best practices for building production-ready APIs"
+                }
             ]
         },
         {
@@ -92,6 +121,23 @@
                     "url": "https://francescocirillo.com/pages/pomodoro-technique",
                     "title": "The Pomodoro Technique",
                     "description": "Official Pomodoro Technique website"
+                }
+            ],
+            "recommendedVideos": [
+                {
+                    "url": "https://www.youtube.com/watch?v=mNBmG24djoY",
+                    "title": "The Pomodoro Technique - Study Method",
+                    "description": "Complete guide to the Pomodoro Technique for productivity"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=Qz25bmwdkHM",
+                    "title": "Time Management for Developers",
+                    "description": "Practical time management tips specifically for software developers"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=4sZUqGoFsaw",
+                    "title": "Productivity Tips for Programmers",
+                    "description": "Essential productivity techniques every developer should know"
                 }
             ]
         },
@@ -126,6 +172,28 @@
                     "title": "HackerRank",
                     "description": "Coding challenges and skill assessments"
                 }
+            ],
+            "recommendedVideos": [
+                {
+                    "url": "https://www.youtube.com/watch?v=XKu_SEDAykw",
+                    "title": "How to Ace Your Technical Interview",
+                    "description": "Tips and strategies for technical interview success"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=GK4Pl-GmPHk",
+                    "title": "Coding Interview Prep - Data Structures & Algorithms",
+                    "description": "Complete guide to data structures and algorithms for interviews"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=FOaV9Pl8yVg",
+                    "title": "System Design Interview Tips",
+                    "description": "How to approach system design questions in interviews"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=BKpJvXlZMgE",
+                    "title": "Behavioral Interview Preparation",
+                    "description": "Master the STAR method for behavioral interview questions"
+                }
             ]
         },
         {
@@ -158,6 +226,28 @@
                     "url": "https://dev.to/",
                     "title": "DEV Community",
                     "description": "Share knowledge and connect with developers"
+                }
+            ],
+            "recommendedVideos": [
+                {
+                    "url": "https://www.youtube.com/watch?v=U9T6YkED8Mo",
+                    "title": "How to Build a Developer Career from Scratch",
+                    "description": "Complete roadmap for starting and advancing your developer career"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=z8lZa8kQxT8",
+                    "title": "How to Get Your First Developer Job",
+                    "description": "Practical tips for landing your first job as a developer"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=7DH1-dyt0yE",
+                    "title": "Building Your Developer Portfolio",
+                    "description": "Guide to creating an impressive portfolio that gets you hired"
+                },
+                {
+                    "url": "https://www.youtube.com/watch?v=uA0iWo9rQ-c",
+                    "title": "Career Advice for Software Developers",
+                    "description": "Career growth strategies and advice from experienced developers"
                 }
             ]
         }
