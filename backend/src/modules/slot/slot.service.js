@@ -106,14 +106,72 @@ export const getSlotsByInterviewer = async (req, res, next) => {
       query.date.$lte = new Date(endDate);
     }
   } else {
-    // By default, only show future slots
-    query.date = { $gte: new Date() };
+    // By default, only show future slots (date >= today)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    query.date = { $gte: today };
   }
 
-  const slots = await Slot.find(query)
+  let slots = await Slot.find(query)
     .populate("scheduleId", "date title description")
     .populate("interviewerId", "name email avatarUrl")
     .sort({ date: 1, startTime: 1 });
+
+  // Filter out past slots (slots where date = today AND startTime has passed)
+  // This is needed because MongoDB can't directly compare date + time string
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const currentTime = now.toTimeString().slice(0, 5); // "HH:MM" format
+
+  // Check if the query includes today's date
+  let shouldFilterPastSlots = false;
+  if (!date && !startDate && !endDate) {
+    // No date filter - default behavior: filter past slots
+    shouldFilterPastSlots = true;
+  } else if (date) {
+    // Specific date provided - filter if it's today
+    const targetDate = new Date(date);
+    const targetDateOnly = new Date(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate()
+    );
+    shouldFilterPastSlots = targetDateOnly.getTime() === today.getTime();
+  } else {
+    // Date range provided - filter if range includes today
+    const rangeStart = startDate ? new Date(startDate) : null;
+    const rangeEnd = endDate ? new Date(endDate) : null;
+    if (
+      (!rangeStart || rangeStart <= today) &&
+      (!rangeEnd || rangeEnd >= today)
+    ) {
+      shouldFilterPastSlots = true;
+    }
+  }
+
+  if (shouldFilterPastSlots) {
+    slots = slots.filter((slot) => {
+      const slotDate = new Date(slot.date);
+      const slotDateOnly = new Date(
+        slotDate.getFullYear(),
+        slotDate.getMonth(),
+        slotDate.getDate()
+      );
+
+      // If slot is in the future (date > today), show it
+      if (slotDateOnly > today) {
+        return true;
+      }
+
+      // If slot is today, check if startTime hasn't passed
+      if (slotDateOnly.getTime() === today.getTime()) {
+        return slot.startTime >= currentTime;
+      }
+
+      // If slot is in the past, hide it
+      return false;
+    });
+  }
 
   successResponse({
     res,
