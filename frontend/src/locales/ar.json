@@ -162,6 +162,8 @@
         "searchPlaceholder": "بحث...",
         "allCategories": "جميع الفئات",
         "noContent": "لا يوجد محتوى متاح",
+        "noContentDescription": "تحقق لاحقاً للحصول على محتوى جديد",
+        "noContentInCategory": "حاول اختيار فئة مختلفة أو مصطلح بحث آخر",
         "noFAQs": "لا توجد أسئلة شائعة متاحة",
         "noTips": "لا توجد نصائح متاحة",
         "noArticles": "لا توجد مقالات متاحة",

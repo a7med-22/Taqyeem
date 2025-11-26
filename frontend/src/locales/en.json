@@ -157,6 +157,8 @@
         "searchPlaceholder": "Search...",
         "allCategories": "All Categories",
         "noContent": "No content available",
+        "noContentDescription": "Check back later for new content",
+        "noContentInCategory": "Try selecting a different category or search term",
         "noFAQs": "No FAQs available",
         "noTips": "No tips available",
         "noArticles": "No articles available",

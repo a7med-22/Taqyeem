@@ -10,9 +10,8 @@ import {
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { Input } from "../components/ui/Input.jsx";
-import { Search, HelpCircle, Lightbulb, BookOpen, ExternalLink, Video } from "lucide-react";
+import { Search, HelpCircle, Lightbulb, BookOpen, ExternalLink, Video, X } from "lucide-react";
 import { useLearningContent, useLearningCategories } from "../hooks/api.js";
-import { formatDate } from "../utils/helpers.js";
 
 export default function LearningPage() {
   const { t, i18n } = useTranslation();
@@ -20,107 +19,79 @@ export default function LearningPage() {
   const locale = i18n.language;
   
   const [activeTab, setActiveTab] = useState("faq");
-  const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get categories
   const { data: categories = [] } = useLearningCategories();
 
-  // Fetch content based on active tab
+  // Standard category order - always show these categories
+  const categoryOrder = [
+    "frontend-development",
+    "backend-development",
+    "soft-skills",
+    "interview-preparation",
+    "career-development",
+  ];
+
+  // Always show standard categories, plus any extras from API
+  const orderedCategories = useMemo(() => {
+    // Always include standard categories
+    const ordered = [...categoryOrder];
+    // Add any extra categories from API that aren't in the standard list
+    const extras = categories.filter((cat) => !categoryOrder.includes(cat));
+    return [...ordered, ...extras];
+  }, [categories]);
+
+  // Fetch content based on active tab type and selected category
   const contentParams = useMemo(() => {
     const params = {
       type: activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
       page: 1,
-      limit: 100,
+      limit: 1000,
       language: locale,
     };
     if (searchQuery) params.search = searchQuery;
     if (selectedCategory) params.category = selectedCategory;
     return params;
-  }, [activeTab, searchQuery, selectedCategory, locale]);
+  }, [activeTab, selectedCategory, searchQuery, locale]);
 
   const { data: contentData, isLoading, error } = useLearningContent(contentParams);
   const content = contentData?.content || [];
 
-  // Fetch all content for all tabs to calculate tab counts
-  // Only fetch when a category is selected (to show counts on tabs)
-  const faqContentParams = useMemo(() => {
-    if (!selectedCategory) return null;
-    const params = { type: "faq", page: 1, limit: 1000, language: locale };
-    if (searchQuery) params.search = searchQuery;
-    if (selectedCategory) params.category = selectedCategory;
-    return params;
-  }, [selectedCategory, searchQuery, locale]);
-
-  const tipContentParams = useMemo(() => {
-    if (!selectedCategory) return null;
-    const params = { type: "tip", page: 1, limit: 1000, language: locale };
-    if (searchQuery) params.search = searchQuery;
-    if (selectedCategory) params.category = selectedCategory;
-    return params;
-  }, [selectedCategory, searchQuery, locale]);
-
-  const articleContentParams = useMemo(() => {
-    if (!selectedCategory) return null;
-    const params = { type: "article", page: 1, limit: 1000, language: locale };
-    if (searchQuery) params.search = searchQuery;
-    if (selectedCategory) params.category = selectedCategory;
-    return params;
-  }, [selectedCategory, searchQuery, locale]);
-
-  const { data: faqContentData, isLoading: isLoadingFaq } = useLearningContent(faqContentParams);
-  const { data: tipContentData, isLoading: isLoadingTip } = useLearningContent(tipContentParams);
-  const { data: articleContentData, isLoading: isLoadingArticle } = useLearningContent(articleContentParams);
-
-  // Fetch all content for current active tab without category filter to calculate category counts
-  // Only fetch when a category is selected (to show counts on category buttons)
-  const allContentForCategoryCounts = useMemo(() => {
-    if (!selectedCategory) return null;
-    
-    const params = {
+  // Fetch all content for current tab to calculate category counts
+  const allContentParams = useMemo(() => {
+    return {
       type: activeTab === "faq" ? "faq" : activeTab === "tip" ? "tip" : "article",
       page: 1,
-      limit: 1000, // Get all to calculate counts
+      limit: 1000,
       language: locale,
+      ...(searchQuery && { search: searchQuery }),
     };
-    if (searchQuery) params.search = searchQuery;
-    // Don't include category filter - we want all content to count by category
-    return params;
-  }, [activeTab, searchQuery, locale, selectedCategory]);
+  }, [activeTab, searchQuery, locale]);
 
-  const { data: allContentData } = useLearningContent(allContentForCategoryCounts);
+  const { data: allContentData } = useLearningContent(allContentParams);
   const allContent = allContentData?.content || [];
 
-  // Calculate counts for each tab type when category is selected
-  const tabCounts = useMemo(() => {
-    if (!selectedCategory) return null;
-    
-    // Always return an object with counts, even if data is still loading
-    // Access content array safely - the data structure is { content: [...], pagination: {...} }
-    const faqCount = Array.isArray(faqContentData?.content) ? faqContentData.content.length : 0;
-    const tipCount = Array.isArray(tipContentData?.content) ? tipContentData.content.length : 0;
-    const articleCount = Array.isArray(articleContentData?.content) ? articleContentData.content.length : 0;
-    
-    return {
-      faq: faqCount,
-      tip: tipCount,
-      article: articleCount,
-    };
-  }, [selectedCategory, faqContentData, tipContentData, articleContentData]);
-
-  // Calculate counts for each category based on current active tab
-  // Only show counts when a category is selected (clicked)
+  // Calculate counts for each category based on active tab type
   const categoryCounts = useMemo(() => {
-    if (!selectedCategory || !allContent.length) return {};
-    
     const counts = {};
-    categories.forEach((cat) => {
+    orderedCategories.forEach((cat) => {
       counts[cat] = allContent.filter((c) => c.category === cat).length;
     });
     return counts;
-  }, [categories, allContent, selectedCategory]);
+  }, [orderedCategories, allContent]);
 
-  const tabs = [
+  // Calculate total count for each type tab
+  const tabCounts = useMemo(() => {
+    return {
+      faq: allContent.filter((c) => c.type === "faq").length,
+      tip: allContent.filter((c) => c.type === "tip").length,
+      article: allContent.filter((c) => c.type === "article").length,
+    };
+  }, [allContent]);
+
+  const typeTabs = [
     {
       id: "faq",
       label: t("learning.faqs", { defaultValue: "FAQs" }),
@@ -148,9 +119,45 @@ export default function LearningPage() {
           })}
         />
 
-        {/* Search and Filter Section */}
+        {/* Type Tabs - Primary Categorization */}
+        <div className="flex gap-2 mb-6 border-b-2 border-secondary-200">
+          {typeTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            const count = tabCounts[tab.id] || 0;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-6 py-4 font-semibold transition-all relative ${
+                  isActive
+                    ? "text-primary-600"
+                    : "text-secondary-600 hover:text-secondary-900"
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+                {tab.label}
+                <span
+                  className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                    isActive
+                      ? "bg-primary-100 text-primary-700"
+                      : "bg-secondary-100 text-secondary-600"
+                  }`}
+                >
+                  {count}
+                </span>
+                {isActive && (
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search and Category Tabs Section */}
         <div className="mb-6 space-y-4">
-          <div className="relative">
+          {/* Search Bar */}
+          <div className="relative max-w-2xl">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-secondary-400" />
             <Input
               type="text"
@@ -159,78 +166,104 @@ export default function LearningPage() {
               })}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
               variant="modern"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
-          {categories.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              <Button
-                variant={selectedCategory === "" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory("")}
-              >
-                {t("learning.allCategories", { defaultValue: "All Categories" })}
-              </Button>
-              {categories.map((cat) => (
-                <Button
-                  key={cat}
-                  variant={selectedCategory === cat ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {t(`categories.${cat}`, { defaultValue: cat })}
-                  {selectedCategory && categoryCounts[cat] !== undefined && (
-                    <span className="ltr:ml-2 rtl:mr-2 px-1.5 py-0.5 text-xs bg-primary-100 text-primary-700 rounded-full">
-                      {categoryCounts[cat]}
-                    </span>
-                  )}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 mb-8 border-b border-secondary-200">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-6 py-3 font-medium transition-colors border-b-2 ${
-                  isActive
-                    ? "border-primary-500 text-primary-600"
-                    : "border-transparent text-secondary-600 hover:text-secondary-900"
+          {/* Category Tabs - Secondary Categorization */}
+          <div className="flex flex-wrap gap-2 border-b-2 border-secondary-200 pb-4">
+            <button
+              onClick={() => setSelectedCategory("")}
+              className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all relative border-b-2 ${
+                selectedCategory === ""
+                  ? "text-primary-600 border-primary-500"
+                  : "text-secondary-600 border-transparent hover:text-secondary-900"
+              }`}
+            >
+              {t("learning.allCategories", { defaultValue: "All Categories" })}
+              <span
+                className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                  selectedCategory === ""
+                    ? "bg-primary-100 text-primary-700"
+                    : "bg-secondary-100 text-secondary-600"
                 }`}
               >
-                <Icon className="h-5 w-5" />
-                {tab.label}
-                {selectedCategory && (
-                  <span className="text-sm bg-secondary-100 px-2 py-0.5 rounded-full">
-                    {tabCounts?.[tab.id] ?? 0}
+                {allContent.length}
+              </span>
+              {selectedCategory === "" && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5" />
+              )}
+            </button>
+            {orderedCategories.map((category) => {
+              const count = categoryCounts[category] || 0;
+              const isSelected = selectedCategory === category;
+              return (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`flex items-center gap-2 px-4 py-2 font-semibold transition-all relative border-b-2 ${
+                    isSelected
+                      ? "text-primary-600 border-primary-500"
+                      : "text-secondary-600 border-transparent hover:text-secondary-900"
+                  }`}
+                >
+                  {t(`categories.${category}`, { defaultValue: category })}
+                  <span
+                    className={`px-2 py-0.5 text-xs rounded-full font-medium ${
+                      isSelected
+                        ? "bg-primary-100 text-primary-700"
+                        : "bg-secondary-100 text-secondary-600"
+                    }`}
+                  >
+                    {count}
                   </span>
-                )}
-              </button>
-            );
-          })}
+                  {isSelected && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-500 -mb-0.5" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Content Display */}
         {isLoading ? (
           <div className="text-center py-12">
-            <p className="text-secondary-500">{t("common.loading")}</p>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+            <p className="mt-4 text-secondary-500">{t("common.loading")}</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-red-500">{t("common.error")}</p>
           </div>
         ) : content.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-secondary-500">
-              {t("learning.noContent", {
-                defaultValue: "No content available",
-              })}
-            </p>
+            <div className="max-w-md mx-auto">
+              <div className="text-6xl mb-4">📚</div>
+              <p className="text-lg font-medium text-secondary-900 mb-2">
+                {t("learning.noContent", {
+                  defaultValue: "No content available",
+                })}
+              </p>
+              <p className="text-secondary-500">
+                {selectedCategory
+                  ? t("learning.noContentInCategory", {
+                      defaultValue: "Try selecting a different category or search term",
+                    })
+                  : t("learning.noContentDescription", {
+                      defaultValue: "Check back later for new content",
+                    })}
+              </p>
+            </div>
           </div>
         ) : (
           <div className="space-y-6">
@@ -275,14 +308,14 @@ function FAQsList({ faqs, locale }) {
         const references = faq.references || [];
 
         return (
-          <Card key={faq._id} className="border border-secondary-200">
+          <Card key={faq._id} className="border border-secondary-200 hover:shadow-md transition-shadow">
             <CardHeader
               className="cursor-pointer hover:bg-secondary-50 transition-colors"
               onClick={() => setExpandedId(isExpanded ? null : faq._id)}
             >
               <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-lg">{title}</CardTitle>
-                <button className="text-secondary-400 hover:text-secondary-600">
+                <CardTitle className="text-lg pr-8">{title}</CardTitle>
+                <button className="text-2xl text-primary-600 hover:text-primary-700 flex-shrink-0">
                   {isExpanded ? "−" : "+"}
                 </button>
               </div>
@@ -290,10 +323,12 @@ function FAQsList({ faqs, locale }) {
             {isExpanded && (
               <CardContent className="pt-0">
                 <div className="prose max-w-none">
-                  <p className="text-secondary-700 whitespace-pre-wrap">{content}</p>
+                  <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">{content}</p>
                 </div>
                 {references.length > 0 && (
-                  <ReferencesSection references={references} />
+                  <div className="mt-6">
+                    <ReferencesSection references={references} />
+                  </div>
                 )}
               </CardContent>
             )}
@@ -328,16 +363,16 @@ function TipsList({ tips, locale }) {
           return (
             <Card
               key={tip._id}
-              className="card-modern cursor-pointer hover:shadow-lg transition-shadow"
+              className="card-modern cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1"
               onClick={() => setSelectedTip(tip)}
             >
               <CardHeader>
-                <CardTitle className="text-lg">{title}</CardTitle>
+                <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-secondary-600 line-clamp-3">{preview}</p>
+                <p className="text-sm text-secondary-600 line-clamp-3 mb-3">{preview}</p>
                 {tip.references && tip.references.length > 0 && (
-                  <p className="text-xs text-primary-600 mt-2">
+                  <p className="text-xs text-primary-600 font-medium">
                     {tip.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
                   </p>
                 )}
@@ -385,7 +420,7 @@ function ArticlesList({ articles, locale }) {
           return (
             <Card
               key={article._id}
-              className="card-modern cursor-pointer hover:shadow-lg transition-shadow overflow-hidden"
+              className="card-modern cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1 overflow-hidden group"
               onClick={() => setSelectedArticle(article)}
             >
               {article.thumbnailUrl && (
@@ -393,30 +428,30 @@ function ArticlesList({ articles, locale }) {
                   <img
                     src={article.thumbnailUrl}
                     alt={title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
               )}
               <CardHeader>
-                <CardTitle className="text-lg">{title}</CardTitle>
+                <CardTitle className="text-lg line-clamp-2">{title}</CardTitle>
                 <CardDescription>
                   {readingTime > 0 && (
-                    <span className="text-xs">
+                    <span className="text-xs text-secondary-500">
                       {readingTime} {t("learning.minRead", { defaultValue: "min read" })}
                     </span>
                   )}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-secondary-600 line-clamp-3">{preview}</p>
-                <div className="flex items-center gap-3 mt-2 text-xs">
+                <p className="text-sm text-secondary-600 line-clamp-3 mb-3">{preview}</p>
+                <div className="flex items-center gap-4 text-xs">
                   {article.references && article.references.length > 0 && (
-                    <p className="text-primary-600">
+                    <p className="text-primary-600 font-medium">
                       {article.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
                     </p>
                   )}
                   {article.recommendedVideos && article.recommendedVideos.length > 0 && (
-                    <p className="text-cyan-600 flex items-center gap-1">
+                    <p className="text-cyan-600 font-medium flex items-center gap-1">
                       <Video className="w-3 h-3" />
                       {article.recommendedVideos.length} {t("learning.videos", { defaultValue: "video(s)" })}
                     </p>
@@ -454,8 +489,8 @@ function ContentDetailModal({ content, locale, onClose }) {
         className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="p-6 border-b border-secondary-200 flex items-start justify-between">
-          <div className="flex-1">
+        <div className="p-6 border-b border-secondary-200 flex items-start justify-between sticky top-0 bg-white z-10">
+          <div className="flex-1 pr-4">
             <h2 className="text-2xl font-bold text-secondary-900 mb-2">{title}</h2>
             {readingTime > 0 && (
               <p className="text-sm text-secondary-500">
@@ -465,7 +500,7 @@ function ContentDetailModal({ content, locale, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="text-secondary-400 hover:text-secondary-600 text-2xl"
+            className="text-secondary-400 hover:text-secondary-600 text-3xl leading-none flex-shrink-0"
           >
             ×
           </button>
@@ -476,11 +511,11 @@ function ContentDetailModal({ content, locale, onClose }) {
             <img
               src={content.thumbnailUrl}
               alt={title}
-              className="w-full h-auto rounded-lg mb-6"
+              className="w-full h-auto rounded-lg mb-6 shadow-md"
             />
           )}
           <div className="prose max-w-none">
-            <p className="text-secondary-700 whitespace-pre-wrap">{contentText}</p>
+            <p className="text-secondary-700 whitespace-pre-wrap leading-relaxed">{contentText}</p>
           </div>
 
           {recommendedVideos.length > 0 && content.type === "article" && (
@@ -507,7 +542,7 @@ function ReferencesSection({ references }) {
   if (!references || references.length === 0) return null;
 
   return (
-    <div className="mt-6">
+    <div>
       <h3 className="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
         <ExternalLink className="h-5 w-5" />
         {t("learning.references", { defaultValue: "References" })}
@@ -559,7 +594,7 @@ function RecommendedVideosSection({ videos }) {
   };
 
   return (
-    <div className="mt-6">
+    <div>
       <h3 className="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
         <Video className="h-5 w-5" />
         {t("learning.recommendedVideos", { defaultValue: "Recommended Videos" })}
