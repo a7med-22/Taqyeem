@@ -140,6 +140,7 @@ export const createEducationalContent = async (req, res, next) => {
       ? req.body.featured
       : false;
   const references = parseField(req.body.references) || [];
+  const recommendedVideos = parseField(req.body.recommendedVideos) || [];
   const isPublished =
     typeof req.body.isPublished === "string"
       ? req.body.isPublished === "true"
@@ -155,6 +156,9 @@ export const createEducationalContent = async (req, res, next) => {
       filePath: `educational-content/${req.user._id}`,
     });
     thumbnailUrl = uploadResult.secure_url;
+  } else if (type === "article" && req.body.thumbnailUrl) {
+    // Allow thumbnailUrl from request body (for JSON uploads)
+    thumbnailUrl = req.body.thumbnailUrl;
   }
 
   const educationalContent = await EducationalContent.create({
@@ -166,6 +170,7 @@ export const createEducationalContent = async (req, res, next) => {
     tags,
     featured,
     references,
+    recommendedVideos,
     thumbnailUrl,
     isPublished,
     publishedAt: isPublished ? new Date() : null,
@@ -214,6 +219,8 @@ export const bulkCreateEducationalContent = async (req, res, next) => {
         tags = [],
         featured = false,
         references = [],
+        recommendedVideos = [],
+        thumbnailUrl = null,
         isPublished = false,
       } = item;
 
@@ -227,7 +234,7 @@ export const bulkCreateEducationalContent = async (req, res, next) => {
         continue;
       }
 
-      // Create the content (no image upload for bulk - articles can be updated later with images)
+      // Create the content (thumbnailUrl can be provided as URL in bulk upload)
       const educationalContent = await EducationalContent.create({
         type,
         title,
@@ -237,7 +244,8 @@ export const bulkCreateEducationalContent = async (req, res, next) => {
         tags,
         featured,
         references,
-        thumbnailUrl: null, // No images in bulk upload
+        recommendedVideos,
+        thumbnailUrl: thumbnailUrl || null,
         isPublished,
         publishedAt: isPublished ? new Date() : null,
       });
@@ -305,6 +313,7 @@ export const updateEducationalContent = async (req, res, next) => {
       ? req.body.featured === "true" || req.body.featured === true
       : undefined;
   const references = parseField(req.body.references);
+  const recommendedVideos = parseField(req.body.recommendedVideos);
   const isPublished =
     req.body.isPublished !== undefined
       ? req.body.isPublished === "true" || req.body.isPublished === true
@@ -319,6 +328,7 @@ export const updateEducationalContent = async (req, res, next) => {
   if (tags !== undefined) updateData.tags = tags;
   if (featured !== undefined) updateData.featured = featured;
   if (references !== undefined) updateData.references = references;
+  if (recommendedVideos !== undefined) updateData.recommendedVideos = recommendedVideos;
   if (isPublished !== undefined) {
     updateData.isPublished = isPublished;
     updateData.publishedAt =
@@ -327,12 +337,16 @@ export const updateEducationalContent = async (req, res, next) => {
         : educationalContent.publishedAt;
   }
 
+  // Handle thumbnailUrl - either from file upload or request body
   if (req.file && educationalContent.type === "article") {
     const uploadResult = await uploadFile({
       file: req.file,
       filePath: `educational-content/${req.user._id}`,
     });
     updateData.thumbnailUrl = uploadResult.secure_url;
+  } else if (req.body.thumbnailUrl !== undefined && educationalContent.type === "article") {
+    // Allow updating thumbnailUrl from request body
+    updateData.thumbnailUrl = req.body.thumbnailUrl || null;
   }
 
   const updatedContent = await EducationalContent.findByIdAndUpdate(
