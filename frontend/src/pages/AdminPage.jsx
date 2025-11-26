@@ -1776,9 +1776,9 @@ export default function AdminPage() {
               {adminReservations.map((reservation) => (
                 <div
                   key={reservation._id || reservation.id}
-                  className="flex items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
                 >
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-secondary-900">
                         {reservation.candidateId?.name ||
@@ -1816,31 +1816,50 @@ export default function AdminPage() {
                           {formatTime(reservation.slotId.endTime)}
                         </p>
                       )}
+                      {reservation.status === "rejected" &&
+                        reservation.rejectionReason && (
+                          <div className="mt-2 p-2 bg-red-50 rounded-lg border border-red-200">
+                            <p className="text-xs text-red-700">
+                              <span className="font-medium">
+                                {t("reservations.rejectionReason", {
+                                  defaultValue: "Rejection Reason",
+                                })}
+                                :
+                              </span>{" "}
+                              {reservation.rejectionReason}
+                            </p>
+                          </div>
+                        )}
                     </div>
-                    <StatusBadge
-                      status={reservation.status}
-                      label={t(`status.${reservation.status}`, {
-                        defaultValue: reservation.status,
-                      })}
-                    />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <StatusBadge
+                        status={reservation.status}
+                        label={t(`status.${reservation.status}`, {
+                          defaultValue: reservation.status,
+                        })}
+                      />
+                    </div>
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() =>
-                      setReservationToDelete({
-                        id: reservation._id || reservation.id,
-                        candidateName: reservation.candidateId?.name,
-                      })
-                    }
-                    disabled={
-                      deleteAdminReservation.isPending ||
-                      (actioning?.id === (reservation._id || reservation.id) &&
-                        actioning?.type === "deleteReservation")
-                    }
-                  >
-                    {t("common.delete")}
-                  </Button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        setReservationToDelete({
+                          id: reservation._id || reservation.id,
+                          candidateName: reservation.candidateId?.name,
+                        })
+                      }
+                      disabled={
+                        deleteAdminReservation.isPending ||
+                        (actioning?.id ===
+                          (reservation._id || reservation.id) &&
+                          actioning?.type === "deleteReservation")
+                      }
+                    >
+                      {t("common.delete")}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
