@@ -762,7 +762,7 @@ export default function AdminPage() {
                   </a>
                 )}
                 <Button
-                  variant="success"
+                  variant="default"
                   size="sm"
                   onClick={() => handleApprove(candidate.id)}
                   disabled={isApproveLoading}
