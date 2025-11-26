@@ -23,7 +23,7 @@ const Button = forwardRef(
       destructive:
         "bg-red-500 hover:bg-red-600 text-white hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0",
       outline:
-        "border-2 border-cyan-300 bg-white text-cyan-700 hover:bg-cyan-50 hover:border-cyan-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+        "border-2 border-secondary-300 bg-white text-secondary-700 hover:bg-secondary-50 hover:border-secondary-400 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
       secondary:
         "bg-slate-600 hover:bg-slate-700 text-white hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
       ghost:
@@ -57,7 +57,7 @@ const Button = forwardRef(
       >
         {/* Shimmer effect for primary buttons */}
         {variant === "default" && (
-          <span className="absolute inset-0 -top-1 left-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer transition-opacity duration-300" />
+          <span className="absolute inset-0 -top-1 left-0 h-full w-full bg-linear-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer transition-opacity duration-300" />
         )}
         <span className="relative z-10">{props.children}</span>
       </Comp>

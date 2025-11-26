@@ -1445,9 +1445,9 @@ export default function AdminPage() {
           defaultValue: "Are you sure you want to delete this content? This action cannot be undone.",
           title: contentToDelete?.title || "",
         })}
-        confirmText={t("common.delete")}
-        cancelText={t("common.cancel")}
-        variant="destructive"
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
         isLoading={deleteContentMutation.isPending}
       />
     </div>
