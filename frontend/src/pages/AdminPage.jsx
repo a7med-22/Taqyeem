@@ -1,6 +1,8 @@
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
   BookOpen,
   CalendarClock,
   Edit,
@@ -999,10 +1001,15 @@ export default function AdminPage() {
                       className="flex flex-col gap-2 rounded-2xl border border-secondary-100 bg-secondary-50/40 p-3 text-sm text-secondary-700"
                     >
                       <div className="flex items-center justify-between">
-                        <p className="font-semibold text-secondary-900">
-                          {reservation.candidate?.name} →{" "}
-                          {reservation.interviewer?.name}
-                        </p>
+                        <div className="flex items-center gap-2 font-semibold text-secondary-900">
+                          <span>{reservation.candidate?.name}</span>
+                          {isRTL ? (
+                            <ArrowLeft className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                          ) : (
+                            <ArrowRight className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                          )}
+                          <span>{reservation.interviewer?.name}</span>
+                        </div>
                         <StatusBadge
                           status={reservation.status}
                           label={t(statusKey, {
@@ -1794,13 +1801,21 @@ export default function AdminPage() {
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
                     <div className="flex-1">
-                      <p className="text-sm font-semibold text-secondary-900">
-                        {reservation.candidateId?.name ||
-                          reservation.candidate?.name}{" "}
-                        →{" "}
-                        {reservation.interviewerId?.name ||
-                          reservation.interviewer?.name}
-                      </p>
+                      <div className="flex items-center gap-2 text-sm font-semibold text-secondary-900">
+                        <span>
+                          {reservation.candidateId?.name ||
+                            reservation.candidate?.name}
+                        </span>
+                        {isRTL ? (
+                          <ArrowLeft className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                        ) : (
+                          <ArrowRight className="w-5 h-5 text-primary-500 flex-shrink-0" />
+                        )}
+                        <span>
+                          {reservation.interviewerId?.name ||
+                            reservation.interviewer?.name}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-2 flex-wrap mt-1">
                         <p className="text-xs text-secondary-500">
                           {reservation.candidateId?.email ||
