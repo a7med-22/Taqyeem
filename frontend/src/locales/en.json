@@ -161,6 +161,8 @@
         "noTips": "No tips available",
         "noArticles": "No articles available",
         "references": "References",
+        "recommendedVideos": "Recommended Videos",
+        "videos": "video(s)",
         "minRead": "min read"
     },
     "profile": {
@@ -411,7 +413,11 @@
         "contentContentRequired": "Content in both languages is required",
         "contentCategoryRequired": "Category is required",
         "contentInvalidImageType": "Please select an image file",
-        "contentImageTooLarge": "Image size must be less than 5MB"
+        "contentImageTooLarge": "Image size must be less than 5MB",
+        "contentVideoUrl": "YouTube Video URL",
+        "contentVideoTitle": "Video Title (optional)",
+        "contentVideoDescription": "Description (optional)",
+        "addVideo": "Add Video"
     },
     "schedules": {
         "createSchedule": "Create Schedule",

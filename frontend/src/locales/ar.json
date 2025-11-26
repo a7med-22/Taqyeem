@@ -166,6 +166,8 @@
         "noTips": "لا توجد نصائح متاحة",
         "noArticles": "لا توجد مقالات متاحة",
         "references": "المراجع",
+        "recommendedVideos": "فيديوهات موصى بها",
+        "videos": "فيديو/فيديوهات",
         "minRead": "دقيقة قراءة"
     },
     "profile": {
@@ -416,7 +418,11 @@
         "contentContentRequired": "المحتوى باللغتين مطلوب",
         "contentCategoryRequired": "الفئة مطلوبة",
         "contentInvalidImageType": "يرجى اختيار ملف صورة",
-        "contentImageTooLarge": "يجب أن يكون حجم الصورة أقل من 5 ميجابايت"
+        "contentImageTooLarge": "يجب أن يكون حجم الصورة أقل من 5 ميجابايت",
+        "contentVideoUrl": "رابط فيديو يوتيوب",
+        "contentVideoTitle": "عنوان الفيديو (اختياري)",
+        "contentVideoDescription": "الوصف (اختياري)",
+        "addVideo": "إضافة فيديو"
     },
     "schedules": {
         "createSchedule": "إنشاء جدول",

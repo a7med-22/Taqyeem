@@ -10,7 +10,7 @@ import {
 } from "../components/ui/Card.jsx";
 import PageHeader from "../components/ui/PageHeader.jsx";
 import { Input } from "../components/ui/Input.jsx";
-import { Search, HelpCircle, Lightbulb, BookOpen, ExternalLink } from "lucide-react";
+import { Search, HelpCircle, Lightbulb, BookOpen, ExternalLink, Video } from "lucide-react";
 import { useLearningContent, useLearningCategories } from "../hooks/api.js";
 import { formatDate } from "../utils/helpers.js";
 
@@ -409,11 +409,19 @@ function ArticlesList({ articles, locale }) {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-secondary-600 line-clamp-3">{preview}</p>
-                {article.references && article.references.length > 0 && (
-                  <p className="text-xs text-primary-600 mt-2">
-                    {article.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
-                  </p>
-                )}
+                <div className="flex items-center gap-3 mt-2 text-xs">
+                  {article.references && article.references.length > 0 && (
+                    <p className="text-primary-600">
+                      {article.references.length} {t("learning.references", { defaultValue: "reference(s)" })}
+                    </p>
+                  )}
+                  {article.recommendedVideos && article.recommendedVideos.length > 0 && (
+                    <p className="text-cyan-600 flex items-center gap-1">
+                      <Video className="w-3 h-3" />
+                      {article.recommendedVideos.length} {t("learning.videos", { defaultValue: "video(s)" })}
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           );
@@ -437,6 +445,7 @@ function ContentDetailModal({ content, locale, onClose }) {
   const title = content.title?.[locale] || content.title?.en || "";
   const contentText = content.content?.[locale] || content.content?.en || "";
   const references = content.references || [];
+  const recommendedVideos = content.recommendedVideos || [];
   const readingTime = content.readingTime?.[locale] || content.readingTime?.en || 0;
 
   return (
@@ -473,6 +482,12 @@ function ContentDetailModal({ content, locale, onClose }) {
           <div className="prose max-w-none">
             <p className="text-secondary-700 whitespace-pre-wrap">{contentText}</p>
           </div>
+
+          {recommendedVideos.length > 0 && content.type === "article" && (
+            <div className="mt-8 pt-6 border-t border-secondary-200">
+              <RecommendedVideosSection videos={recommendedVideos} />
+            </div>
+          )}
 
           {references.length > 0 && (
             <div className="mt-8 pt-6 border-t border-secondary-200">
@@ -518,6 +533,79 @@ function ReferencesSection({ references }) {
             </div>
           </a>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// Recommended Videos Section Component
+function RecommendedVideosSection({ videos }) {
+  const { t } = useTranslation();
+
+  if (!videos || videos.length === 0) return null;
+
+  // Extract YouTube video ID from URL
+  const getYouTubeVideoId = (url) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
+    return match ? match[1] : null;
+  };
+
+  // Get YouTube thumbnail URL
+  const getYouTubeThumbnail = (url) => {
+    const videoId = getYouTubeVideoId(url);
+    if (!videoId) return null;
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+  };
+
+  return (
+    <div className="mt-6">
+      <h3 className="text-lg font-semibold text-secondary-900 mb-4 flex items-center gap-2">
+        <Video className="h-5 w-5" />
+        {t("learning.recommendedVideos", { defaultValue: "Recommended Videos" })}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {videos.map((video, index) => {
+          const thumbnail = getYouTubeThumbnail(video.url);
+          return (
+            <a
+              key={index}
+              href={video.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block border border-secondary-200 rounded-lg hover:border-cyan-300 hover:bg-cyan-50 transition-colors overflow-hidden group"
+            >
+              {thumbnail && (
+                <div className="aspect-video w-full overflow-hidden bg-secondary-100 relative">
+                  <img
+                    src={thumbnail}
+                    alt={video.title || "Video thumbnail"}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-red-600/90 flex items-center justify-center shadow-lg">
+                      <svg
+                        className="w-8 h-8 text-white ml-1"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="p-4">
+                <h4 className="font-semibold text-secondary-900 mb-1 line-clamp-2">
+                  {video.title || video.url}
+                </h4>
+                {video.description && (
+                  <p className="text-sm text-secondary-600 mt-1 line-clamp-2">{video.description}</p>
+                )}
+              </div>
+            </a>
+          );
+        })}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, Video } from "lucide-react";
 import { Button } from "./Button.jsx";
 import { Input } from "./Input.jsx";
 
@@ -22,10 +22,12 @@ export function CreateEditContentDialog({
     tags: [],
     featured: false,
     references: [],
+    recommendedVideos: [],
     isPublished: false,
   });
   const [currentTag, setCurrentTag] = useState("");
   const [currentReference, setCurrentReference] = useState({ url: "", title: "", description: "" });
+  const [currentVideo, setCurrentVideo] = useState({ url: "", title: "", description: "" });
   const [thumbnailFile, setThumbnailFile] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
 
@@ -39,6 +41,7 @@ export function CreateEditContentDialog({
         tags: content.tags || [],
         featured: content.featured || false,
         references: content.references || [],
+        recommendedVideos: content.recommendedVideos || [],
         isPublished: content.isPublished || false,
       });
       setThumbnailPreview(content.thumbnailUrl || null);
@@ -53,6 +56,7 @@ export function CreateEditContentDialog({
         tags: [],
         featured: false,
         references: [],
+        recommendedVideos: [],
         isPublished: false,
       });
       setThumbnailFile(null);
@@ -111,6 +115,23 @@ export function CreateEditContentDialog({
     }));
   };
 
+  const handleAddVideo = () => {
+    if (currentVideo.url.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        recommendedVideos: [...prev.recommendedVideos, { ...currentVideo }],
+      }));
+      setCurrentVideo({ url: "", title: "", description: "" });
+    }
+  };
+
+  const handleRemoveVideo = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      recommendedVideos: prev.recommendedVideos.filter((_, i) => i !== index),
+    }));
+  };
+
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -159,6 +180,9 @@ export function CreateEditContentDialog({
     submitData.append("featured", formData.featured);
     submitData.append("isPublished", formData.isPublished);
     submitData.append("references", JSON.stringify(formData.references));
+    if (formData.type === "article") {
+      submitData.append("recommendedVideos", JSON.stringify(formData.recommendedVideos));
+    }
     
     if (thumbnailFile) {
       submitData.append("thumbnail", thumbnailFile);
@@ -380,6 +404,82 @@ export function CreateEditContentDialog({
               </div>
             )}
           </div>
+
+          {/* Recommended Videos (for articles only) */}
+          {formData.type === "article" && (
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-2 flex items-center gap-2">
+                <Video className="w-4 h-4" />
+                {t("learning.recommendedVideos", { defaultValue: "Recommended Videos" })}
+              </label>
+              <div className="space-y-3 mb-3">
+                <Input
+                  value={currentVideo.url}
+                  onChange={(e) =>
+                    setCurrentVideo({ ...currentVideo, url: e.target.value })
+                  }
+                  placeholder={t("admin.contentVideoUrl", { defaultValue: "YouTube Video URL" })}
+                  disabled={isLoading}
+                  variant="modern"
+                />
+                <Input
+                  value={currentVideo.title}
+                  onChange={(e) =>
+                    setCurrentVideo({ ...currentVideo, title: e.target.value })
+                  }
+                  placeholder={t("admin.contentVideoTitle", { defaultValue: "Video Title (optional)" })}
+                  disabled={isLoading}
+                  variant="modern"
+                />
+                <Input
+                  value={currentVideo.description}
+                  onChange={(e) =>
+                    setCurrentVideo({ ...currentVideo, description: e.target.value })
+                  }
+                  placeholder={t("admin.contentVideoDescription", { defaultValue: "Description (optional)" })}
+                  disabled={isLoading}
+                  variant="modern"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddVideo}
+                  disabled={isLoading || !currentVideo.url.trim()}
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t("admin.addVideo", { defaultValue: "Add Video" })}
+                </Button>
+              </div>
+              {formData.recommendedVideos.length > 0 && (
+                <div className="space-y-2">
+                  {formData.recommendedVideos.map((video, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start justify-between gap-2 p-3 bg-cyan-50 rounded-lg"
+                    >
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-secondary-900">
+                          {video.title || video.url}
+                        </p>
+                        {video.description && (
+                          <p className="text-xs text-secondary-600 mt-1">{video.description}</p>
+                        )}
+                        <p className="text-xs text-cyan-600 mt-1 break-all">{video.url}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveVideo(index)}
+                        disabled={isLoading}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* References */}
           <div>
