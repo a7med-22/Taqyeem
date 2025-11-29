@@ -34,6 +34,7 @@
         "interviews": "المقابلات",
         "learning": "التعلم",
         "profile": "الملف الشخصي",
+        "evaluations": "التقييمات",
         "admin": "الإدارة",
         "login": "تسجيل الدخول",
         "register": "التسجيل",
@@ -140,7 +141,9 @@
         "selectSlotToBook": "اختر وقتاً لمتابعة الحجز",
         "selectDuration": "اختر مدة الجلسة:",
         "selectDayAndSlot": "اختر يوماً ووقتاً متاحاً للحجز",
-        "noSlotsAvailable": "لا توجد أوقات متاحة حالياً"
+        "noSlotsAvailable": "لا توجد أوقات متاحة حالياً",
+        "mySessions": "جلسات المقابلات الخاصة بي",
+        "mySessionsDescription": "جلسات المقابلات المجدولة والنشطة الخاصة بك"
     },
     "learning": {
         "subtitle": "تعلم من الأسئلة الشائعة والنصائح والمقالات لدينا",
@@ -496,7 +499,10 @@
         "reject": "رفض",
         "bookingSuccess": "تم إرسال طلب الحجز بنجاح! في انتظار تأكيد المحاور.",
         "acceptSuccess": "تم قبول الحجز بنجاح!",
-        "rejectSuccess": "تم رفض الحجز بنجاح."
+        "rejectSuccess": "تم رفض الحجز بنجاح.",
+        "joinSession": "انضم للجلسة",
+        "viewSession": "عرض الجلسة",
+        "sessionLoading": "جاري تحميل الجلسة..."
     },
     "sessions": {
         "interviewSession": "جلسة المقابلة",
@@ -533,6 +539,12 @@
         "evaluationSaved": "تم حفظ التقييم!",
         "evaluationError": "فشل في حفظ التقييم",
         "evaluationUpdated": "تم تحديث التقييم!",
+        "evaluationResults": "نتائج التقييم",
+        "loadingEvaluation": "جاري تحميل التقييم...",
+        "noEvaluation": "التقييم غير متاح بعد",
+        "overallScore": "النتيجة الإجمالية",
+        "comment": "تعليق",
+        "evaluationAvailable": "نتائج التقييم الخاصة بك متاحة في الشريط الجانبي.",
         "addComment": "أضف تعليقاً...",
         "generalNotes": "ملاحظات عامة",
         "notesPlaceholder": "ملاحظات إضافية...",
@@ -574,6 +586,9 @@
         "videoToggleError": "فشل في تبديل الكاميرا",
         "screenShareDenied": "تم رفض إذن مشاركة الشاشة",
         "screenShareError": "فشل في تبديل مشاركة الشاشة",
+        "screenShareNotSupported": "مشاركة الشاشة غير مدعومة في هذا المتصفح.",
+        "mediaDevicesNotSupported": "الوصول إلى الكاميرا والميكروفون غير مدعوم في هذا المتصفح. يرجى استخدام متصفح حديث مع HTTPS.",
+        "httpsRequired": "مكالمات الفيديو تتطلب HTTPS. يرجى الوصول إلى هذه الصفحة عبر HTTPS.",
         "uidError": "تنسيق معرف المستخدم غير صحيح",
         "tokenIncomplete": "بيانات الرمز المميز غير مكتملة. يرجى المحاولة مرة أخرى."
     },
@@ -581,6 +596,16 @@
         "communication": "التواصل",
         "technical": "المهارات التقنية",
         "problemSolving": "حل المشكلات",
-        "confidence": "الثقة"
+        "confidence": "الثقة",
+        "myEvaluations": "تقييماتي",
+        "candidateSubtitle": "عرض جميع نتائج تقييمات المقابلات الخاصة بك",
+        "interviewerSubtitle": "عرض جميع التقييمات التي قمت بإنشائها",
+        "noEvaluations": "لا توجد تقييمات بعد",
+        "noEvaluationsDescription": "ستظهر تقييمات مقابلاتك هنا بمجرد اكتمال الجلسات.",
+        "noEvaluationsDescriptionInterviewer": "ستظهر التقييمات التي تقوم بإنشائها هنا.",
+        "interviewer": "المقابل",
+        "candidate": "المرشح",
+        "notes": "ملاحظات",
+        "viewSession": "عرض الجلسة"
     }
 }

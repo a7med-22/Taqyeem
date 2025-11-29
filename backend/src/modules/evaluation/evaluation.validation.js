@@ -5,17 +5,25 @@ import { generalRules } from "../../utils/validation-rules.js";
 export const createEvaluationSchema = {
   body: Joi.object({
     sessionId: generalRules.mongoId("Session ID").required(),
-    technicalSkills: generalRules.rating("Technical skills rating").required(),
-    communicationSkills: generalRules
-      .rating("Communication skills rating")
-      .required(),
-    problemSolving: generalRules.rating("Problem solving rating").required(),
-    overallRating: generalRules.rating("Overall rating").required(),
-    strengths: generalRules.text("Strengths", 1, 1000).optional(),
-    areasForImprovement: generalRules
-      .text("Areas for improvement", 1, 1000)
-      .optional(),
-    additionalNotes: generalRules.text("Additional notes", 1, 1000).optional(),
+    criteria: Joi.object({
+      communication: Joi.object({
+        score: generalRules.rating("Communication score", 1, 10).required(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).required(),
+      technical: Joi.object({
+        score: generalRules.rating("Technical score", 1, 10).required(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).required(),
+      problemSolving: Joi.object({
+        score: generalRules.rating("Problem solving score", 1, 10).required(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).required(),
+      confidence: Joi.object({
+        score: generalRules.rating("Confidence score", 1, 10).required(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).required(),
+    }).required(),
+    notes: Joi.string().max(1000).allow("").optional(),
   }),
 };
 
@@ -23,17 +31,26 @@ export const createEvaluationSchema = {
 export const updateEvaluationSchema = {
   params: generalRules.paramsWithId("Evaluation ID"),
   body: Joi.object({
-    technicalSkills: generalRules.rating("Technical skills rating").optional(),
-    communicationSkills: generalRules
-      .rating("Communication skills rating")
-      .optional(),
-    problemSolving: generalRules.rating("Problem solving rating").optional(),
-    overallRating: generalRules.rating("Overall rating").optional(),
-    strengths: generalRules.text("Strengths", 1, 1000).optional(),
-    areasForImprovement: generalRules
-      .text("Areas for improvement", 1, 1000)
-      .optional(),
-    additionalNotes: generalRules.text("Additional notes", 1, 1000).optional(),
+    criteria: Joi.object({
+      communication: Joi.object({
+        score: generalRules.rating("Communication score", 1, 10).optional(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).optional(),
+      technical: Joi.object({
+        score: generalRules.rating("Technical score", 1, 10).optional(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).optional(),
+      problemSolving: Joi.object({
+        score: generalRules.rating("Problem solving score", 1, 10).optional(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).optional(),
+      confidence: Joi.object({
+        score: generalRules.rating("Confidence score", 1, 10).optional(),
+        comment: Joi.string().max(500).allow("").optional(),
+      }).optional(),
+    }).optional(),
+    notes: Joi.string().max(1000).allow("").optional(),
+    isCompleted: Joi.boolean().optional(),
   }),
 };
 

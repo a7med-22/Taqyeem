@@ -55,7 +55,10 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
   const createEvaluation = useMutation({
     mutationFn: evaluationsAPI.createEvaluation,
     onSuccess: () => {
+      // Invalidate and refetch queries
       queryClient.invalidateQueries(["evaluation", sessionId]);
+      queryClient.invalidateQueries(["my-evaluations"]);
+      queryClient.refetchQueries(["my-evaluations"]);
       toast.success(
         t("sessions.evaluationSaved", { defaultValue: "Evaluation saved!" })
       );
@@ -76,11 +79,25 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
   const updateEvaluation = useMutation({
     mutationFn: ({ id, data }) => evaluationsAPI.updateEvaluation(id, data),
     onSuccess: () => {
+      // Invalidate and refetch queries
       queryClient.invalidateQueries(["evaluation", sessionId]);
+      queryClient.invalidateQueries(["my-evaluations"]);
+      queryClient.refetchQueries(["my-evaluations"]);
       toast.success(
         t("sessions.evaluationUpdated", {
           defaultValue: "Evaluation updated!",
         })
+      );
+      if (onEvaluationSubmit) {
+        onEvaluationSubmit();
+      }
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message ||
+          t("sessions.evaluationError", {
+            defaultValue: "Failed to update evaluation",
+          })
       );
     },
   });
@@ -188,30 +205,34 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
   };
 
   const handleSubmit = () => {
+    const evaluationData = {
+      criteria: {
+        communication: {
+          score: scores.communication,
+          comment: comments.communication || "",
+        },
+        technical: {
+          score: scores.technical,
+          comment: comments.technical || "",
+        },
+        problemSolving: {
+          score: scores.problemSolving,
+          comment: comments.problemSolving || "",
+        },
+        confidence: {
+          score: scores.confidence,
+          comment: comments.confidence || "",
+        },
+      },
+      notes: notes || "",
+    };
+
     if (existingEvaluation) {
       // Update existing
       updateEvaluation.mutate({
         id: existingEvaluation._id,
         data: {
-          criteria: {
-            communication: {
-              score: scores.communication,
-              comment: comments.communication,
-            },
-            technical: {
-              score: scores.technical,
-              comment: comments.technical,
-            },
-            problemSolving: {
-              score: scores.problemSolving,
-              comment: comments.problemSolving,
-            },
-            confidence: {
-              score: scores.confidence,
-              comment: comments.confidence,
-            },
-          },
-          notes,
+          ...evaluationData,
           isCompleted: true,
         },
       });
@@ -219,25 +240,7 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
       // Create new
       createEvaluation.mutate({
         sessionId,
-        criteria: {
-          communication: {
-            score: scores.communication,
-            comment: comments.communication,
-          },
-          technical: {
-            score: scores.technical,
-            comment: comments.technical,
-          },
-          problemSolving: {
-            score: scores.problemSolving,
-            comment: comments.problemSolving,
-          },
-          confidence: {
-            score: scores.confidence,
-            comment: comments.confidence,
-          },
-        },
-        notes,
+        ...evaluationData,
       });
     }
   };

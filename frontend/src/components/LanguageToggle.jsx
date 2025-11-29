@@ -262,6 +262,40 @@ export function UserMenu() {
                 </motion.div>
               )}
 
+              {/* Evaluations - Show for candidates and interviewers */}
+              {(user.role === USER_ROLES.CANDIDATE || user.role === USER_ROLES.INTERVIEWER) && (
+                <motion.div variants={itemVariants}>
+                  <NavLink
+                    to={ROUTES.EVALUATIONS}
+                    onClick={() => setIsDropdownOpen(false)}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                        isActive
+                          ? "bg-accent-50 text-accent-700"
+                          : "text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+                      }`
+                    }
+                  >
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent-100 text-accent-600">
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    {t("navigation.evaluations")}
+                  </NavLink>
+                </motion.div>
+              )}
+
               <div className="h-px bg-secondary-200 mx-4 my-2"></div>
 
               <motion.div variants={itemVariants}>

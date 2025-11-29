@@ -34,6 +34,7 @@
         "interviews": "Interviews",
         "learning": "Learning",
         "profile": "Profile",
+        "evaluations": "Evaluations",
         "admin": "Admin",
         "login": "Login",
         "register": "Register",
@@ -135,7 +136,9 @@
         "selectSlotToBook": "Select a slot to continue booking",
         "selectDuration": "Select session duration:",
         "selectDayAndSlot": "Select a day and available slot to book",
-        "noSlotsAvailable": "No available slots at this time"
+        "noSlotsAvailable": "No available slots at this time",
+        "mySessions": "My Interview Sessions",
+        "mySessionsDescription": "Your scheduled and active interview sessions"
     },
     "learning": {
         "subtitle": "Learn from our FAQs, tips, and articles",
@@ -491,7 +494,10 @@
         "reject": "Reject",
         "bookingSuccess": "Booking request sent successfully! Waiting for interviewer confirmation.",
         "acceptSuccess": "Reservation accepted successfully!",
-        "rejectSuccess": "Reservation rejected successfully."
+        "rejectSuccess": "Reservation rejected successfully.",
+        "joinSession": "Join Session",
+        "viewSession": "View Session",
+        "sessionLoading": "Loading session..."
     },
     "sessions": {
         "interviewSession": "Interview Session",
@@ -528,6 +534,12 @@
         "evaluationSaved": "Evaluation saved!",
         "evaluationError": "Failed to save evaluation",
         "evaluationUpdated": "Evaluation updated!",
+        "evaluationResults": "Evaluation Results",
+        "loadingEvaluation": "Loading evaluation...",
+        "noEvaluation": "Evaluation not available yet",
+        "overallScore": "Overall Score",
+        "comment": "Comment",
+        "evaluationAvailable": "Your evaluation results are available in the sidebar.",
         "addComment": "Add comment...",
         "generalNotes": "General Notes",
         "notesPlaceholder": "Additional notes...",
@@ -569,6 +581,9 @@
         "videoToggleError": "Failed to toggle camera",
         "screenShareDenied": "Screen sharing permission denied",
         "screenShareError": "Failed to toggle screen sharing",
+        "screenShareNotSupported": "Screen sharing is not supported in this browser.",
+        "mediaDevicesNotSupported": "Camera and microphone access is not supported in this browser. Please use a modern browser with HTTPS.",
+        "httpsRequired": "Video calls require HTTPS. Please access this page over HTTPS.",
         "uidError": "Invalid user ID format",
         "tokenIncomplete": "Token data is incomplete. Please try again."
     },
@@ -576,6 +591,16 @@
         "communication": "Communication",
         "technical": "Technical Skills",
         "problemSolving": "Problem Solving",
-        "confidence": "Confidence"
+        "confidence": "Confidence",
+        "myEvaluations": "My Evaluations",
+        "candidateSubtitle": "View all your interview evaluation results",
+        "interviewerSubtitle": "View all evaluations you've created",
+        "noEvaluations": "No evaluations yet",
+        "noEvaluationsDescription": "Your interview evaluations will appear here once your sessions are completed.",
+        "noEvaluationsDescriptionInterviewer": "Evaluations you create will appear here.",
+        "interviewer": "Interviewer",
+        "candidate": "Candidate",
+        "notes": "Notes",
+        "viewSession": "View Session"
     }
 }

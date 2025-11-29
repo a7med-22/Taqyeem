@@ -45,7 +45,7 @@ export default function SlotsCalendar({
   onBookSlot,
   bookedSlotIds = [],
   pendingReservationSlotIds = [],
-  acceptedReservationSlotIds = [],
+  acceptedReservationSlotIds = [], // eslint-disable-line no-unused-vars
 }) {
   const { t, i18n } = useTranslation();
   const [bookingSlotId, setBookingSlotId] = useState(null);
@@ -54,7 +54,6 @@ export default function SlotsCalendar({
   const handleSlotClick = (slot) => {
     if (slot.status !== "available") return;
     if (bookedSlotIds.includes(slot._id)) return;
-    console.log("Slot selected:", slot);
     setSelectedSlot(slot);
   };
 
@@ -137,26 +136,22 @@ export default function SlotsCalendar({
       {/* Color Legend */}
       <div className="bg-white rounded-lg border border-secondary-200 p-4 shadow-sm">
         <h4 className="text-sm font-semibold text-secondary-700 mb-3">
-          {t("slots.colorLegend", "Slot Status Colors")}:
+          {t("slots.colorLegend")}:
         </h4>
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-cyan-100 border border-cyan-300"></div>
             <span className="text-secondary-600">
-              {t("slots.availableSlot", "Available - You can book")}
+              {t("slots.availableSlot")}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-amber-100 border border-amber-200"></div>
-            <span className="text-secondary-600">
-              {t("slots.pendingSlot", "Pending - Not accepted yet")}
-            </span>
+            <span className="text-secondary-600">{t("slots.pendingSlot")}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-500"></div>
-            <span className="text-secondary-600">
-              {t("slots.bookedSlot", "Booked - Already reserved")}
-            </span>
+            <span className="text-secondary-600">{t("slots.bookedSlot")}</span>
           </div>
         </div>
       </div>

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Video, Loader2 } from "lucide-react";
+import { ArrowLeft, Video, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import VideoCall from "../components/sessions/VideoCall.jsx";
 import QuestionsSidebar from "../components/sessions/QuestionsSidebar.jsx";
 import LiveEvaluationForm from "../components/sessions/LiveEvaluationForm.jsx";
+import EvaluationDisplay from "../components/sessions/EvaluationDisplay.jsx";
 import {
   useSession,
   useStartSession,
@@ -132,6 +133,7 @@ export default function SessionPage() {
   const canJoinCall =
     session?.status === "in-progress" && !isCallActive;
   const showVideoCall = isCallActive && session?.status === "in-progress";
+  const showEvaluation = session?.status === "completed" && isCandidate;
 
   return (
     <div className={`min-h-screen bg-animated py-8 ${isRTL ? "rtl" : "ltr"}`}>
@@ -205,6 +207,36 @@ export default function SessionPage() {
                 />
               </div>
             )}
+          </div>
+        ) : showEvaluation ? (
+          <div className="flex gap-4 h-[calc(100vh-200px)]">
+            {/* Session Info - Takes 70% width */}
+            <div className="flex-1 bg-white rounded-2xl border border-secondary-200 p-8">
+              <div className="flex flex-col items-center justify-center h-full text-center">
+                <CheckCircle2 className="w-16 h-16 text-green-600 mb-4" />
+                <h3 className="text-2xl font-semibold text-secondary-900 mb-2">
+                  {t("sessions.sessionCompleted", {
+                    defaultValue: "Session Completed",
+                  })}
+                </h3>
+                <p className="text-secondary-600 mb-4">
+                  {t("sessions.evaluationAvailable", {
+                    defaultValue: "Your evaluation results are available in the sidebar.",
+                  })}
+                </p>
+                <div className="text-sm text-secondary-500">
+                  <p>
+                    {formatDate(session.date, i18n.language)} ·{" "}
+                    {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Evaluation Display - 30% width */}
+            <div className="w-80">
+              <EvaluationDisplay sessionId={id} />
+            </div>
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-secondary-200 p-8 text-center">

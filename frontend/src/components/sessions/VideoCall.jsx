@@ -58,6 +58,41 @@ export default function VideoCall({
 
         console.log("Initializing WebRTC for session:", sessionId);
 
+        // Check if getUserMedia is available
+        if (!navigator.mediaDevices) {
+          // Fallback for older browsers
+          if (!navigator.getUserMedia && !navigator.webkitGetUserMedia && !navigator.mozGetUserMedia) {
+            throw new Error(
+              t("session.mediaDevicesNotSupported", {
+                defaultValue:
+                  "Camera and microphone access is not supported in this browser. Please use a modern browser with HTTPS.",
+              })
+            );
+          }
+        } else if (!navigator.mediaDevices.getUserMedia) {
+          throw new Error(
+            t("session.mediaDevicesNotSupported", {
+              defaultValue:
+                "Camera and microphone access is not supported in this browser. Please use a modern browser with HTTPS.",
+            })
+          );
+        }
+
+        // Check if we're on HTTPS or localhost (required for getUserMedia)
+        const isSecureContext = window.isSecureContext || 
+          window.location.protocol === 'https:' || 
+          window.location.hostname === 'localhost' || 
+          window.location.hostname === '127.0.0.1';
+        
+        if (!isSecureContext) {
+          throw new Error(
+            t("session.httpsRequired", {
+              defaultValue:
+                "Video calls require HTTPS. Please access this page over HTTPS.",
+            })
+          );
+        }
+
         // Get user media (camera and microphone)
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
@@ -234,6 +269,8 @@ export default function VideoCall({
               defaultValue: "Camera/microphone is being used by another application.",
             })
           );
+        } else if (error.message && error.message.includes("not supported")) {
+          setError(error.message);
         } else {
           setError(
             error.message ||
@@ -307,6 +344,15 @@ export default function VideoCall({
     try {
       if (isScreenSharing) {
         // Stop screen sharing - restore camera
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          toast.error(
+            t("session.mediaDevicesNotSupported", {
+              defaultValue:
+                "Camera access is not supported in this browser.",
+            })
+          );
+          return;
+        }
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             width: { ideal: 1280 },
@@ -339,6 +385,15 @@ export default function VideoCall({
         setIsScreenSharing(false);
       } else {
         // Start screen sharing
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+          toast.error(
+            t("session.screenShareNotSupported", {
+              defaultValue:
+                "Screen sharing is not supported in this browser.",
+            })
+          );
+          return;
+        }
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
           video: {
             cursor: "always",

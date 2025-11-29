@@ -119,7 +119,12 @@ evaluationSchema.index({ sessionId: 1 }, { unique: true });
 
 // Calculate overall score before saving
 evaluationSchema.pre("save", function (next) {
-  if (this.isModified("criteria")) {
+  // Always calculate overallScore if criteria exists (for both new and updated documents)
+  if (this.criteria && 
+      this.criteria.communication?.score !== undefined &&
+      this.criteria.technical?.score !== undefined &&
+      this.criteria.problemSolving?.score !== undefined &&
+      this.criteria.confidence?.score !== undefined) {
     const scores = [
       this.criteria.communication.score,
       this.criteria.technical.score,

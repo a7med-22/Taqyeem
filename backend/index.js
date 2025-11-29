@@ -1,9 +1,9 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import { createServer } from "http";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import { createServer } from "http";
 
 // Import database connection
 import connectDB from "./src/DB/connection.js";

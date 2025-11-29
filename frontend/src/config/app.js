@@ -24,6 +24,7 @@ export const ROUTES = {
   INTERVIEWS: "/interviews",
   SESSION: "/session/:id",
   LEARNING: "/learning",
+  EVALUATIONS: "/evaluations",
   ADMIN: "/admin",
   SHOWCASE: "/showcase",
 };

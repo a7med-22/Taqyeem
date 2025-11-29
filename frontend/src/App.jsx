@@ -11,6 +11,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 // Import pages
 import AdminPage from "./pages/AdminPage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import EvaluationsPage from "./pages/EvaluationsPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import InterviewsPage from "./pages/InterviewsPage.jsx";
 import LearningPage from "./pages/LearningPage.jsx";
@@ -99,6 +100,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ProfilePage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path={ROUTES.EVALUATIONS}
+                  element={
+                    <ProtectedRoute>
+                      <EvaluationsPage />
                     </ProtectedRoute>
                   }
                 />

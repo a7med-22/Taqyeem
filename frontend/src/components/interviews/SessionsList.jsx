@@ -21,12 +21,10 @@ export default function SessionsList({ sessions, isInterviewer }) {
       <div className="text-center py-12">
         <Video className="mx-auto h-12 w-12 text-secondary-400" />
         <h3 className="mt-2 text-sm font-medium text-secondary-900">
-          {t("sessions.noSessions", { defaultValue: "No sessions found" })}
+          {t("sessions.noSessions")}
         </h3>
         <p className="mt-1 text-sm text-secondary-500">
-          {t("sessions.noSessionsDescription", {
-            defaultValue: "Your interview sessions will appear here",
-          })}
+          {t("sessions.noSessionsDescription")}
         </p>
       </div>
     );
@@ -50,13 +48,13 @@ export default function SessionsList({ sessions, isInterviewer }) {
   const getStatusText = (status) => {
     switch (status) {
       case "scheduled":
-        return t("sessions.scheduled", { defaultValue: "Scheduled" });
+        return t("sessions.scheduled");
       case "in-progress":
-        return t("sessions.inProgress", { defaultValue: "In Progress" });
+        return t("sessions.inProgress");
       case "completed":
-        return t("sessions.completed", { defaultValue: "Completed" });
+        return t("sessions.completed");
       case "cancelled":
-        return t("sessions.cancelled", { defaultValue: "Cancelled" });
+        return t("sessions.cancelled");
       default:
         return status;
     }
@@ -126,12 +124,8 @@ export default function SessionsList({ sessions, isInterviewer }) {
                   >
                     <Video className="w-4 h-4 mr-2" />
                     {session.status === "in-progress"
-                      ? t("sessions.joinSession", {
-                          defaultValue: "Join Session",
-                        })
-                      : t("sessions.viewSession", {
-                          defaultValue: "View Session",
-                        })}
+                      ? t("sessions.joinSession")
+                      : t("sessions.viewSession")}
                   </Button>
                 )}
               </div>

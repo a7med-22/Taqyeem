@@ -201,14 +201,10 @@ export default function InterviewsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Video className="w-5 h-5 text-primary-600" />
-                    {t("interviews.mySessions", {
-                      defaultValue: "My Interview Sessions",
-                    })}
+                    {t("interviews.mySessions")}
                   </CardTitle>
                   <CardDescription>
-                    {t("interviews.mySessionsDescription", {
-                      defaultValue: "Your scheduled and active interview sessions",
-                    })}
+                    {t("interviews.mySessionsDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -373,14 +369,10 @@ export default function InterviewsPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Video className="w-5 h-5 text-primary-600" />
-                    {t("interviews.mySessions", {
-                      defaultValue: "My Interview Sessions",
-                    })}
+                    {t("interviews.mySessions")}
                   </CardTitle>
                   <CardDescription>
-                    {t("interviews.mySessionsDescription", {
-                      defaultValue: "Your scheduled and active interview sessions",
-                    })}
+                    {t("interviews.mySessionsDescription")}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

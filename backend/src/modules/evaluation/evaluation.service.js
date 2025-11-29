@@ -8,14 +8,15 @@ import { successResponse } from "../../utils/index.js";
 export const createEvaluation = async (req, res, next) => {
   const { sessionId, criteria, notes } = req.body;
 
-  // Check if session exists and is completed
+  // Check if session exists
   const session = await Session.findById(sessionId);
   if (!session) {
     throw new Error("Session not found", { cause: 404 });
   }
 
-  if (session.status !== "completed") {
-    throw new Error("Session must be completed before evaluation", {
+  // Allow creating evaluations during in-progress or completed sessions
+  if (session.status !== "in-progress" && session.status !== "completed") {
+    throw new Error("Session must be in progress or completed to create evaluation", {
       cause: 400,
     });
   }
@@ -33,6 +34,26 @@ export const createEvaluation = async (req, res, next) => {
     });
   }
 
+  // Set isCompleted based on session status
+  const isCompleted = session.status === "completed";
+
+  // Calculate overallScore from criteria scores
+  const scores = [
+    criteria.communication?.score,
+    criteria.technical?.score,
+    criteria.problemSolving?.score,
+    criteria.confidence?.score,
+  ];
+  
+  // Validate all scores are present
+  if (scores.some(score => score === undefined || score === null)) {
+    throw new Error("All criterion scores are required", { cause: 400 });
+  }
+
+  const overallScore = Math.round(
+    scores.reduce((sum, score) => sum + score, 0) / scores.length
+  );
+
   const evaluation = await Evaluation.create({
     sessionId,
     candidateId: session.candidateId,
@@ -40,6 +61,8 @@ export const createEvaluation = async (req, res, next) => {
     criteria,
     notes,
     evaluationType: "manual",
+    isCompleted,
+    overallScore, // Set explicitly to ensure it's present
   });
 
   await evaluation.populate("sessionId", "date startTime endTime");
@@ -90,7 +113,7 @@ export const getEvaluationBySession = async (req, res, next) => {
 // @route   PUT /api/v1/evaluations/:id
 // @access  Private/Interviewer
 export const updateEvaluation = async (req, res, next) => {
-  const { criteria, notes } = req.body;
+  const { criteria, notes, isCompleted } = req.body;
 
   const evaluation = await Evaluation.findById(req.params.id);
   if (!evaluation) {
@@ -102,9 +125,29 @@ export const updateEvaluation = async (req, res, next) => {
     throw new Error("Not authorized to update this evaluation", { cause: 403 });
   }
 
+  const updateData = {};
+  if (criteria) {
+    updateData.criteria = criteria;
+    // Recalculate overallScore if criteria is being updated
+    const scores = [
+      criteria.communication?.score,
+      criteria.technical?.score,
+      criteria.problemSolving?.score,
+      criteria.confidence?.score,
+    ];
+    
+    if (scores.every(score => score !== undefined && score !== null)) {
+      updateData.overallScore = Math.round(
+        scores.reduce((sum, score) => sum + score, 0) / scores.length
+      );
+    }
+  }
+  if (notes !== undefined) updateData.notes = notes;
+  if (isCompleted !== undefined) updateData.isCompleted = isCompleted;
+
   const updatedEvaluation = await Evaluation.findByIdAndUpdate(
     req.params.id,
-    { criteria, notes },
+    updateData,
     { new: true, runValidators: true }
   )
     .populate("sessionId", "date startTime endTime")
@@ -130,6 +173,20 @@ export const getMyEvaluations = async (req, res, next) => {
     query.candidateId = req.user._id;
   } else if (req.user.role === "interviewer") {
     query.interviewerId = req.user._id;
+  } else {
+    // Admin or other roles - return empty for now
+    return successResponse({
+      res,
+      message: "Evaluations retrieved successfully",
+      data: {
+        evaluations: [],
+        pagination: {
+          current: parseInt(page),
+          pages: 0,
+          total: 0,
+        },
+      },
+    });
   }
 
   const evaluations = await Evaluation.find(query)

@@ -487,7 +487,12 @@ export const useMyEvaluations = (params) => {
   return useQuery({
     queryKey: ["my-evaluations", params],
     queryFn: () => evaluationsAPI.getMyEvaluations(params),
-    select: (data) => data.data,
+    select: (response) => {
+      // Response structure: response.data = { message, data: { evaluations, pagination } }
+      // So response.data.data = { evaluations, pagination }
+      const result = response?.data?.data || {};
+      return result;
+    },
   });
 };
 
