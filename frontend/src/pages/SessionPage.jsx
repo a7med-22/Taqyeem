@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Video, Loader2 } from "lucide-react";
 import { Button } from "../components/ui/Button";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import VideoCall from "../components/sessions/VideoCall.jsx";
 import QuestionsSidebar from "../components/sessions/QuestionsSidebar.jsx";
 import LiveEvaluationForm from "../components/sessions/LiveEvaluationForm.jsx";
@@ -33,6 +34,7 @@ export default function SessionPage() {
   const completeSession = useCompleteSession();
 
   const [isCallActive, setIsCallActive] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
 
   const isInterviewer = user?.role === "interviewer";
   const isCandidate = user?.role === "candidate";
@@ -66,33 +68,31 @@ export default function SessionPage() {
   const handleCallEnd = async () => {
     setIsCallActive(false);
     if (isInterviewer) {
-      // Show completion modal or redirect
-      const shouldComplete = window.confirm(
-        t("sessions.completeSession", {
-          defaultValue: "Do you want to complete this session?",
+      // Show completion dialog
+      setShowCompleteDialog(true);
+    }
+  };
+
+  const handleConfirmComplete = async () => {
+    try {
+      await completeSession.mutateAsync({
+        id,
+        data: { notes: "" },
+      });
+      toast.success(
+        t("sessions.sessionCompleted", {
+          defaultValue: "Session completed!",
         })
       );
-      if (shouldComplete) {
-        try {
-          await completeSession.mutateAsync({
-            id,
-            data: { notes: "" },
-          });
-          toast.success(
-            t("sessions.sessionCompleted", {
-              defaultValue: "Session completed!",
-            })
-          );
-          navigate("/interviews");
-        } catch (error) {
-          toast.error(
-            error.response?.data?.message ||
-              t("sessions.completeError", {
-                defaultValue: "Failed to complete session",
-              })
-          );
-        }
-      }
+      setShowCompleteDialog(false);
+      navigate("/interviews");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          t("sessions.completeError", {
+            defaultValue: "Failed to complete session",
+          })
+      );
     }
   };
 
@@ -230,6 +230,25 @@ export default function SessionPage() {
             </p>
           </div>
         )}
+
+        {/* Complete Session Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showCompleteDialog}
+          onClose={() => setShowCompleteDialog(false)}
+          onConfirm={handleConfirmComplete}
+          title={t("sessions.completeSessionTitle", {
+            defaultValue: "Complete Session",
+          })}
+          message={t("sessions.completeSession", {
+            defaultValue: "Do you want to complete this session?",
+          })}
+          confirmLabel={t("sessions.complete", {
+            defaultValue: "Complete",
+          })}
+          cancelLabel={t("common.cancel", { defaultValue: "Cancel" })}
+          loadingLabel={t("common.loading", { defaultValue: "Loading..." })}
+          isLoading={completeSession.isPending}
+        />
       </div>
     </div>
   );

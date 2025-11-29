@@ -515,6 +515,8 @@
         "startError": "فشل في بدء الجلسة",
         "joinError": "القناة غير جاهزة. يرجى الانتظار...",
         "completeSession": "هل تريد إكمال هذه الجلسة؟",
+        "completeSessionTitle": "إكمال الجلسة",
+        "complete": "إكمال",
         "sessionCompleted": "تم إكمال الجلسة!",
         "completeError": "فشل في إكمال الجلسة",
         "evaluationSubmitted": "تم إرسال التقييم بنجاح!",

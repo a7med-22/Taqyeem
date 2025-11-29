@@ -510,6 +510,8 @@
         "startError": "Failed to start session",
         "joinError": "Channel not ready. Please wait...",
         "completeSession": "Do you want to complete this session?",
+        "completeSessionTitle": "Complete Session",
+        "complete": "Complete",
         "sessionCompleted": "Session completed!",
         "completeError": "Failed to complete session",
         "evaluationSubmitted": "Evaluation submitted successfully!",
