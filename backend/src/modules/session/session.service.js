@@ -62,6 +62,7 @@ export const getSessionById = async (req, res, next) => {
   });
 };
 
+
 // @desc    Start session
 // @route   POST /api/v1/sessions/:id/start
 // @access  Private/Interviewer
@@ -78,6 +79,11 @@ export const startSession = async (req, res, next) => {
 
   if (session.status !== "scheduled") {
     throw new Error("Session is not scheduled", { cause: 400 });
+  }
+
+  // WebRTC doesn't require pre-creating channels, but we can store session ID for reference
+  if (!session.meetingLink) {
+    session.meetingLink = `session-${session._id.toString()}`;
   }
 
   session.status = "in-progress";

@@ -2,9 +2,11 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
+import { Video } from "lucide-react";
 import InterviewerList from "../components/interviews/InterviewerList.jsx";
 import ReservationsList from "../components/interviews/ReservationsList.jsx";
 import ScheduleForm from "../components/interviews/ScheduleForm.jsx";
+import SessionsList from "../components/interviews/SessionsList.jsx";
 import SlotsCalendar from "../components/interviews/SlotsCalendar.jsx";
 import { Button } from "../components/ui/Button.jsx";
 import {
@@ -25,6 +27,7 @@ import {
   useInterviewers,
   useMyReservations,
   useMySchedules,
+  useMySessions,
   usePendingReservations,
   useRejectReservation,
   useSlotsByInterviewer,
@@ -54,6 +57,7 @@ export default function InterviewsPage() {
   const { data: mySchedules } = useMySchedules(undefined, {
     enabled: isInterviewer,
   });
+  const { data: mySessions } = useMySessions();
   const { data: pendingReservations } = usePendingReservations(
     user?.role === "interviewer"
   );
@@ -191,6 +195,28 @@ export default function InterviewsPage() {
         {/* CANDIDATE VIEW */}
         {isCandidate && (
           <div className="space-y-8">
+            {/* My Sessions */}
+            {mySessions && mySessions.length > 0 && (
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="w-5 h-5 text-primary-600" />
+                    {t("interviews.mySessions", {
+                      defaultValue: "My Interview Sessions",
+                    })}
+                  </CardTitle>
+                  <CardDescription>
+                    {t("interviews.mySessionsDescription", {
+                      defaultValue: "Your scheduled and active interview sessions",
+                    })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SessionsList sessions={mySessions} isInterviewer={false} />
+                </CardContent>
+              </Card>
+            )}
+
             {/* My Reservations */}
             <Card className="card-modern">
               <CardHeader>
@@ -340,6 +366,28 @@ export default function InterviewsPage() {
                 />
               </CardContent>
             </Card>
+
+            {/* My Sessions */}
+            {mySessions && mySessions.length > 0 && (
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="w-5 h-5 text-primary-600" />
+                    {t("interviews.mySessions", {
+                      defaultValue: "My Interview Sessions",
+                    })}
+                  </CardTitle>
+                  <CardDescription>
+                    {t("interviews.mySessionsDescription", {
+                      defaultValue: "Your scheduled and active interview sessions",
+                    })}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <SessionsList sessions={mySessions} isInterviewer={true} />
+                </CardContent>
+              </Card>
+            )}
 
             {/* All My Reservations */}
             <Card className="card-modern">

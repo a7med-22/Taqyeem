@@ -96,10 +96,36 @@ export const getMyReservations = async (req, res, next) => {
     .populate("interviewerId", "name email avatarUrl specialization")
     .sort({ createdAt: -1 });
 
+  // Find sessions for accepted reservations and add sessionId
+  const acceptedReservationIds = reservations
+    .filter((r) => r.status === "accepted")
+    .map((r) => r._id);
+
+  const sessions = await Session.find({
+    reservationId: { $in: acceptedReservationIds },
+  }).select("_id reservationId");
+
+  // Create a map of reservationId -> sessionId
+  const sessionMap = {};
+  sessions.forEach((session) => {
+    const reservationId = session.reservationId?.toString() || session.reservationId;
+    sessionMap[reservationId] = session._id.toString();
+  });
+
+  // Add sessionId to each accepted reservation
+  const reservationsWithSession = reservations.map((reservation) => {
+    const reservationObj = reservation.toObject();
+    if (reservation.status === "accepted") {
+      const reservationId = reservation._id.toString();
+      reservationObj.sessionId = sessionMap[reservationId] || null;
+    }
+    return reservationObj;
+  });
+
   successResponse({
     res,
     message: "Reservations retrieved successfully",
-    data: { reservations },
+    data: { reservations: reservationsWithSession },
   });
 };
 
@@ -116,6 +142,7 @@ export const getPendingReservations = async (req, res, next) => {
     .populate("interviewerId", "name email avatarUrl specialization")
     .sort({ createdAt: 1 });
 
+  // Pending reservations don't have sessions yet, so no need to add sessionId
   successResponse({
     res,
     message: "Pending reservations retrieved successfully",

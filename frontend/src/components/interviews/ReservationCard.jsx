@@ -1,5 +1,7 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+import { Video } from "lucide-react";
 import { formatDate, formatTime } from "../../utils/helpers.js";
 import { Button } from "../ui/Button";
 import {
@@ -9,6 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/Card";
+import { useQuery } from "@tanstack/react-query";
+import { sessionsAPI } from "../../api/index.js";
 
 export default function ReservationCard({
   reservation,
@@ -17,6 +21,25 @@ export default function ReservationCard({
   isInterviewer,
 }) {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+
+  // Get sessionId from reservation (added by backend) or find it from sessions
+  const { data: sessions } = useQuery({
+    queryKey: ["my-sessions"],
+    queryFn: () => sessionsAPI.getMySessions(),
+    select: (data) => data.data.data?.sessions || [],
+  });
+
+  // First try to use sessionId from reservation (if backend added it)
+  // Otherwise, find session by matching reservationId
+  const sessionId = reservation.sessionId;
+  const session = sessionId
+    ? sessions?.find((s) => s._id === sessionId)
+    : sessions?.find(
+        (s) =>
+          (s.reservationId?._id?.toString() || s.reservationId?.toString()) ===
+          (reservation._id?.toString() || reservation._id)
+      );
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -172,6 +195,39 @@ export default function ReservationCard({
               >
                 {t("reservations.reject")}
               </Button>
+            </div>
+          )}
+
+          {reservation.status === "accepted" && (
+            <div className="flex gap-2 pt-2">
+              {(sessionId || session?._id) ? (
+                <Button
+                  variant="default"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => {
+                    const idToUse = sessionId || session?._id;
+                    if (idToUse) {
+                      navigate(`/session/${idToUse}`);
+                    }
+                  }}
+                >
+                  <Video className="w-4 h-4 mr-2" />
+                  {session?.status === "in-progress"
+                    ? t("reservations.joinSession", {
+                        defaultValue: "Join Session",
+                      })
+                    : t("reservations.viewSession", {
+                        defaultValue: "View Session",
+                      })}
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" className="flex-1" disabled>
+                  {t("reservations.sessionLoading", {
+                    defaultValue: "Loading session...",
+                  })}
+                </Button>
+              )}
             </div>
           )}
         </div>

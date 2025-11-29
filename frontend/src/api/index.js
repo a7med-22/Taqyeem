@@ -136,6 +136,17 @@ export const learningAPI = {
   getContentStats: () => api.get("/learn/stats"),
 };
 
+// Interview Questions API
+export const interviewQuestionsAPI = {
+  getQuestionsBySpecialization: (specialization, params) =>
+    api.get(`/interview-questions/${specialization}`, { params }),
+  getSessionQuestions: (sessionId) =>
+    api.get(`/interview-questions/session/${sessionId}`),
+  markQuestionAsAsked: (sessionId, data) =>
+    api.post(`/interview-questions/session/${sessionId}/ask`, data),
+  createQuestion: (data) => api.post("/interview-questions", data),
+};
+
 // Admin API
 export const adminAPI = {
   getDashboard: () => api.get("/admin/dashboard"),

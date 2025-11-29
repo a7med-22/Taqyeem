@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import { createServer } from "http";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 
@@ -13,6 +14,9 @@ import appController from "./src/app.controller.js";
 // Import error handlers
 import { notFound } from "./src/middleware/index.js";
 import { globalErrorHandling } from "./src/utils/response.js";
+
+// Import Socket.io server
+import { initializeSocket } from "./src/socket/socketServer.js";
 
 // Load environment variables
 dotenv.config();
@@ -98,17 +102,27 @@ app.use("/", appController);
 app.use(notFound);
 app.use(globalErrorHandling);
 
+// Create HTTP server
+const server = createServer(app);
+
+// Initialize Socket.io (only in non-serverless environments)
+let io = null;
+if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
+  io = initializeSocket(server);
+}
+
 // Only start server if not in Vercel serverless environment
 // Vercel will use the api/index.js entry point instead
 if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
   const PORT = process.env.PORT || 5000;
   const HOST = process.env.HOST || "localhost";
 
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`🚀 Taqyeem API server running`);
     console.log(`🌐 URL: http://${HOST}:${PORT}`);
     console.log(`📚 Environment: ${process.env.NODE_ENV || "development"}`);
     console.log(`⚡ Ready to accept requests!`);
+    console.log(`🔌 Socket.io ready for WebRTC signaling`);
   });
 }
 

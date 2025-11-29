@@ -18,6 +18,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
+import SessionPage from "./pages/SessionPage.jsx";
 import StyleShowcasePage from "./pages/StyleShowcasePage.jsx";
 
 // Import i18n configuration
@@ -80,6 +81,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <InterviewsPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path={ROUTES.SESSION}
+                  element={
+                    <ProtectedRoute>
+                      <SessionPage />
                     </ProtectedRoute>
                   }
                 />

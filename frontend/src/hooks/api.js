@@ -4,6 +4,7 @@ import {
   authAPI,
   daysAPI,
   evaluationsAPI,
+  interviewQuestionsAPI,
   learningAPI,
   reservationsAPI,
   schedulesAPI,
@@ -401,7 +402,7 @@ export const useMySessions = (params) => {
   return useQuery({
     queryKey: ["my-sessions", params],
     queryFn: () => sessionsAPI.getMySessions(params),
-    select: (data) => data.data.sessions,
+    select: (data) => data.data.data?.sessions || [],
   });
 };
 
@@ -409,8 +410,9 @@ export const useSession = (id) => {
   return useQuery({
     queryKey: ["session", id],
     queryFn: () => sessionsAPI.getSessionById(id),
-    select: (data) => data.data.session,
+    select: (data) => data.data.data?.session || data.data.session,
     enabled: !!id,
+    retry: 1,
   });
 };
 
@@ -434,6 +436,39 @@ export const useCompleteSession = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries(["session", id]);
       queryClient.invalidateQueries(["my-sessions"]);
+    },
+  });
+};
+
+
+// Interview Questions hooks
+export const useInterviewQuestions = (specialization, params) => {
+  return useQuery({
+    queryKey: ["interview-questions", specialization, params],
+    queryFn: () =>
+      interviewQuestionsAPI.getQuestionsBySpecialization(specialization, params),
+    select: (data) => data.data.data.questions,
+    enabled: !!specialization,
+  });
+};
+
+export const useSessionQuestions = (sessionId) => {
+  return useQuery({
+    queryKey: ["session-questions", sessionId],
+    queryFn: () => interviewQuestionsAPI.getSessionQuestions(sessionId),
+    select: (data) => data.data.data.questions,
+    enabled: !!sessionId,
+  });
+};
+
+export const useMarkQuestionAsAsked = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionId, data }) =>
+      interviewQuestionsAPI.markQuestionAsAsked(sessionId, data),
+    onSuccess: (_, { sessionId }) => {
+      queryClient.invalidateQueries(["session-questions", sessionId]);
     },
   });
 };

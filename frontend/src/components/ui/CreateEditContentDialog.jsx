@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X, Plus, Trash2, Video } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "./Button.jsx";
 import { Input } from "./Input.jsx";
 
@@ -137,11 +138,11 @@ export function CreateEditContentDialog({
     if (file) {
       // Validate image file
       if (!file.type.startsWith("image/")) {
-        alert(t("admin.contentInvalidImageType", { defaultValue: "Please select an image file" }));
+        toast.error(t("admin.contentInvalidImageType", { defaultValue: "Please select an image file" }));
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        alert(t("admin.contentImageTooLarge", { defaultValue: "Image size must be less than 5MB" }));
+        toast.error(t("admin.contentImageTooLarge", { defaultValue: "Image size must be less than 5MB" }));
         return;
       }
       setThumbnailFile(file);
@@ -158,15 +159,15 @@ export function CreateEditContentDialog({
     
     // Validate required fields
     if (!formData.title.en.trim() || !formData.title.ar.trim()) {
-      alert(t("admin.contentTitleRequired", { defaultValue: "Title in both languages is required" }));
+      toast.error(t("admin.contentTitleRequired", { defaultValue: "Title in both languages is required" }));
       return;
     }
     if (!formData.content.en.trim() || !formData.content.ar.trim()) {
-      alert(t("admin.contentContentRequired", { defaultValue: "Content in both languages is required" }));
+      toast.error(t("admin.contentContentRequired", { defaultValue: "Content in both languages is required" }));
       return;
     }
     if (!formData.category) {
-      alert(t("admin.contentCategoryRequired", { defaultValue: "Category is required" }));
+      toast.error(t("admin.contentCategoryRequired", { defaultValue: "Category is required" }));
       return;
     }
 
