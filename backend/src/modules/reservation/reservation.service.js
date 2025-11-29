@@ -24,17 +24,19 @@ export const createReservation = async (req, res, next) => {
     throw new Error("Time slot is full", { cause: 400 });
   }
 
-  // Check if user already has an active reservation for this slot (not rejected)
-  const existingReservation = await Reservation.findOne({
+  // Check if candidate already has an active reservation with this interviewer
+  // This ensures each candidate can only have ONE active reservation per interviewer
+  const existingActiveReservation = await Reservation.findOne({
     candidateId: req.user._id,
-    slotId,
+    interviewerId: slot.interviewerId,
     status: { $in: ["pending", "accepted"] },
   });
 
-  if (existingReservation) {
-    throw new Error("You already have a reservation for this slot", {
-      cause: 400,
-    });
+  if (existingActiveReservation) {
+    throw new Error(
+      "You already have an active reservation with this interviewer. Please cancel or complete your existing reservation before booking a new slot with this interviewer.",
+      { cause: 400 }
+    );
   }
 
   // Delete any rejected reservation for this slot to avoid unique index conflict

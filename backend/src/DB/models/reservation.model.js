@@ -60,6 +60,10 @@ reservationSchema.index({ status: 1 });
 // Ensure one reservation per candidate per slot
 reservationSchema.index({ candidateId: 1, slotId: 1 }, { unique: true });
 
+// Index to help query active reservations per candidate per interviewer
+// (for one-slot-per-interviewer-per-candidate enforcement)
+reservationSchema.index({ candidateId: 1, interviewerId: 1, status: 1 });
+
 
 const Reservation = mongoose.models.Reservation || mongoose.model("Reservation", reservationSchema);
     

@@ -45,10 +45,12 @@ import {
   useAdminDashboard,
   useAdminReservations,
   useAdminSlots,
+  useAdminSessions,
   useApproveInterviewer,
   useCreateLearningContent,
   useDeleteAdminReservation,
   useDeleteAdminSlot,
+  useDeleteAdminSession,
   useDeleteLearningContent,
   useDeleteUser,
   useLearningCategories,
@@ -239,6 +241,7 @@ export default function AdminPage() {
   const deleteUser = useDeleteUser();
   const deleteAdminReservation = useDeleteAdminReservation();
   const deleteAdminSlot = useDeleteAdminSlot();
+  const deleteAdminSession = useDeleteAdminSession();
   const [actioning, setActioning] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [userToDelete, setUserToDelete] = useState(null);
@@ -265,6 +268,13 @@ export default function AdminPage() {
   const [slotDateFrom, setSlotDateFrom] = useState("");
   const [slotDateTo, setSlotDateTo] = useState("");
 
+  // Search and filter state for sessions
+  const [sessionSearch, setSessionSearch] = useState("");
+  const [debouncedSessionSearch, setDebouncedSessionSearch] = useState("");
+  const [sessionStatusFilter, setSessionStatusFilter] = useState("");
+  const [sessionDateFrom, setSessionDateFrom] = useState("");
+  const [sessionDateTo, setSessionDateTo] = useState("");
+
   // Content learning state
   const [contentSearch, setContentSearch] = useState("");
   const [debouncedContentSearch, setDebouncedContentSearch] = useState("");
@@ -278,6 +288,7 @@ export default function AdminPage() {
   // Delete state
   const [reservationToDelete, setReservationToDelete] = useState(null);
   const [slotToDelete, setSlotToDelete] = useState(null);
+  const [sessionToDelete, setSessionToDelete] = useState(null);
 
   // Debounce search queries
   useEffect(() => {
@@ -307,6 +318,13 @@ export default function AdminPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [contentSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSessionSearch(sessionSearch);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [sessionSearch]);
 
   // Build filter params
   const userFilterParams = useMemo(() => {
@@ -357,6 +375,20 @@ export default function AdminPage() {
     return params;
   }, [debouncedSlotSearch, slotStatusFilter, slotDateFrom, slotDateTo]);
 
+  const sessionFilterParams = useMemo(() => {
+    const params = { page: 1, limit: 100 };
+    if (debouncedSessionSearch) params.search = debouncedSessionSearch;
+    if (sessionStatusFilter) params.status = sessionStatusFilter;
+    if (sessionDateFrom) params.startDate = sessionDateFrom;
+    if (sessionDateTo) params.endDate = sessionDateTo;
+    return params;
+  }, [
+    debouncedSessionSearch,
+    sessionStatusFilter,
+    sessionDateFrom,
+    sessionDateTo,
+  ]);
+
   // Build filter params for content
   const contentFilterParams = useMemo(() => {
     const params = { page: 1, limit: 100 };
@@ -380,6 +412,8 @@ export default function AdminPage() {
     useAdminReservations(reservationFilterParams);
   const { data: adminSlotsData, isLoading: adminSlotsLoading } =
     useAdminSlots(slotFilterParams);
+  const { data: adminSessionsData, isLoading: adminSessionsLoading } =
+    useAdminSessions(sessionFilterParams);
   const { data: categories = [] } = useLearningCategories();
 
   // Mutations
@@ -415,6 +449,7 @@ export default function AdminPage() {
         );
   const adminReservations = adminReservationsData?.reservations || [];
   const adminSlots = adminSlotsData?.slots || [];
+  const adminSessions = adminSessionsData?.sessions || [];
 
   const isRTL = i18n.language === "ar";
   const locale = i18n.language === "ar" ? "ar-EG" : "en-US";
@@ -635,6 +670,23 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteSession = async (id) => {
+    setActioning({ id, type: "deleteSession" });
+    try {
+      await deleteAdminSession.mutateAsync(id);
+      toast.success(
+        t("admin.deleteSessionSuccess", {
+          defaultValue: "Session deleted successfully",
+        })
+      );
+      setSessionToDelete(null);
+    } catch (mutationError) {
+      toast.error(mutationError.response?.data?.message || t("common.error"));
+    } finally {
+      setActioning(null);
+    }
+  };
+
   const confirmDeleteReservation = async () => {
     if (!reservationToDelete) return;
     await handleDeleteReservation(reservationToDelete.id);
@@ -643,6 +695,11 @@ export default function AdminPage() {
   const confirmDeleteSlot = async () => {
     if (!slotToDelete) return;
     await handleDeleteSlot(slotToDelete.id);
+  };
+
+  const confirmDeleteSession = async () => {
+    if (!sessionToDelete) return;
+    await handleDeleteSession(sessionToDelete.id);
   };
 
   // Content handlers
@@ -1683,6 +1740,194 @@ export default function AdminPage() {
     </div>
   );
 
+  // Render Sessions tab
+  const renderSessionsTab = () => (
+    <div className="space-y-6">
+      <Card className="border border-secondary-200 shadow-sm">
+        <CardHeader>
+          <CardTitle>
+            {t("admin.sessions", { defaultValue: "All Sessions" })}
+          </CardTitle>
+          <CardDescription>
+            {t("admin.sessionsDescription", {
+              defaultValue: "View and manage all interview sessions",
+            })}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Search and Filters */}
+          <div className="mb-6 space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-400" />
+              <Input
+                type="text"
+                placeholder={t("admin.searchSessions", {
+                  defaultValue: "Search by candidate or interviewer name...",
+                })}
+                value={sessionSearch}
+                onChange={(e) => setSessionSearch(e.target.value)}
+                className="pl-10 pr-10"
+                variant="modern"
+              />
+              {sessionSearch && (
+                <button
+                  onClick={() => setSessionSearch("")}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-secondary-500" />
+                <span className="text-sm font-medium text-secondary-700">
+                  {t("common.filter")}:
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("common.status", { defaultValue: "Status" })}
+                  </label>
+                  <select
+                    value={sessionStatusFilter}
+                    onChange={(e) => setSessionStatusFilter(e.target.value)}
+                    className="h-10 px-4 text-sm border-2 border-secondary-200 rounded-xl focus:outline-none focus:border-primary-500 transition-all bg-white"
+                  >
+                    <option value="">{t("admin.allStatuses")}</option>
+                    <option value="scheduled">{t("status.scheduled")}</option>
+                    <option value="in-progress">{t("status.inProgress")}</option>
+                    <option value="completed">{t("status.completed")}</option>
+                    <option value="cancelled">{t("status.cancelled")}</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateFrom", { defaultValue: "From Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={sessionDateFrom}
+                    onChange={(e) => setSessionDateFrom(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-secondary-600">
+                    {t("admin.dateTo", { defaultValue: "To Date" })}
+                  </label>
+                  <Input
+                    type="date"
+                    value={sessionDateTo}
+                    onChange={(e) => setSessionDateTo(e.target.value)}
+                    className="h-10"
+                    variant="modern"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {adminSessionsLoading ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-secondary-500">
+                {t("common.loading")}
+              </p>
+            </div>
+          ) : adminSessions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-secondary-500">
+                {t("admin.recentActivity.empty")}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {adminSessions.map((session) => (
+                <div
+                  key={session._id || session.id}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-secondary-200 p-4 hover:border-primary-200 transition-colors"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 flex-1">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-secondary-900">
+                        <span>
+                          {session.candidateId?.name || session.candidate?.name}
+                        </span>
+                        {isRTL ? (
+                          <ArrowLeft className="w-5 h-5 text-primary-500 shrink-0" />
+                        ) : (
+                          <ArrowRight className="w-5 h-5 text-primary-500 shrink-0" />
+                        )}
+                        <span>
+                          {session.interviewerId?.name ||
+                            session.interviewer?.name}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap mt-1">
+                        <p className="text-xs text-secondary-500">
+                          {session.candidateId?.email ||
+                            session.candidate?.email}
+                        </p>
+                        <span className="text-xs text-secondary-400">•</span>
+                        <p className="text-xs text-secondary-500">
+                          {session.interviewerId?.email ||
+                            session.interviewer?.email}
+                        </p>
+                      </div>
+                      <p className="text-xs text-secondary-400 mt-1">
+                        {formatDate(session.date, locale)} ·{" "}
+                        {formatTime(session.startTime)} -{" "}
+                        {formatTime(session.endTime)}
+                      </p>
+                      {session.notes && (
+                        <p className="text-xs text-secondary-500 mt-1 line-clamp-2">
+                          {session.notes}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <StatusBadge
+                        status={session.status}
+                        label={t(`status.${session.status}`, {
+                          defaultValue: session.status,
+                        })}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() =>
+                        setSessionToDelete({
+                          id: session._id || session.id,
+                          candidateName: session.candidateId?.name,
+                        })
+                      }
+                      disabled={
+                        deleteAdminSession.isPending ||
+                        (actioning?.id === (session._id || session.id) &&
+                          actioning?.type === "deleteSession")
+                      }
+                    >
+                      {t("common.delete")}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+
   // Render Reservations & Slots tab
   const renderReservationsSlotsTab = () => (
     <div className="space-y-8">
@@ -2085,6 +2330,13 @@ export default function AdminPage() {
       badge: formatNumber(adminReservations.length + adminSlots.length),
       content: renderReservationsSlotsTab(),
     },
+    {
+      id: "sessions",
+      label: t("admin.sessions", { defaultValue: "Sessions" }),
+      icon: <Video className="h-4 w-4" />,
+      badge: formatNumber(adminSessions.length),
+      content: renderSessionsTab(),
+    },
   ];
 
   return (
@@ -2164,6 +2416,25 @@ export default function AdminPage() {
         loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
         isLoading={
           deleteAdminSlot.isPending || actioning?.type === "deleteSlot"
+        }
+      />
+
+      {/* Delete Session Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!sessionToDelete}
+        onClose={() => setSessionToDelete(null)}
+        onConfirm={confirmDeleteSession}
+        title={t("admin.deleteSessionConfirmTitle", {
+          defaultValue: "Delete Session",
+        })}
+        message={t("admin.deleteSessionConfirm", {
+          defaultValue: `Are you sure you want to delete this session? This action cannot be undone.`,
+        })}
+        confirmLabel={t("common.delete", { defaultValue: "Delete" })}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting", { defaultValue: "Deleting..." })}
+        isLoading={
+          deleteAdminSession.isPending || actioning?.type === "deleteSession"
         }
       />
     </div>

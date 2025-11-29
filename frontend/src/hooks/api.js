@@ -109,6 +109,27 @@ export const useDeleteAdminSlot = () => {
   });
 };
 
+// Admin Sessions hooks
+export const useAdminSessions = (params) => {
+  return useQuery({
+    queryKey: ["admin-sessions", params],
+    queryFn: () => adminAPI.getAllSessions(params),
+    select: (response) => response.data.data,
+  });
+};
+
+export const useDeleteAdminSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => adminAPI.deleteSession(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["admin-sessions"]);
+      queryClient.invalidateQueries(["admin-dashboard"]);
+    },
+  });
+};
+
 export const useInterviewers = (params) => {
   return useQuery({
     queryKey: ["interviewers", params],

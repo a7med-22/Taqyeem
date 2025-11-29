@@ -502,7 +502,8 @@ export const deleteReservation = async (req, res, next) => {
   try {
     const reservation = await Reservation.findById(req.params.id)
       .populate("slotId")
-      .populate("reservationId");
+      .populate("candidateId", "name email")
+      .populate("interviewerId", "name email");
 
     if (!reservation) {
       throw new Error("Reservation not found", { cause: 404 });
@@ -543,6 +544,128 @@ export const deleteSlot = async (req, res, next) => {
     successResponse({
       res,
       message: "Slot deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get all sessions (Admin only)
+// @route   GET /api/v1/admin/sessions
+// @access  Private/Admin
+export const getAllSessions = async (req, res, next) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      status,
+      search,
+      interviewerId,
+      candidateId,
+      startDate,
+      endDate,
+    } = req.query;
+
+    // Build query - get all sessions (admin has full access)
+    let query = {};
+
+    // Filter by status
+    if (status) {
+      query.status = status;
+    }
+
+    // Filter by interviewer
+    if (interviewerId) {
+      query.interviewerId = interviewerId;
+    }
+
+    // Filter by candidate
+    if (candidateId) {
+      query.candidateId = candidateId;
+    }
+
+    // Execute query - get all first (for search/date filtering)
+    let sessions = await Session.find(query)
+      .populate("candidateId", "name email avatarUrl")
+      .populate("interviewerId", "name email avatarUrl")
+      .populate("reservationId", "note status")
+      .sort({ date: -1, startTime: 1 });
+
+    // Filter by search (name/email)
+    if (search) {
+      const searchLower = search.toLowerCase();
+      sessions = sessions.filter((session) => {
+        const candidateName = session.candidateId?.name?.toLowerCase() || "";
+        const candidateEmail = session.candidateId?.email?.toLowerCase() || "";
+        const interviewerName = session.interviewerId?.name?.toLowerCase() || "";
+        const interviewerEmail = session.interviewerId?.email?.toLowerCase() || "";
+
+        return (
+          candidateName.includes(searchLower) ||
+          candidateEmail.includes(searchLower) ||
+          interviewerName.includes(searchLower) ||
+          interviewerEmail.includes(searchLower)
+        );
+      });
+    }
+
+    // Filter by date range
+    if (startDate || endDate) {
+      sessions = sessions.filter((session) => {
+        if (!session.date) return false;
+        const sessionDate = new Date(session.date);
+        if (startDate && sessionDate < new Date(startDate)) return false;
+        if (endDate && sessionDate > new Date(endDate)) return false;
+        return true;
+      });
+    }
+
+    const total = sessions.length;
+
+    // Apply pagination after filtering
+    const paginatedSessions = sessions.slice(
+      (page - 1) * limit,
+      page * limit
+    );
+
+    successResponse({
+      res,
+      message: "Sessions retrieved successfully",
+      data: {
+        sessions: paginatedSessions,
+        pagination: {
+          current: parseInt(page),
+          pages: Math.ceil(total / limit),
+          total: total,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete session (Admin only)
+// @route   DELETE /api/v1/admin/sessions/:id
+// @access  Private/Admin
+export const deleteSession = async (req, res, next) => {
+  try {
+    const session = await Session.findById(req.params.id)
+      .populate("candidateId", "name email")
+      .populate("interviewerId", "name email");
+
+    if (!session) {
+      throw new Error("Session not found", { cause: 404 });
+    }
+
+    // Admin can delete any session (no restriction)
+
+    // Delete the session
+    await Session.findByIdAndDelete(req.params.id);
+
+    successResponse({
+      res,
+      message: "Session deleted successfully",
     });
   } catch (error) {
     next(error);
