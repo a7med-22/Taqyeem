@@ -499,8 +499,19 @@ export const useEvaluationBySession = (sessionId) => {
   return useQuery({
     queryKey: ["evaluation", sessionId],
     queryFn: () => evaluationsAPI.getEvaluationBySession(sessionId),
-    select: (data) => data.data.evaluation,
+    select: (response) => {
+      // Handle the response structure: response.data.data.evaluation
+      if (response?.data?.data?.evaluation) {
+        return response.data.data.evaluation;
+      }
+      // Fallback: try response.data.evaluation
+      if (response?.data?.evaluation) {
+        return response.data.evaluation;
+      }
+      return null;
+    },
     enabled: !!sessionId,
+    retry: false, // Don't retry on 404 errors
   });
 };
 

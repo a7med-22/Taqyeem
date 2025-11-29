@@ -6,6 +6,7 @@ import {
   BookOpen,
   CalendarClock,
   Edit,
+  Eye,
   FileText,
   Filter,
   Plus,
@@ -53,6 +54,7 @@ import {
   useDeleteAdminSession,
   useDeleteLearningContent,
   useDeleteUser,
+  useEvaluationBySession,
   useLearningCategories,
   useLearningContent,
   useRejectInterviewer,
@@ -289,6 +291,7 @@ export default function AdminPage() {
   const [reservationToDelete, setReservationToDelete] = useState(null);
   const [slotToDelete, setSlotToDelete] = useState(null);
   const [sessionToDelete, setSessionToDelete] = useState(null);
+  const [sessionToViewEvaluation, setSessionToViewEvaluation] = useState(null);
 
   // Debounce search queries
   useEffect(() => {
@@ -1902,6 +1905,19 @@ export default function AdminPage() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const sessionId = String(session._id || session.id);
+                        setSessionToViewEvaluation(sessionId);
+                      }}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      {t("admin.viewEvaluation", {
+                        defaultValue: "View Evaluation",
+                      })}
+                    </Button>
+                    <Button
                       variant="destructive"
                       size="sm"
                       onClick={() =>
@@ -2437,6 +2453,224 @@ export default function AdminPage() {
           deleteAdminSession.isPending || actioning?.type === "deleteSession"
         }
       />
+
+      {/* View Evaluation Dialog */}
+      {sessionToViewEvaluation && (
+        <EvaluationViewDialog
+          sessionId={sessionToViewEvaluation}
+          onClose={() => setSessionToViewEvaluation(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+// Evaluation View Dialog Component
+function EvaluationViewDialog({ sessionId, onClose }) {
+  const { t } = useTranslation();
+  const { data: evaluation, isLoading, isError, error } =
+    useEvaluationBySession(sessionId);
+
+  // Debug: Log the sessionId and response
+  if (import.meta.env.DEV) {
+    if (error) {
+      console.log("Evaluation fetch error:", {
+        sessionId,
+        error: error?.response?.data || error?.message,
+        status: error?.response?.status,
+      });
+    }
+    if (evaluation) {
+      console.log("Evaluation loaded:", { sessionId, evaluation });
+    }
+  }
+
+  const criteria = evaluation?.criteria
+    ? [
+        {
+          key: "communication",
+          label: t("evaluations.communication", {
+            defaultValue: "Communication",
+          }),
+          score: evaluation.criteria?.communication?.score || 0,
+          comment: evaluation.criteria?.communication?.comment || "",
+        },
+        {
+          key: "technical",
+          label: t("evaluations.technical", {
+            defaultValue: "Technical Skills",
+          }),
+          score: evaluation.criteria?.technical?.score || 0,
+          comment: evaluation.criteria?.technical?.comment || "",
+        },
+        {
+          key: "problemSolving",
+          label: t("evaluations.problemSolving", {
+            defaultValue: "Problem Solving",
+          }),
+          score: evaluation.criteria?.problemSolving?.score || 0,
+          comment: evaluation.criteria?.problemSolving?.comment || "",
+        },
+        {
+          key: "confidence",
+          label: t("evaluations.confidence", { defaultValue: "Confidence" }),
+          score: evaluation.criteria?.confidence?.score || 0,
+          comment: evaluation.criteria?.confidence?.comment || "",
+        },
+      ]
+    : [];
+
+  const getScoreColor = (score) => {
+    if (score >= 8) return "text-green-600";
+    if (score >= 6) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getScoreBgColor = (score) => {
+    if (score >= 8) return "bg-green-100 border-green-200";
+    if (score >= 6) return "bg-yellow-100 border-yellow-200";
+    return "bg-red-100 border-red-200";
+  };
+
+  return (
+    <div className="fixed inset-0 bg-gray-900/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-secondary-200">
+        <div className="flex items-center justify-between p-6 border-b border-secondary-200">
+          <h3 className="text-lg font-semibold text-secondary-900">
+            {t("admin.evaluationDetails", {
+              defaultValue: "Evaluation Details",
+            })}
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-secondary-400 hover:text-secondary-600 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-6">
+          {isLoading ? (
+            <div className="text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              <p className="text-sm text-secondary-600 mt-4">
+                {t("sessions.loadingEvaluation", {
+                  defaultValue: "Loading evaluation...",
+                })}
+              </p>
+            </div>
+          ) : isError ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-red-600 mb-2">
+                {error?.response?.data?.message ||
+                  error?.message ||
+                  t("common.error", { defaultValue: "An error occurred" })}
+              </p>
+              <p className="text-xs text-secondary-500">
+                {t("sessions.noEvaluation", {
+                  defaultValue: "Evaluation not available",
+                })}
+              </p>
+            </div>
+          ) : !evaluation ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-secondary-600">
+                {t("sessions.noEvaluation", {
+                  defaultValue: "Evaluation not available yet",
+                })}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Overall Score */}
+              {evaluation.overallScore && (
+                <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-primary-900">
+                      {t("evaluations.overallScore", {
+                        defaultValue: "Overall Score",
+                      })}
+                    </span>
+                    <span
+                      className={`text-2xl font-bold ${getScoreColor(
+                        evaluation.overallScore
+                      )}`}
+                    >
+                      {evaluation.overallScore}/10
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Criteria Scores */}
+              {criteria.map((criterion) => (
+                <div
+                  key={criterion.key}
+                  className={`border rounded-lg p-4 ${getScoreBgColor(
+                    criterion.score
+                  )}`}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-sm font-semibold text-secondary-900">
+                      {criterion.label}
+                    </label>
+                    <span
+                      className={`text-lg font-bold ${getScoreColor(
+                        criterion.score
+                      )}`}
+                    >
+                      {criterion.score}/10
+                    </span>
+                  </div>
+                  {/* Score Bar (Visual) */}
+                  <div className="w-full bg-white/50 rounded-full h-2 mb-3">
+                    <div
+                      className={`h-2 rounded-full ${
+                        criterion.score >= 8
+                          ? "bg-green-500"
+                          : criterion.score >= 6
+                          ? "bg-yellow-500"
+                          : "bg-red-500"
+                      }`}
+                      style={{ width: `${(criterion.score / 10) * 100}%` }}
+                    />
+                  </div>
+                  {/* Comment */}
+                  {criterion.comment && (
+                    <div className="mt-2">
+                      <p className="text-xs font-medium text-secondary-700 mb-1">
+                        {t("evaluations.comment", { defaultValue: "Comment" })}:
+                      </p>
+                      <p className="text-sm text-secondary-800 bg-white/50 rounded p-2">
+                        {criterion.comment}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* General Notes */}
+              {evaluation.notes && (
+                <div className="mt-4 pt-4 border-t border-secondary-200">
+                  <p className="text-xs font-medium text-secondary-700 mb-2">
+                    {t("evaluations.notes", {
+                      defaultValue: "General Notes",
+                    })}
+                    :
+                  </p>
+                  <p className="text-sm text-secondary-800 bg-secondary-50 rounded p-3">
+                    {evaluation.notes}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end p-6 border-t border-secondary-200">
+          <Button variant="outline" onClick={onClose}>
+            {t("common.close", { defaultValue: "Close" })}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -390,6 +390,8 @@
         "deleteSessionSuccess": "تم حذف الجلسة بنجاح",
         "deleteSessionConfirmTitle": "حذف الجلسة",
         "deleteSessionConfirm": "هل أنت متأكد من حذف هذه الجلسة؟ لا يمكن التراجع عن هذا الإجراء.",
+        "viewEvaluation": "عرض التقييم",
+        "evaluationDetails": "تفاصيل التقييم",
         "reservationsSlots": "الحجوزات والفترات الزمنية",
         "completedReservations": "جميع الحجوزات",
         "completedReservationsDescription": "عرض وإدارة جميع الحجوزات",

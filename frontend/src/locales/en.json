@@ -385,6 +385,8 @@
         "deleteSessionSuccess": "Session deleted successfully",
         "deleteSessionConfirmTitle": "Delete Session",
         "deleteSessionConfirm": "Are you sure you want to delete this session? This action cannot be undone.",
+        "viewEvaluation": "View Evaluation",
+        "evaluationDetails": "Evaluation Details",
         "reservationsSlots": "Reservations & Slots",
         "completedReservations": "All Reservations",
         "completedReservationsDescription": "View and manage all reservations",
