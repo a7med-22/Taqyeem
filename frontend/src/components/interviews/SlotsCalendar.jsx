@@ -142,15 +142,21 @@ export default function SlotsCalendar({
         <div className="flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-cyan-100 border border-cyan-300"></div>
-            <span className="text-secondary-600">{t("slots.availableSlot", "Available - You can book")}</span>
+            <span className="text-secondary-600">
+              {t("slots.availableSlot", "Available - You can book")}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-amber-100 border border-amber-200"></div>
-            <span className="text-secondary-600">{t("slots.pendingSlot", "Pending - Not accepted yet")}</span>
+            <span className="text-secondary-600">
+              {t("slots.pendingSlot", "Pending - Not accepted yet")}
+            </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded bg-red-500"></div>
-            <span className="text-secondary-600">{t("slots.bookedSlot", "Booked - Already reserved")}</span>
+            <span className="text-secondary-600">
+              {t("slots.bookedSlot", "Booked - Already reserved")}
+            </span>
           </div>
         </div>
       </div>
@@ -208,7 +214,7 @@ export default function SlotsCalendar({
       {selectedSlot && (
         <div className="bg-cyan-50 rounded-lg border-2 border-cyan-600 p-6 shadow-lg">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-center sm:text-left flex-1">
+            <div className="text-center sm:text-start flex-1">
               <h4 className="font-semibold text-lg text-cyan-900 mb-2">
                 {t("slots.slotSelected")}
               </h4>
