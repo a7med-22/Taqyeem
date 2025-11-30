@@ -45,13 +45,13 @@ import { APP_CONFIG, USER_ROLES } from "../config/app.js";
 import {
   useAdminDashboard,
   useAdminReservations,
-  useAdminSlots,
   useAdminSessions,
+  useAdminSlots,
   useApproveInterviewer,
   useCreateLearningContent,
   useDeleteAdminReservation,
-  useDeleteAdminSlot,
   useDeleteAdminSession,
+  useDeleteAdminSlot,
   useDeleteLearningContent,
   useDeleteUser,
   useEvaluationBySession,
@@ -1802,7 +1802,9 @@ export default function AdminPage() {
                   >
                     <option value="">{t("admin.allStatuses")}</option>
                     <option value="scheduled">{t("status.scheduled")}</option>
-                    <option value="in-progress">{t("status.inProgress")}</option>
+                    <option value="in-progress">
+                      {t("status.inProgress")}
+                    </option>
                     <option value="completed">{t("status.completed")}</option>
                     <option value="cancelled">{t("status.cancelled")}</option>
                   </select>
@@ -2468,8 +2470,12 @@ export default function AdminPage() {
 // Evaluation View Dialog Component
 function EvaluationViewDialog({ sessionId, onClose }) {
   const { t } = useTranslation();
-  const { data: evaluation, isLoading, isError, error } =
-    useEvaluationBySession(sessionId);
+  const {
+    data: evaluation,
+    isLoading,
+    isError,
+    error,
+  } = useEvaluationBySession(sessionId);
 
   // Debug: Log the sessionId and response
   if (import.meta.env.DEV) {
