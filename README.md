@@ -144,12 +144,12 @@ VITE_APP_DESCRIPTION=Bilingual Interview & Learning Platform
 
 - **Interview Days**: Create and manage interview schedules with date-based organization
 - **Time Slots**: Flexible slot creation with multiple candidates per slot support
-- **Reservations**: 
+- **Reservations**:
   - Candidates can book available slots
   - One reservation per candidate per interviewer rule
   - Interviewer can accept/reject reservations
   - Automatic slot status updates (available → pending → booked)
-- **Sessions**: 
+- **Sessions**:
   - Real-time video interview sessions using WebRTC
   - Socket.io for signaling and session management
   - Session recording support
@@ -157,7 +157,7 @@ VITE_APP_DESCRIPTION=Bilingual Interview & Learning Platform
 - **Slot Reversal**: Automatic slot availability restoration when:
   - Reservations are deleted or rejected
   - Sessions are completed, cancelled, or deleted
-- **Evaluations**: 
+- **Evaluations**:
   - Comprehensive evaluation system with criteria scoring
   - Communication, Technical, Problem Solving, and Confidence criteria
   - Overall score calculation
@@ -196,7 +196,7 @@ VITE_APP_DESCRIPTION=Bilingual Interview & Learning Platform
 
 - **User Management**: View, edit, and delete users
 - **Reservation Management**: View, filter, search, and delete reservations
-- **Session Management**: 
+- **Session Management**:
   - View all sessions with search and filtering
   - Delete sessions
   - View candidate evaluations for each session
@@ -218,7 +218,7 @@ The platform provides complete bilingual support:
 
 - **Languages**: Arabic (العربية) and English
 - **RTL/LTR Layouts**: Automatic direction switching based on language
-- **Font Support**: 
+- **Font Support**:
   - Cairo font for Arabic text
   - Inter font for English text
 - **Content Translation**: All UI text, labels, and messages
@@ -253,7 +253,7 @@ Session (1) ───< SessionQuestion
 
 ### Key Features
 
-- **Slot Status Management**: 
+- **Slot Status Management**:
   - `available`: No candidates booked
   - `pending`: Some candidates booked (less than max)
   - `booked`: At maximum capacity
@@ -289,11 +289,13 @@ Authorization: Bearer <jwt-token>
 ### Key Endpoints
 
 #### Authentication
+
 - `POST /auth/register` - Register new user
 - `POST /auth/login` - Login user
 - `GET /auth/me` - Get current user
 
 #### Users
+
 - `GET /users` - Get all users (admin)
 - `GET /users/me` - Get current user profile
 - `PUT /users/me` - Update current user profile
@@ -301,6 +303,7 @@ Authorization: Bearer <jwt-token>
 - `DELETE /users/:id` - Delete user (admin)
 
 #### Days
+
 - `GET /days` - Get all interview days
 - `GET /days/:id` - Get day by ID
 - `POST /days` - Create day (interviewer/admin)
@@ -308,6 +311,7 @@ Authorization: Bearer <jwt-token>
 - `DELETE /days/:id` - Delete day (interviewer/admin)
 
 #### Slots
+
 - `GET /slots/:dayId` - Get slots for a day
 - `GET /slots/my` - Get my slots (interviewer)
 - `POST /slots` - Create slots (interviewer/admin)
@@ -315,6 +319,7 @@ Authorization: Bearer <jwt-token>
 - `DELETE /slots/:id` - Delete slot (interviewer/admin)
 
 #### Reservations
+
 - `GET /reservations` - Get all reservations (admin)
 - `GET /reservations/me` - Get my reservations
 - `POST /reservations` - Create reservation (candidate)
@@ -323,6 +328,7 @@ Authorization: Bearer <jwt-token>
 - `DELETE /reservations/:id` - Delete reservation (admin)
 
 #### Sessions
+
 - `GET /sessions/me` - Get my sessions
 - `GET /sessions/:id` - Get session by ID
 - `POST /sessions/:id/start` - Start session (interviewer)
@@ -331,12 +337,14 @@ Authorization: Bearer <jwt-token>
 - `DELETE /sessions/:id` - Delete session (admin)
 
 #### Evaluations
+
 - `POST /evaluations` - Create evaluation (interviewer)
 - `GET /evaluations/:sessionId` - Get evaluation by session
 - `PUT /evaluations/:id` - Update evaluation (interviewer)
 - `GET /evaluations/my` - Get my evaluations
 
 #### Learning
+
 - `GET /learn` - Get all educational content
 - `GET /learn/:id` - Get content by ID
 - `GET /learn/categories` - Get content categories
@@ -345,6 +353,7 @@ Authorization: Bearer <jwt-token>
 - `DELETE /learn/:id` - Delete content (admin)
 
 #### Admin
+
 - `GET /admin/users` - Get all users with statistics
 - `GET /admin/reservations` - Get all reservations
 - `GET /admin/sessions` - Get all sessions
@@ -487,13 +496,13 @@ npm run lint             # Run ESLint
 
 - **JWT Authentication**: Secure token-based authentication with expiration
 - **Password Hashing**: bcrypt with 12 salt rounds
-- **Input Validation**: 
+- **Input Validation**:
   - Server-side validation with express-validator and Joi
   - Client-side validation with Zod
 - **Rate Limiting**: API rate limiting to prevent abuse (configurable)
 - **CORS Protection**: Configurable cross-origin resource sharing
 - **Helmet**: Security headers for Express
-- **File Upload Security**: 
+- **File Upload Security**:
   - Secure file handling with Cloudinary
   - File type and size validation
   - Virus scanning (via Cloudinary)
