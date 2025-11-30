@@ -84,8 +84,8 @@ Taqyeem is a full-stack platform designed to facilitate interview scheduling, co
    The frontend will run on `http://localhost:5173`
 
 4. **Access the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000/api/v1
+   - Frontend: <http://localhost:5173>
+   - Backend API: <http://localhost:5000/api/v1>
 
 ## 📋 Environment Variables
 
@@ -242,7 +242,7 @@ The platform provides complete bilingual support:
 
 ### Relationships
 
-```
+```text
 User (1) ───< Reservation >───(1) Slot
 User (1) ───< Session >───(1) Reservation
 Session (1) ───< Evaluation
@@ -264,7 +264,7 @@ Session (1) ───< SessionQuestion
 
 ### Base URL
 
-```
+```text
 http://localhost:5000/api/v1
 ```
 
@@ -272,7 +272,7 @@ http://localhost:5000/api/v1
 
 All protected routes require a Bearer token:
 
-```
+```http
 Authorization: Bearer <jwt-token>
 ```
 
@@ -288,7 +288,7 @@ Authorization: Bearer <jwt-token>
 
 ### Key Endpoints
 
-#### Authentication
+#### Authentication Endpoints
 
 - `POST /auth/register` - Register new user
 - `POST /auth/login` - Login user
@@ -352,7 +352,7 @@ Authorization: Bearer <jwt-token>
 - `PUT /learn/:id` - Update content (admin)
 - `DELETE /learn/:id` - Delete content (admin)
 
-#### Admin
+#### Admin Endpoints
 
 - `GET /admin/users` - Get all users with statistics
 - `GET /admin/reservations` - Get all reservations
@@ -415,7 +415,7 @@ Authorization: Bearer <jwt-token>
 
 ### Project Structure
 
-```
+```text
 Taqyeem/
 ├── backend/                    # Express.js API
 │   ├── index.js               # Server entry point

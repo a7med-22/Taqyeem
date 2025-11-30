@@ -22,7 +22,7 @@ export default function NotFoundPage() {
       }`}
     >
       {/* Animated background gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary-100/30 via-white/50 to-secondary-100/30 pointer-events-none"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-primary-100/30 via-white/50 to-secondary-100/30 pointer-events-none"></div>
 
       <div className="max-w-xl w-full relative z-10">
         {/* Main Content Card */}
@@ -31,13 +31,13 @@ export default function NotFoundPage() {
             {/* 404 Display - Smaller */}
             <div className="relative mb-4">
               <div className="text-6xl md:text-7xl font-black leading-none">
-                <span className="bg-gradient-to-r from-primary-500 via-cyan-500 to-secondary-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-primary-500 via-cyan-500 to-secondary-500 bg-clip-text text-transparent">
                   4
                 </span>
-                <span className="bg-gradient-to-r from-cyan-500 via-primary-500 to-accent-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-cyan-500 via-primary-500 to-accent-500 bg-clip-text text-transparent">
                   0
                 </span>
-                <span className="bg-gradient-to-r from-secondary-500 via-primary-500 to-cyan-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-secondary-500 via-primary-500 to-cyan-500 bg-clip-text text-transparent">
                   4
                 </span>
               </div>
@@ -46,7 +46,7 @@ export default function NotFoundPage() {
             {/* Icon Badge - Smaller */}
             <div className="flex justify-center mb-4">
               <div className="relative">
-                <div className="relative bg-gradient-to-br from-primary-500 to-cyan-500 p-3 rounded-full shadow-lg">
+                <div className="relative bg-linear-to-br from-primary-500 to-cyan-500 p-3 rounded-full shadow-lg">
                   <AlertCircle
                     className="w-6 h-6 text-white"
                     strokeWidth={2.5}
