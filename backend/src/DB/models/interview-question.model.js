@@ -1,21 +1,12 @@
 import mongoose from "mongoose";
+import { interviewerSpecializations } from "./user.model.js";
 
 const interviewQuestionSchema = new mongoose.Schema(
   {
     specialization: {
       type: String,
       required: [true, "Specialization is required"],
-      enum: [
-        "frontend-development",
-        "backend-development",
-        "fullstack-development",
-        "mobile-development",
-        "devops",
-        "data-science",
-        "cybersecurity",
-        "qa",
-        "ui-ux",
-      ],
+      enum: Object.values(interviewerSpecializations),
     },
     question: {
       en: {
@@ -78,8 +69,3 @@ const InterviewQuestion =
   mongoose.model("InterviewQuestion", interviewQuestionSchema);
 
 export default InterviewQuestion;
-
-
-
-
-
