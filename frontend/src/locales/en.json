@@ -243,7 +243,8 @@
         "active": "Active",
         "inactive": "Inactive",
         "past": "Past",
-        "retry": "Retry"
+        "retry": "Retry",
+        "backToHome": "Back to Home"
     },
     "status": {
         "pending": "Pending",
@@ -261,7 +262,9 @@
         "serverError": "Server error. Please try again later.",
         "unauthorized": "Unauthorized access.",
         "forbidden": "Access forbidden.",
-        "notFound": "Resource not found.",
+        "notFound": "Page Not Found",
+        "pageNotFound": "The page you're looking for doesn't exist.",
+        "pageNotFoundDescription": "The page you're looking for might have been moved, deleted, or doesn't exist. Please check the URL or return to the homepage.",
         "validationError": "Please check your input.",
         "genericError": "Something went wrong. Please try again."
     },
