@@ -196,6 +196,16 @@ export default function ReservationCard({
               >
                 {t("reservations.reject")}
               </Button>
+              {onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDelete(reservation._id)}
+                  title={t("reservations.delete")}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           )}
 
@@ -223,7 +233,7 @@ export default function ReservationCard({
                   {t("reservations.sessionLoading")}
                 </Button>
               )}
-              {!isInterviewer && onDelete && (
+              {onDelete && (
                 <Button
                   variant="outline"
                   size="sm"

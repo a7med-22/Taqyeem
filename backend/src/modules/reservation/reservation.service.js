@@ -248,17 +248,20 @@ export const rejectReservation = async (req, res, next) => {
   });
 };
 
-// @desc    Delete reservation (Candidate can delete their own)
+// @desc    Delete reservation (Candidate or Interviewer can delete)
 // @route   DELETE /api/v1/reservations/:id
-// @access  Private/Candidate
+// @access  Private/Candidate or Interviewer
 export const deleteReservation = async (req, res, next) => {
   const reservation = await Reservation.findById(req.params.id);
   if (!reservation) {
     throw new Error("Reservation not found", { cause: 404 });
   }
 
-  // Check if user is the candidate who made this reservation
-  if (reservation.candidateId.toString() !== req.user._id.toString()) {
+  // Check authorization: candidate can delete their own, interviewer can delete their received reservations
+  const isCandidate = reservation.candidateId.toString() === req.user._id.toString();
+  const isInterviewer = reservation.interviewerId.toString() === req.user._id.toString();
+  
+  if (!isCandidate && !isInterviewer) {
     throw new Error("Not authorized to delete this reservation", {
       cause: 403,
     });
@@ -287,7 +290,9 @@ export const deleteReservation = async (req, res, next) => {
     // If session exists and is scheduled, cancel it
     if (session && session.status === "scheduled") {
       session.status = "cancelled";
-      session.cancelledReason = "Reservation cancelled by candidate";
+      session.cancelledReason = isCandidate 
+        ? "Reservation cancelled by candidate"
+        : "Reservation cancelled by interviewer";
       await session.save();
     }
   }

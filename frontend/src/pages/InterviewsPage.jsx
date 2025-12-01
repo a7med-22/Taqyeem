@@ -384,6 +384,7 @@ export default function InterviewsPage() {
                   reservations={pendingReservations}
                   onAccept={handleAcceptReservation}
                   onReject={handleRejectReservation}
+                  onDelete={handleDeleteReservation}
                   isInterviewer={true}
                 />
               </CardContent>
@@ -434,6 +435,7 @@ export default function InterviewsPage() {
                 <ReservationsList
                   reservations={myReservations}
                   isInterviewer={true}
+                  onDelete={handleDeleteReservation}
                 />
               </CardContent>
             </Card>

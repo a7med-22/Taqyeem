@@ -41,10 +41,10 @@ router.post(
   service.rejectReservation
 );
 
-// Candidate can delete their own reservation
+// Candidate or Interviewer can delete reservations
 router.delete(
   "/:id",
-  authorize("candidate"),
+  authorize("candidate", "interviewer"),
   validation(reservationIdSchema),
   service.deleteReservation
 );
