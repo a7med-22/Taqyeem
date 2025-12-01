@@ -41,4 +41,12 @@ router.post(
   service.rejectReservation
 );
 
+// Candidate can delete their own reservation
+router.delete(
+  "/:id",
+  authorize("candidate"),
+  validation(reservationIdSchema),
+  service.deleteReservation
+);
+
 export default router;

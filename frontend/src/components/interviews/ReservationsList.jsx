@@ -6,6 +6,7 @@ export default function ReservationsList({
   reservations,
   onAccept,
   onReject,
+  onDelete,
   isInterviewer,
 }) {
   const { t } = useTranslation();
@@ -44,6 +45,7 @@ export default function ReservationsList({
           reservation={reservation}
           onAccept={onAccept}
           onReject={onReject}
+          onDelete={onDelete}
           isInterviewer={isInterviewer}
         />
       ))}
@@ -59,5 +61,6 @@ ReservationsList.propTypes = {
   ),
   onAccept: PropTypes.func,
   onReject: PropTypes.func,
+  onDelete: PropTypes.func,
   isInterviewer: PropTypes.bool,
 };

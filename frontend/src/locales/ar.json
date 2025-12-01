@@ -513,7 +513,12 @@
         "rejectSuccess": "تم رفض الحجز بنجاح.",
         "joinSession": "انضم للجلسة",
         "viewSession": "عرض الجلسة",
-        "sessionLoading": "جاري تحميل الجلسة..."
+        "sessionLoading": "جاري تحميل الجلسة...",
+        "delete": "حذف",
+        "deleteSuccess": "تم حذف الحجز بنجاح",
+        "confirmDeleteTitle": "حذف الحجز",
+        "confirmDelete": "هل أنت متأكد من حذف هذا الحجز؟ لا يمكن التراجع عن هذا الإجراء. سيتاح الموعد مرة أخرى.",
+        "cannotDeleteActiveSession": "لا يمكن حذف الحجز مع جلسة نشطة أو مكتملة"
     },
     "sessions": {
         "interviewSession": "جلسة المقابلة",

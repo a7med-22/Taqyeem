@@ -247,3 +247,76 @@ export const rejectReservation = async (req, res, next) => {
     data: { reservation },
   });
 };
+
+// @desc    Delete reservation (Candidate can delete their own)
+// @route   DELETE /api/v1/reservations/:id
+// @access  Private/Candidate
+export const deleteReservation = async (req, res, next) => {
+  const reservation = await Reservation.findById(req.params.id);
+  if (!reservation) {
+    throw new Error("Reservation not found", { cause: 404 });
+  }
+
+  // Check if user is the candidate who made this reservation
+  if (reservation.candidateId.toString() !== req.user._id.toString()) {
+    throw new Error("Not authorized to delete this reservation", {
+      cause: 403,
+    });
+  }
+
+  // Check if reservation can be deleted
+  // Candidates can delete pending or accepted reservations
+  // Cannot delete rejected reservations (already rejected)
+  if (reservation.status === "rejected") {
+    throw new Error("Cannot delete a rejected reservation", { cause: 400 });
+  }
+
+  // If reservation is accepted, check if there's a session
+  let session = null;
+  if (reservation.status === "accepted") {
+    session = await Session.findOne({ reservationId: reservation._id });
+    
+    // If session exists and is in-progress or completed, don't allow deletion
+    if (session && (session.status === "in-progress" || session.status === "completed")) {
+      throw new Error(
+        "Cannot delete reservation with an active or completed session. Please cancel the session first.",
+        { cause: 400 }
+      );
+    }
+
+    // If session exists and is scheduled, cancel it
+    if (session && session.status === "scheduled") {
+      session.status = "cancelled";
+      session.cancelledReason = "Reservation cancelled by candidate";
+      await session.save();
+    }
+  }
+
+  // Get slot and reverse availability
+  const slot = await Slot.findById(reservation.slotId);
+  if (slot) {
+    slot.currentCandidates = Math.max(0, slot.currentCandidates - 1);
+    
+    // Update slot status based on current candidates
+    if (slot.currentCandidates === 0) {
+      slot.status = "available";
+    } else if (slot.currentCandidates < slot.maxCandidates) {
+      slot.status = "pending";
+    } else {
+      slot.status = "booked";
+    }
+    await slot.save();
+  }
+
+  // Delete the reservation
+  await Reservation.findByIdAndDelete(req.params.id);
+
+  successResponse({
+    res,
+    message: "Reservation deleted successfully",
+    data: {
+      reservation: { _id: reservation._id },
+      sessionCancelled: session ? session.status === "cancelled" : false,
+    },
+  });
+};

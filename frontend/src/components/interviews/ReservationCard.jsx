@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Video } from "lucide-react";
+import { Trash2, Video } from "lucide-react";
 import { formatDate, formatTime } from "../../utils/helpers.js";
 import { Button } from "../ui/Button";
 import {
@@ -18,6 +18,7 @@ export default function ReservationCard({
   reservation,
   onAccept,
   onReject,
+  onDelete,
   isInterviewer,
 }) {
   const { t, i18n } = useTranslation();
@@ -222,8 +223,44 @@ export default function ReservationCard({
                   {t("reservations.sessionLoading")}
                 </Button>
               )}
+              {!isInterviewer && onDelete && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDelete(reservation._id)}
+                  disabled={
+                    session?.status === "in-progress" ||
+                    session?.status === "completed"
+                  }
+                  title={
+                    session?.status === "in-progress" ||
+                    session?.status === "completed"
+                      ? t("reservations.cannotDeleteActiveSession")
+                      : t("reservations.delete")
+                  }
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              )}
             </div>
           )}
+
+          {/* Delete button for pending reservations (candidates only) */}
+          {!isInterviewer &&
+            onDelete &&
+            reservation.status === "pending" && (
+              <div className="flex gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => onDelete(reservation._id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t("reservations.delete")}
+                </Button>
+              </div>
+            )}
         </div>
       </CardContent>
     </Card>
@@ -253,5 +290,6 @@ ReservationCard.propTypes = {
   }).isRequired,
   onAccept: PropTypes.func,
   onReject: PropTypes.func,
+  onDelete: PropTypes.func,
   isInterviewer: PropTypes.bool,
 };

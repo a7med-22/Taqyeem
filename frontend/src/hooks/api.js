@@ -418,6 +418,25 @@ export const useRejectReservation = () => {
   });
 };
 
+export const useDeleteReservation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: reservationsAPI.deleteReservation,
+    onSuccess: async () => {
+      // Invalidate and refetch reservations immediately
+      await queryClient.invalidateQueries({ queryKey: ["my-reservations"] });
+      await queryClient.refetchQueries({ queryKey: ["my-reservations"] });
+      
+      // Invalidate other related queries
+      queryClient.invalidateQueries({ queryKey: ["pending-reservations"] });
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["slots"] });
+      queryClient.invalidateQueries({ queryKey: ["interviewer-slots"] });
+    },
+  });
+};
+
 // Sessions hooks
 export const useMySessions = (params) => {
   return useQuery({

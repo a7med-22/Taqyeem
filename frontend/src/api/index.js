@@ -77,6 +77,7 @@ export const reservationsAPI = {
   getPendingReservations: () => api.get("/reservations/pending"),
   acceptReservation: (id) => api.post(`/reservations/${id}/accept`),
   rejectReservation: (id, data) => api.post(`/reservations/${id}/reject`, data),
+  deleteReservation: (id) => api.delete(`/reservations/${id}`),
 };
 
 // Sessions API

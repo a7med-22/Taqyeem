@@ -23,6 +23,7 @@ import { formatTime } from "../utils/helpers.js";
 import {
   useAcceptReservation,
   useCreateReservation,
+  useDeleteReservation,
   useDeleteSchedule,
   useInterviewers,
   useMyReservations,
@@ -44,6 +45,7 @@ export default function InterviewsPage() {
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [scheduleToDelete, setScheduleToDelete] = useState(null);
   const [reservationToReject, setReservationToReject] = useState(null);
+  const [reservationToDelete, setReservationToDelete] = useState(null);
 
   const isInterviewer = user?.role === "interviewer";
   const isCandidate = user?.role === "candidate";
@@ -70,6 +72,7 @@ export default function InterviewsPage() {
   const createReservation = useCreateReservation();
   const acceptReservation = useAcceptReservation();
   const rejectReservation = useRejectReservation();
+  const deleteReservation = useDeleteReservation();
   const deleteSchedule = useDeleteSchedule();
 
   if (!isAuthenticated) {
@@ -168,6 +171,28 @@ export default function InterviewsPage() {
     setReservationToReject(null);
   };
 
+  const handleDeleteReservation = (id) => {
+    setReservationToDelete(id);
+  };
+
+  const confirmDeleteReservation = async () => {
+    if (!reservationToDelete) return;
+
+    try {
+      await deleteReservation.mutateAsync(reservationToDelete);
+      toast.success(t("reservations.deleteSuccess"), { duration: 4000 });
+      setReservationToDelete(null);
+    } catch (error) {
+      toast.error(error.response?.data?.message || t("common.error"), {
+        duration: 5000,
+      });
+    }
+  };
+
+  const cancelDeleteReservation = () => {
+    setReservationToDelete(null);
+  };
+
   // Separate pending and accepted reservations for proper color coding
   const pendingReservationSlotIds =
     myReservations
@@ -240,6 +265,7 @@ export default function InterviewsPage() {
                 <ReservationsList
                   reservations={myReservations}
                   isInterviewer={false}
+                  onDelete={handleDeleteReservation}
                 />
               </CardContent>
             </Card>
@@ -604,6 +630,19 @@ export default function InterviewsPage() {
         onConfirm={confirmRejectReservation}
         candidateName={reservationToReject?.candidateName}
         isLoading={rejectReservation.isPending}
+      />
+
+      {/* Delete Reservation Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={!!reservationToDelete}
+        onClose={cancelDeleteReservation}
+        onConfirm={confirmDeleteReservation}
+        title={t("reservations.confirmDeleteTitle")}
+        message={t("reservations.confirmDelete")}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        loadingLabel={t("common.deleting")}
+        isLoading={deleteReservation.isPending}
       />
     </div>
   );

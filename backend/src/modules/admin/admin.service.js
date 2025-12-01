@@ -511,10 +511,37 @@ export const deleteReservation = async (req, res, next) => {
 
     // Admin can delete any reservation (no restriction)
 
+    // If reservation is accepted, check if there's a session
+    let session = null;
+    if (reservation.status === "accepted") {
+      session = await Session.findOne({ reservationId: reservation._id });
+      
+      // If session exists and is scheduled, cancel it
+      if (session && session.status === "scheduled") {
+        session.status = "cancelled";
+        session.cancelledReason = "Reservation deleted by admin";
+        await session.save();
+      }
+    }
+
+    // Get slot and reverse availability
+    const slot = await Slot.findById(reservation.slotId);
+    if (slot) {
+      slot.currentCandidates = Math.max(0, slot.currentCandidates - 1);
+      
+      // Update slot status based on current candidates
+      if (slot.currentCandidates === 0) {
+        slot.status = "available";
+      } else if (slot.currentCandidates < slot.maxCandidates) {
+        slot.status = "pending";
+      } else {
+        slot.status = "booked";
+      }
+      await slot.save();
+    }
+
     // Delete the reservation
     await Reservation.findByIdAndDelete(req.params.id);
-
-    // Note: We don't delete the session or slot as they are historical records
 
     successResponse({
       res,

@@ -508,7 +508,12 @@
         "rejectSuccess": "Reservation rejected successfully.",
         "joinSession": "Join Session",
         "viewSession": "View Session",
-        "sessionLoading": "Loading session..."
+        "sessionLoading": "Loading session...",
+        "delete": "Delete",
+        "deleteSuccess": "Reservation deleted successfully",
+        "confirmDeleteTitle": "Delete Reservation",
+        "confirmDelete": "Are you sure you want to delete this reservation? This action cannot be undone. The slot will become available again.",
+        "cannotDeleteActiveSession": "Cannot delete reservation with an active or completed session"
     },
     "sessions": {
         "interviewSession": "Interview Session",
