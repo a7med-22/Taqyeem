@@ -190,6 +190,11 @@ export default function SessionPage() {
                 sessionId={id}
                 onCallEnd={handleCallEnd}
                 userName={user?.name}
+                remoteUserName={
+                  isInterviewer
+                    ? session?.candidateId?.name
+                    : session?.interviewerId?.name
+                }
                 isOwner={isInterviewer}
               />
             </div>

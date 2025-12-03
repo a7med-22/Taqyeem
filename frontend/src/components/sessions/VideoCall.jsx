@@ -14,6 +14,7 @@ export default function VideoCall({
   sessionId,
   onCallEnd,
   userName,
+  remoteUserName: initialRemoteUserName,
   isOwner = false,
 }) {
   const { t } = useTranslation();
@@ -25,7 +26,7 @@ export default function VideoCall({
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [remoteUserName, setRemoteUserName] = useState("");
+  const [remoteUserName, setRemoteUserName] = useState(initialRemoteUserName || "");
   const [callEndedByInterviewer, setCallEndedByInterviewer] = useState(false);
 
   const localVideoRef = useRef(null);
@@ -132,10 +133,8 @@ export default function VideoCall({
             remoteVideoRef.current.srcObject = remoteStream;
           }
           setIsConnected(true);
-          // If we have a remote stream but no name yet, set a default
-          if (!remoteUserName && event.track.kind === "video") {
-            setRemoteUserName("Connected User");
-          }
+          // Remote stream connected - name should already be set from session data or socket event
+          // Don't set default "Connected User" as we prefer to show actual name or nothing
         };
 
         // Handle ICE candidates
@@ -181,7 +180,10 @@ export default function VideoCall({
         // Handle user joined
         socket.on("user-joined", ({ userId, userName: name }) => {
           console.log("User joined:", userId, name);
-          setRemoteUserName(name || "Remote User");
+          // Only update if we don't already have a name or if the name is more specific
+          if (name && (!remoteUserName || remoteUserName === "Connected User" || remoteUserName === "Remote User")) {
+            setRemoteUserName(name);
+          }
         });
 
         // Handle incoming offer
@@ -352,6 +354,13 @@ export default function VideoCall({
       isOfferSentRef.current = false;
     };
   }, [socket, sessionId, t]);
+
+  // Update remote user name when initial prop changes (e.g., when session data loads)
+  useEffect(() => {
+    if (initialRemoteUserName) {
+      setRemoteUserName(initialRemoteUserName);
+    }
+  }, [initialRemoteUserName]);
 
   const toggleMute = () => {
     if (localStreamRef.current) {
@@ -568,14 +577,21 @@ export default function VideoCall({
             <VideoOff className="w-8 h-8 text-white" />
           </div>
         )}
+        {/* Local User Name (overlay on PiP video) */}
+        {userName && (
+          <div className="absolute top-2 left-2 right-2 z-10 text-white bg-black/70 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-medium shadow-md">
+            <span className="text-white">{userName}</span>
+            <span className="text-white/80 ml-1">({t("session.you", { defaultValue: "You" })})</span>
+          </div>
+        )}
       </div>
 
-      {/* User Names */}
-      <div className="absolute top-4 left-4 text-white bg-black/50 px-3 py-1 rounded-lg text-sm">
-        {remoteUserName || (isConnected 
-          ? t("session.connected", { defaultValue: "Connected" })
-          : t("session.waiting", { defaultValue: "Waiting for user..." }))}
-      </div>
+      {/* Remote User Name (on main video) */}
+      {remoteUserName && (
+        <div className="absolute top-4 left-4 z-10 text-white bg-black/70 backdrop-blur-md px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl border border-white/20">
+          {remoteUserName}
+        </div>
+      )}
 
       {/* Controls */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
