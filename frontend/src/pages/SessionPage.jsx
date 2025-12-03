@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Video, Loader2, CheckCircle2, PhoneOff } from "lucide-react";
+import { ArrowLeft, ArrowRight, Video, Loader2, CheckCircle2, PhoneOff } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import VideoCall from "../components/sessions/VideoCall.jsx";
@@ -184,7 +184,11 @@ export default function SessionPage() {
               size="sm"
               onClick={() => navigate("/interviews")}
             >
-              <ArrowLeft className="w-4 h-4" />
+              {isRTL ? (
+                <ArrowRight className="w-4 h-4" />
+              ) : (
+                <ArrowLeft className="w-4 h-4" />
+              )}
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-secondary-900">

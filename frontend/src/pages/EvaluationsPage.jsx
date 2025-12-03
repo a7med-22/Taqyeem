@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Loader2, ArrowLeft, Star } from "lucide-react";
+import { CheckCircle2, Loader2, ArrowLeft, ArrowRight, Star } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Card";
 import PageHeader from "../components/ui/PageHeader";
@@ -65,7 +65,11 @@ export default function EvaluationsPage() {
             size="sm"
             onClick={() => navigate(ROUTES.DASHBOARD)}
           >
-            <ArrowLeft className="w-4 h-4" />
+            {isRTL ? (
+              <ArrowRight className="w-4 h-4" />
+            ) : (
+              <ArrowLeft className="w-4 h-4" />
+            )}
           </Button>
           <PageHeader
             title={t("evaluations.myEvaluations", {
