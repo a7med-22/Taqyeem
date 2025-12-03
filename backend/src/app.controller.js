@@ -1,6 +1,7 @@
 import express from "express";
 
 // Import module routes
+import adminRoutes from "./modules/admin/admin.controller.js";
 import authRoutes from "./modules/auth/auth.controller.js";
 import dayRoutes from "./modules/day/day.controller.js";
 import evaluationRoutes from "./modules/evaluation/evaluation.controller.js";
@@ -12,7 +13,6 @@ import scheduleRoutes from "./modules/schedule/schedule.controller.js";
 import sessionRoutes from "./modules/session/session.controller.js";
 import slotRoutes from "./modules/slot/slot.controller.js";
 import userRoutes from "./modules/user/user.controller.js";
-import adminRoutes from "./modules/admin/admin.controller.js";
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.get("/", (req, res) => {
       feedbacks: "/api/v1/feedbacks",
       learn: "/api/v1/learn",
     },
-    documentation: "Visit /health for API status",
+    documentation: "Visit /api-docs for Swagger API documentation",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
   });
