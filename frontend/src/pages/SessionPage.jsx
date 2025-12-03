@@ -59,6 +59,24 @@ export default function SessionPage() {
   };
 
   const handleJoinCall = () => {
+    if (callEndedByInterviewer) {
+      toast.error(
+        t("sessions.callAlreadyEnded", {
+          defaultValue: "The call has already been ended.",
+        })
+      );
+      return;
+    }
+    
+    if (session?.status === "cancelled") {
+      toast.error(
+        t("sessions.sessionCancelled", {
+          defaultValue: "This session has been cancelled.",
+        })
+      );
+      return;
+    }
+    
     if (session?.status === "in-progress") {
       setIsCallActive(true);
     } else {
@@ -148,7 +166,10 @@ export default function SessionPage() {
   }
 
   const canJoinCall =
-    session?.status === "in-progress" && !isCallActive && !callEndedByInterviewer;
+    session?.status === "in-progress" && 
+    !isCallActive && 
+    !callEndedByInterviewer &&
+    session?.status !== "cancelled";
   const showVideoCall = isCallActive && session?.status === "in-progress" && !callEndedByInterviewer;
   const showEvaluation = session?.status === "completed" && isCandidate;
 

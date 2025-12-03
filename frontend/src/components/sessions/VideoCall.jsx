@@ -370,27 +370,25 @@ export default function VideoCall({
   }, [initialRemoteUserName]);
 
   const toggleMute = () => {
-    if (localStreamRef.current) {
-      const audioTrack = localStreamRef.current.getAudioTracks()[0];
-      if (audioTrack) {
-        audioTrack.enabled = !audioTrack.enabled;
-        setIsMuted(!audioTrack.enabled);
-      }
+    if (callEndedByInterviewer || !localStreamRef.current) return;
+    const audioTrack = localStreamRef.current.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+      setIsMuted(!audioTrack.enabled);
     }
   };
 
   const toggleVideo = () => {
-    if (localStreamRef.current) {
-      const videoTrack = localStreamRef.current.getVideoTracks()[0];
-      if (videoTrack) {
-        videoTrack.enabled = !videoTrack.enabled;
-        setIsVideoOff(!videoTrack.enabled);
-      }
+    if (callEndedByInterviewer || !localStreamRef.current) return;
+    const videoTrack = localStreamRef.current.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+      setIsVideoOff(!videoTrack.enabled);
     }
   };
 
   const toggleScreenShare = async () => {
-    if (!peerConnectionRef.current || !localStreamRef.current) return;
+    if (callEndedByInterviewer || !peerConnectionRef.current || !localStreamRef.current) return;
 
     try {
       if (isScreenSharing) {
@@ -604,6 +602,7 @@ export default function VideoCall({
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
         <Button
           onClick={toggleMute}
+          disabled={callEndedByInterviewer}
           variant={isMuted ? "destructive" : "secondary"}
           size="sm"
           className="rounded-full w-12 h-12 p-0"
@@ -616,6 +615,7 @@ export default function VideoCall({
         </Button>
         <Button
           onClick={toggleVideo}
+          disabled={callEndedByInterviewer}
           variant={isVideoOff ? "destructive" : "secondary"}
           size="sm"
           className="rounded-full w-12 h-12 p-0"
@@ -626,16 +626,15 @@ export default function VideoCall({
             <Video className="w-5 h-5" />
           )}
         </Button>
-        {isOwner && (
-          <Button
-            onClick={toggleScreenShare}
-            variant={isScreenSharing ? "default" : "secondary"}
-            size="sm"
-            className="rounded-full w-12 h-12 p-0"
-          >
-            <Monitor className="w-5 h-5" />
-          </Button>
-        )}
+        <Button
+          onClick={toggleScreenShare}
+          disabled={callEndedByInterviewer}
+          variant={isScreenSharing ? "default" : "secondary"}
+          size="sm"
+          className="rounded-full w-12 h-12 p-0"
+        >
+          <Monitor className="w-5 h-5" />
+        </Button>
         <Button
           onClick={leaveCall}
           variant="destructive"
