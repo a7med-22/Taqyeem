@@ -13,6 +13,7 @@ import { useAuth } from "../../hooks/useAuth";
 export default function VideoCall({
   sessionId,
   onCallEnd,
+  onCallEndedByInterviewer,
   userName,
   remoteUserName: initialRemoteUserName,
   isOwner = false,
@@ -260,6 +261,12 @@ export default function VideoCall({
             // Show notification and set state to display message
             setCallEndedByInterviewer(true);
             setIsConnected(false);
+            
+            // Notify parent component (SessionPage) that call was ended by interviewer
+            if (onCallEndedByInterviewer) {
+              onCallEndedByInterviewer();
+            }
+            
             toast.info(
               t("session.callEndedByInterviewer", {
                 defaultValue: `${endedByName || "Interviewer"} ended the call`,

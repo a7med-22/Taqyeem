@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Video, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Video, Loader2, CheckCircle2, PhoneOff } from "lucide-react";
 import { Button } from "../components/ui/Button";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.jsx";
 import VideoCall from "../components/sessions/VideoCall.jsx";
@@ -13,6 +13,7 @@ import {
   useStartSession,
   useCompleteSession,
 } from "../hooks/api.js";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../hooks/useAuth.js";
 import toast from "react-hot-toast";
 import { formatDate, formatTime } from "../utils/helpers.js";
@@ -29,13 +30,16 @@ export default function SessionPage() {
     isLoading: sessionLoading,
     isError: sessionError,
     error: sessionErrorData,
+    refetch: refetchSession,
   } = useSession(id);
   
+  const queryClient = useQueryClient();
   const startSession = useStartSession();
   const completeSession = useCompleteSession();
 
   const [isCallActive, setIsCallActive] = useState(false);
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [callEndedByInterviewer, setCallEndedByInterviewer] = useState(false);
 
   const isInterviewer = user?.role === "interviewer";
   const isCandidate = user?.role === "candidate";
@@ -71,7 +75,20 @@ export default function SessionPage() {
     if (isInterviewer) {
       // Show completion dialog
       setShowCompleteDialog(true);
+    } else {
+      // For candidates: refresh session data to get updated status
+      // The interviewer may have completed the session
+      await refetchSession();
     }
+  };
+
+  const handleCallEndedByInterviewer = () => {
+    // Called when candidate receives call-ended event from interviewer
+    setCallEndedByInterviewer(true);
+    setIsCallActive(false);
+    // Refresh session data to get latest status
+    queryClient.invalidateQueries(["session", id]);
+    refetchSession();
   };
 
   const handleConfirmComplete = async () => {
@@ -131,8 +148,8 @@ export default function SessionPage() {
   }
 
   const canJoinCall =
-    session?.status === "in-progress" && !isCallActive;
-  const showVideoCall = isCallActive && session?.status === "in-progress";
+    session?.status === "in-progress" && !isCallActive && !callEndedByInterviewer;
+  const showVideoCall = isCallActive && session?.status === "in-progress" && !callEndedByInterviewer;
   const showEvaluation = session?.status === "completed" && isCandidate;
 
   return (
@@ -189,6 +206,7 @@ export default function SessionPage() {
               <VideoCall
                 sessionId={id}
                 onCallEnd={handleCallEnd}
+                onCallEndedByInterviewer={handleCallEndedByInterviewer}
                 userName={user?.name}
                 remoteUserName={
                   isInterviewer
@@ -242,6 +260,24 @@ export default function SessionPage() {
             <div className="w-80">
               <EvaluationDisplay sessionId={id} />
             </div>
+          </div>
+        ) : callEndedByInterviewer ? (
+          <div className="bg-white rounded-2xl border border-secondary-200 p-8 text-center">
+            <PhoneOff className="w-16 h-16 mx-auto text-secondary-400 mb-4" />
+            <h3 className="text-lg font-semibold text-secondary-900 mb-2">
+              {t("sessions.callEnded", {
+                defaultValue: "Call Ended",
+              })}
+            </h3>
+            <p className="text-secondary-600">
+              {session.status === "completed"
+                ? t("sessions.sessionCompletedMessage", {
+                    defaultValue: "The session has been completed. Your evaluation results will be available soon.",
+                  })
+                : t("sessions.callEndedMessage", {
+                    defaultValue: "The interviewer has ended the call. The session may be completed shortly.",
+                  })}
+            </p>
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-secondary-200 p-8 text-center">
