@@ -4,9 +4,13 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { createServer } from "http";
+import swaggerUi from "swagger-ui-express";
 
 // Import database connection
 import connectDB from "./src/DB/connection.js";
+
+// Import Swagger configuration
+import swaggerSpec from "./src/config/swagger/swagger.js";
 
 // Import app controller (all routes)
 import appController from "./src/app.controller.js";
@@ -94,6 +98,30 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 if (process.env.VERCEL !== "1" && !process.env.VERCEL_ENV) {
   connectDB();
 }
+
+// Swagger API Documentation
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Taqyeem API Documentation",
+    customfavIcon: "/favicon.ico",
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+    },
+  })
+);
+
+// Swagger JSON endpoint
+app.get("/api-docs.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpec);
+});
 
 // Use app controller for all routes
 app.use("/", appController);
