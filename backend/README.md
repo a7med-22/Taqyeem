@@ -86,8 +86,9 @@ backend/
 │   │       ├── user.controller.js
 │   │       ├── user.service.js
 │   │       └── user.validation.js
-│   ├── socket/
-│   │   └── socketServer.js  # Socket.io server setup
+│   ├── service/
+│   │   └── socket/           # Socket.io service
+│   │       └── socket.service.js
 │   └── utils/
 │       ├── Encryption/      # Encryption utilities
 │       ├── Hash/            # Password hashing

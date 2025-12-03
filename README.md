@@ -442,8 +442,9 @@ Taqyeem/
 │   │   │   ├── session/
 │   │   │   ├── slot/
 │   │   │   └── user/
-│   │   ├── socket/           # Socket.io server
-│   │   │   └── socketServer.js
+│   │   ├── service/          # Services
+│   │   │   └── socket/      # Socket.io service
+│   │   │       └── socket.service.js
 │   │   └── utils/            # Utility functions
 │   └── scripts/              # Utility scripts
 ├── frontend/                  # React application

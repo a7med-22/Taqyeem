@@ -1,9 +1,9 @@
 /**
- * Socket.io server for WebRTC signaling and real-time evaluation updates
+ * Socket.io service for WebRTC signaling and real-time evaluation updates
  */
 
-import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import { Server } from "socket.io";
 
 /**
  * Initialize Socket.io server
@@ -50,9 +50,7 @@ export function initializeSocket(server) {
         await socket.join(roomName);
         socket.sessionId = sessionId;
 
-        console.log(
-          `👤 User ${socket.userId} joined session ${sessionId}`
-        );
+        console.log(`👤 User ${socket.userId} joined session ${sessionId}`);
 
         // Get all existing participants in the room
         const socketsInRoom = await io.in(roomName).fetchSockets();
@@ -178,5 +176,3 @@ export function initializeSocket(server) {
 
   return io;
 }
-
-

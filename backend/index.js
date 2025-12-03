@@ -16,7 +16,10 @@ import { notFound } from "./src/middleware/index.js";
 import { globalErrorHandling } from "./src/utils/response.js";
 
 // Import Socket.io server
-import { initializeSocket } from "./src/socket/socketServer.js";
+import { initializeSocket } from "./src/service/socket/socket.service.js";
+
+// Import Swagger setup (optional - comment out if swagger is not configured)
+// import { setupSwagger } from "./swagger/setup.js";
 
 // Load environment variables
 dotenv.config();
@@ -88,6 +91,9 @@ app.use("/api/", limiter);
 // Body parsing middleware
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+// Swagger documentation setup (before routes)
+// setupSwagger(app); // Uncomment if swagger is configured
 
 // Connect to MongoDB (only for non-serverless environments)
 // In Vercel serverless, connection is handled in api/index.js
