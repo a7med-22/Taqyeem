@@ -591,9 +591,9 @@ export default function VideoCall({
         )}
       </div>
 
-      {/* Remote User Name (on main video) */}
+      {/* Remote User Name (compact, corner position - won't interfere with screen sharing) */}
       {remoteUserName && (
-        <div className="absolute top-4 left-4 z-10 text-white bg-black/70 backdrop-blur-md px-4 py-2.5 rounded-xl text-sm font-semibold shadow-xl border border-white/20">
+        <div className="absolute top-3 left-3 z-10 text-white bg-black/60 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-medium shadow-md max-w-[150px] truncate">
           {remoteUserName}
         </div>
       )}
@@ -647,7 +647,7 @@ export default function VideoCall({
 
       {/* Connection Status */}
       {!isConnected && (
-        <div className="absolute top-4 right-4 bg-yellow-500 text-white px-3 py-1 rounded-lg text-xs">
+        <div className="absolute top-16 right-4 bg-yellow-500 text-white px-3 py-1 rounded-lg text-xs">
           {t("session.connecting", { defaultValue: "Connecting..." })}
         </div>
       )}
