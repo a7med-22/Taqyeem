@@ -26,6 +26,7 @@ export default function VideoCall({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [remoteUserName, setRemoteUserName] = useState("");
+  const [callEndedByInterviewer, setCallEndedByInterviewer] = useState(false);
 
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
@@ -131,6 +132,10 @@ export default function VideoCall({
             remoteVideoRef.current.srcObject = remoteStream;
           }
           setIsConnected(true);
+          // If we have a remote stream but no name yet, set a default
+          if (!remoteUserName && event.track.kind === "video") {
+            setRemoteUserName("Connected User");
+          }
         };
 
         // Handle ICE candidates
@@ -234,6 +239,33 @@ export default function VideoCall({
           );
         });
 
+        // Handle call ended (when interviewer ends the call for everyone)
+        socket.on("call-ended", ({ endedBy, endedByRole, endedByName }) => {
+          console.log("Call ended by:", endedBy, endedByRole);
+          // If the interviewer ended the call, notify the candidate
+          if (endedByRole === "interviewer") {
+            // Stop media streams immediately (for privacy and resources)
+            if (localStreamRef.current) {
+              localStreamRef.current.getTracks().forEach((track) => track.stop());
+            }
+            if (screenStreamRef.current) {
+              screenStreamRef.current.getTracks().forEach((track) => track.stop());
+            }
+            if (peerConnectionRef.current) {
+              peerConnectionRef.current.close();
+            }
+            
+            // Show notification and set state to display message
+            setCallEndedByInterviewer(true);
+            setIsConnected(false);
+            toast.info(
+              t("session.callEndedByInterviewer", {
+                defaultValue: `${endedByName || "Interviewer"} ended the call`,
+              })
+            );
+          }
+        });
+
         // Create and send offer (only once)
         if (!isOfferSentRef.current) {
           const offer = await pc.createOffer();
@@ -314,6 +346,7 @@ export default function VideoCall({
         socket.off("answer");
         socket.off("ice-candidate");
         socket.off("user-left");
+        socket.off("call-ended");
       }
 
       isOfferSentRef.current = false;
@@ -456,6 +489,10 @@ export default function VideoCall({
       peerConnectionRef.current.close();
     }
     if (socket) {
+      // If interviewer ends the call, notify all participants
+      if (isOwner) {
+        socket.emit("call-ended", { sessionId });
+      }
       socket.emit("leave-session", { sessionId });
     }
     onCallEnd();
@@ -479,6 +516,28 @@ export default function VideoCall({
           <p className="text-red-400 mb-4">{error}</p>
           <Button onClick={leaveCall} variant="outline">
             {t("session.leave", { defaultValue: "Leave" })}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Show overlay if call was ended by interviewer
+  if (callEndedByInterviewer) {
+    return (
+      <div className="w-full h-full bg-black rounded-lg flex items-center justify-center">
+        <div className="text-center text-white p-6 max-w-md">
+          <PhoneOff className="w-16 h-16 mx-auto mb-4 text-secondary-400" />
+          <h3 className="text-xl font-semibold mb-2">
+            {t("session.callEnded", { defaultValue: "Call Ended" })}
+          </h3>
+          <p className="text-secondary-300 mb-6">
+            {t("session.callEndedByInterviewerMessage", {
+              defaultValue: "The interviewer has ended the call.",
+            })}
+          </p>
+          <Button onClick={leaveCall} variant="default" size="lg">
+            {t("session.close", { defaultValue: "Close" })}
           </Button>
         </div>
       </div>
@@ -513,7 +572,9 @@ export default function VideoCall({
 
       {/* User Names */}
       <div className="absolute top-4 left-4 text-white bg-black/50 px-3 py-1 rounded-lg text-sm">
-        {remoteUserName || t("session.waiting", { defaultValue: "Waiting for user..." })}
+        {remoteUserName || (isConnected 
+          ? t("session.connected", { defaultValue: "Connected" })
+          : t("session.waiting", { defaultValue: "Waiting for user..." }))}
       </div>
 
       {/* Controls */}

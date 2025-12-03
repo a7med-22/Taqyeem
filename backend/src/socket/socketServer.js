@@ -54,7 +54,28 @@ export function initializeSocket(server) {
           `👤 User ${socket.userId} joined session ${sessionId}`
         );
 
-        // Notify others in the session
+        // Get all existing participants in the room
+        const socketsInRoom = await io.in(roomName).fetchSockets();
+        const existingParticipants = socketsInRoom
+          .filter((s) => s.id !== socket.id && s.userId)
+          .map((s) => ({
+            userId: s.userId,
+            userRole: s.userRole,
+            userName: s.userName,
+          }));
+
+        // Notify the new user about existing participants
+        if (existingParticipants.length > 0) {
+          existingParticipants.forEach((participant) => {
+            socket.emit("user-joined", {
+              userId: participant.userId,
+              userRole: participant.userRole,
+              userName: participant.userName,
+            });
+          });
+        }
+
+        // Notify others in the session about the new user
         socket.to(roomName).emit("user-joined", {
           userId: socket.userId,
           userRole: socket.userRole,
@@ -108,6 +129,18 @@ export function initializeSocket(server) {
         evaluationData,
         updatedBy: socket.userId,
         updatedByRole: socket.userRole,
+      });
+    });
+
+    // End call (typically called by interviewer to end call for all participants)
+    socket.on("call-ended", ({ sessionId }) => {
+      const roomName = `session-${sessionId}`;
+      console.log(`📞 Call ended by ${socket.userId} in session ${sessionId}`);
+      // Notify all participants in the room that the call has ended
+      io.to(roomName).emit("call-ended", {
+        endedBy: socket.userId,
+        endedByRole: socket.userRole,
+        endedByName: socket.userName,
       });
     });
 
