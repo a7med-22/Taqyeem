@@ -26,17 +26,38 @@ export const createReservation = async (req, res, next) => {
 
   // Check if candidate already has an active reservation with this interviewer
   // This ensures each candidate can only have ONE active reservation per interviewer
-  const existingActiveReservation = await Reservation.findOne({
+  // A reservation is considered active if:
+  // - It's pending (no session yet)
+  // - It's accepted AND has a session that is scheduled or in-progress (not completed/cancelled)
+  const existingReservations = await Reservation.find({
     candidateId: req.user._id,
     interviewerId: slot.interviewerId,
     status: { $in: ["pending", "accepted"] },
   });
 
-  if (existingActiveReservation) {
-    throw new Error(
-      "You already have an active reservation with this interviewer. Please cancel or complete your existing reservation before booking a new slot with this interviewer.",
-      { cause: 400 }
-    );
+  // Check each reservation to see if it's truly active
+  for (const reservation of existingReservations) {
+    if (reservation.status === "pending") {
+      // Pending reservations are always active
+      throw new Error(
+        "You already have an active reservation with this interviewer. Please cancel or complete your existing reservation before booking a new slot with this interviewer.",
+        { cause: 400 }
+      );
+    } else if (reservation.status === "accepted") {
+      // For accepted reservations, check the session status
+      const session = await Session.findOne({ reservationId: reservation._id });
+      if (
+        !session ||
+        (session.status !== "completed" && session.status !== "cancelled")
+      ) {
+        // No session yet, or session is still active (scheduled/in-progress)
+        throw new Error(
+          "You already have an active reservation with this interviewer. Please cancel or complete your existing reservation before booking a new slot with this interviewer.",
+          { cause: 400 }
+        );
+      }
+      // If session is completed or cancelled, this reservation is not active, so continue checking
+    }
   }
 
   // Delete any rejected reservation for this slot to avoid unique index conflict
@@ -110,7 +131,8 @@ export const getMyReservations = async (req, res, next) => {
   // Create a map of reservationId -> sessionId
   const sessionMap = {};
   sessions.forEach((session) => {
-    const reservationId = session.reservationId?.toString() || session.reservationId;
+    const reservationId =
+      session.reservationId?.toString() || session.reservationId;
     sessionMap[reservationId] = session._id.toString();
   });
 
@@ -258,9 +280,11 @@ export const deleteReservation = async (req, res, next) => {
   }
 
   // Check authorization: candidate can delete their own, interviewer can delete their received reservations
-  const isCandidate = reservation.candidateId.toString() === req.user._id.toString();
-  const isInterviewer = reservation.interviewerId.toString() === req.user._id.toString();
-  
+  const isCandidate =
+    reservation.candidateId.toString() === req.user._id.toString();
+  const isInterviewer =
+    reservation.interviewerId.toString() === req.user._id.toString();
+
   if (!isCandidate && !isInterviewer) {
     throw new Error("Not authorized to delete this reservation", {
       cause: 403,
@@ -278,9 +302,12 @@ export const deleteReservation = async (req, res, next) => {
   let session = null;
   if (reservation.status === "accepted") {
     session = await Session.findOne({ reservationId: reservation._id });
-    
+
     // If session exists and is in-progress or completed, don't allow deletion
-    if (session && (session.status === "in-progress" || session.status === "completed")) {
+    if (
+      session &&
+      (session.status === "in-progress" || session.status === "completed")
+    ) {
       throw new Error(
         "Cannot delete reservation with an active or completed session. Please cancel the session first.",
         { cause: 400 }
@@ -290,7 +317,7 @@ export const deleteReservation = async (req, res, next) => {
     // If session exists and is scheduled, cancel it
     if (session && session.status === "scheduled") {
       session.status = "cancelled";
-      session.cancelledReason = isCandidate 
+      session.cancelledReason = isCandidate
         ? "Reservation cancelled by candidate"
         : "Reservation cancelled by interviewer";
       await session.save();
@@ -301,7 +328,7 @@ export const deleteReservation = async (req, res, next) => {
   const slot = await Slot.findById(reservation.slotId);
   if (slot) {
     slot.currentCandidates = Math.max(0, slot.currentCandidates - 1);
-    
+
     // Update slot status based on current candidates
     if (slot.currentCandidates === 0) {
       slot.status = "available";

@@ -1,4 +1,6 @@
 import Session from "../../DB/models/session.model.js";
+import Reservation from "../../DB/models/reservation.model.js";
+import Slot from "../../DB/models/slot.model.js";
 import { successResponse } from "../../utils/index.js";
 
 // @desc    Get my sessions
@@ -162,6 +164,26 @@ export const completeSession = async (req, res, next) => {
   session.notes = notes;
   await session.save();
 
+  // Update slot availability when session is completed
+  // This allows the slot to be booked again by other candidates
+  const reservation = await Reservation.findById(session.reservationId);
+  if (reservation) {
+    const slot = await Slot.findById(reservation.slotId);
+    if (slot) {
+      slot.currentCandidates = Math.max(0, slot.currentCandidates - 1);
+      
+      // Update slot status based on current candidates
+      if (slot.currentCandidates === 0) {
+        slot.status = "available";
+      } else if (slot.currentCandidates < slot.maxCandidates) {
+        slot.status = "pending";
+      } else {
+        slot.status = "booked";
+      }
+      await slot.save();
+    }
+  }
+
   successResponse({
     res,
     message: "Session completed successfully",
@@ -197,6 +219,26 @@ export const cancelSession = async (req, res, next) => {
   session.status = "cancelled";
   session.cancelledReason = cancelledReason;
   await session.save();
+
+  // Update slot availability when session is cancelled
+  // This allows the slot to be booked again by other candidates
+  const reservation = await Reservation.findById(session.reservationId);
+  if (reservation) {
+    const slot = await Slot.findById(reservation.slotId);
+    if (slot) {
+      slot.currentCandidates = Math.max(0, slot.currentCandidates - 1);
+      
+      // Update slot status based on current candidates
+      if (slot.currentCandidates === 0) {
+        slot.status = "available";
+      } else if (slot.currentCandidates < slot.maxCandidates) {
+        slot.status = "pending";
+      } else {
+        slot.status = "booked";
+      }
+      await slot.save();
+    }
+  }
 
   successResponse({
     res,
