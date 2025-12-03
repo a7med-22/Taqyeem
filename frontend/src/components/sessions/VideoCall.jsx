@@ -4,6 +4,7 @@ import { Button } from "../ui/Button";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
 import { useSocket } from "../../hooks/useSocket";
+import { useAuth } from "../../hooks/useAuth";
 
 /**
  * WebRTC Video Call Component
@@ -17,6 +18,7 @@ export default function VideoCall({
 }) {
   const { t } = useTranslation();
   const socket = useSocket();
+  const { user } = useAuth();
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -133,12 +135,12 @@ export default function VideoCall({
 
         // Handle ICE candidates
         pc.onicecandidate = (event) => {
-          if (event.candidate && socket) {
+          if (event.candidate && socket && user?._id) {
             console.log("Sending ICE candidate");
             socket.emit("ice-candidate", {
               sessionId,
               candidate: event.candidate,
-              fromUserId: socket.userId,
+              fromUserId: user._id,
             });
           }
         };
@@ -188,7 +190,7 @@ export default function VideoCall({
             socket.emit("answer", {
               sessionId,
               answer,
-              fromUserId: socket.userId,
+              fromUserId: user?._id,
             });
             console.log("Sent answer");
           } catch (error) {
@@ -239,7 +241,7 @@ export default function VideoCall({
           socket.emit("offer", {
             sessionId,
             offer,
-            fromUserId: socket.userId,
+            fromUserId: user?._id,
           });
           isOfferSentRef.current = true;
           console.log("Sent offer");

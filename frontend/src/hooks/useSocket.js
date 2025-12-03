@@ -22,6 +22,23 @@ export function useSocket() {
       return;
     }
 
+    // If socket already exists and is connected, don't create a new one
+    if (socketRef.current && socketRef.current.connected) {
+      // Update auth token if it changed
+      if (socketRef.current.auth.token !== token) {
+        socketRef.current.auth.token = token;
+        socketRef.current.disconnect();
+        socketRef.current.connect();
+      }
+      return;
+    }
+
+    // Clean up existing socket if it exists but is not connected
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+
     // Extract base URL from API base URL (remove /api/v1)
     const apiBaseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api/v1";

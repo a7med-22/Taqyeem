@@ -7,11 +7,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { evaluationsAPI } from "../../api/index.js";
 import toast from "react-hot-toast";
 import { useSocket } from "../../hooks/useSocket";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const socket = useSocket();
+  const { user } = useAuth();
   const [scores, setScores] = useState({
     communication: 5,
     technical: 5,
@@ -108,7 +110,7 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
 
     const handleEvaluationUpdate = ({ evaluationData, updatedBy, updatedByRole }) => {
       // Only sync if updated by interviewer (or if you want to allow candidate to see updates)
-      if (updatedByRole === "interviewer" && updatedBy !== socket.userId) {
+      if (updatedByRole === "interviewer" && updatedBy !== user?._id) {
         setIsSyncing(true);
         if (evaluationData.scores) {
           setScores((prev) => ({ ...prev, ...evaluationData.scores }));
@@ -128,7 +130,7 @@ export default function LiveEvaluationForm({ sessionId, onEvaluationSubmit }) {
     return () => {
       socket.off("evaluation-update", handleEvaluationUpdate);
     };
-  }, [socket, sessionId]);
+  }, [socket, sessionId, user?._id]);
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
