@@ -47,11 +47,81 @@ const handleUpload = (req, res, next) => {
   next();
 };
 
+// Middleware to parse JSON strings from FormData and clean arrays before validation
+const parseFormDataFields = (req, res, next) => {
+  const parseField = (field) => {
+    if (field === undefined || field === null) return undefined;
+    if (typeof field === "string") {
+      try {
+        return JSON.parse(field);
+      } catch {
+        return field;
+      }
+    }
+    return field;
+  };
+
+  // Strip _id fields from array items (for references and recommendedVideos)
+  const cleanArray = (arr) => {
+    if (!Array.isArray(arr)) return arr;
+    return arr.map(item => {
+      if (typeof item === "object" && item !== null) {
+        const { _id, ...rest } = item;
+        return rest;
+      }
+      return item;
+    });
+  };
+
+  // Only parse if it's FormData (multipart/form-data)
+  if (req.headers["content-type"]?.includes("multipart/form-data")) {
+    // Parse fields that are sent as JSON strings
+    if (req.body.title !== undefined) {
+      req.body.title = parseField(req.body.title);
+    }
+    if (req.body.content !== undefined) {
+      req.body.content = parseField(req.body.content);
+    }
+    if (req.body.tags !== undefined) {
+      req.body.tags = parseField(req.body.tags);
+    }
+    if (req.body.references !== undefined) {
+      req.body.references = parseField(req.body.references);
+    }
+    if (req.body.recommendedVideos !== undefined) {
+      req.body.recommendedVideos = parseField(req.body.recommendedVideos);
+    }
+    
+    // Parse boolean fields
+    if (req.body.featured !== undefined) {
+      req.body.featured = typeof req.body.featured === "string" 
+        ? req.body.featured === "true" 
+        : Boolean(req.body.featured);
+    }
+    if (req.body.isPublished !== undefined) {
+      req.body.isPublished = typeof req.body.isPublished === "string" 
+        ? req.body.isPublished === "true" 
+        : Boolean(req.body.isPublished);
+    }
+  }
+
+  // Clean _id fields from arrays (for both FormData and JSON requests)
+  if (req.body.references !== undefined && Array.isArray(req.body.references)) {
+    req.body.references = cleanArray(req.body.references);
+  }
+  if (req.body.recommendedVideos !== undefined && Array.isArray(req.body.recommendedVideos)) {
+    req.body.recommendedVideos = cleanArray(req.body.recommendedVideos);
+  }
+
+  next();
+};
+
 router.post(
   "/",
   authenticate,
   authorize("admin"),
   handleUpload,
+  parseFormDataFields,
   validation(createEducationalContentSchema),
   service.createEducationalContent
 );
@@ -60,6 +130,7 @@ router.put(
   authenticate,
   authorize("admin"),
   handleUpload,
+  parseFormDataFields,
   validation(updateEducationalContentSchema),
   service.updateEducationalContent
 );

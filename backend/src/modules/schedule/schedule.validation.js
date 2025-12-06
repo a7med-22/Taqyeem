@@ -48,31 +48,36 @@ export const updateScheduleSchema = {
     }),
   }),
   body: Joi.object({
+    date: Joi.date().optional().messages({
+      "date.base": "Date must be a valid date",
+    }),
     startTime: Joi.string()
       .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
+      .optional()
       .messages({
         "string.pattern.base": "Start time must be in HH:MM format",
       }),
     endTime: Joi.string()
       .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
+      .optional()
       .messages({
         "string.pattern.base": "End time must be in HH:MM format",
       }),
-    duration: Joi.number().min(15).max(180).messages({
+    duration: Joi.number().min(15).max(180).optional().messages({
       "number.min": "Duration must be at least 15 minutes",
       "number.max": "Duration cannot exceed 180 minutes",
     }),
-    breakTime: Joi.number().min(0).max(60).messages({
+    breakTime: Joi.number().min(0).max(60).optional().messages({
       "number.min": "Break time cannot be negative",
       "number.max": "Break time cannot exceed 60 minutes",
     }),
-    title: Joi.string().max(100).messages({
+    title: Joi.string().max(100).optional().messages({
       "string.max": "Title cannot be more than 100 characters",
     }),
-    description: Joi.string().max(500).allow("").messages({
+    description: Joi.string().max(500).allow("").optional().messages({
       "string.max": "Description cannot be more than 500 characters",
     }),
-    isActive: Joi.boolean(),
+    isActive: Joi.boolean().optional(),
   }),
 };
 
